@@ -5,7 +5,7 @@ using SabreTools.IO;
 using SabreTools.Models.Compression.LZ;
 using static SabreTools.Models.Compression.LZ.Constants;
 
-namespace BinaryObjectScanner.Compression.LZ
+namespace SabreTools.Compression.LZ
 {
     /// <see href="https://github.com/wine-mirror/wine/blob/master/dlls/kernel32/lzexpand.c"/>
     public class Decompressor
