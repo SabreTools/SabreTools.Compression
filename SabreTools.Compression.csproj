@@ -9,13 +9,13 @@
   
       <!-- Package Properties -->
       <Authors>Matt Nadareski</Authors>
-      <Description>Pretty-printing library for various models</Description>
+      <Description>Clean compression implementations</Description>
       <Copyright>Copyright (c) Matt Nadareski 2022-2023</Copyright>
       <PackageProjectUrl>https://github.com/SabreTools/</PackageProjectUrl>
       <PackageReadmeFile>README.md</PackageReadmeFile>
       <RepositoryUrl>https://github.com/SabreTools/SabreTools.Printing</RepositoryUrl>
       <RepositoryType>git</RepositoryType>
-      <PackageTags>stringbuilder print pretty</PackageTags>
+      <PackageTags>compression decompression lz</PackageTags>
       <PackageLicenseExpression>MIT</PackageLicenseExpression>
     </PropertyGroup>
   
