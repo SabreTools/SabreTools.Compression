@@ -6,7 +6,7 @@ using static SabreTools.Models.MicrosoftCabinet.Constants;
 namespace SabreTools.Compression.LZX
 {
     /// <see href="https://github.com/wine-mirror/wine/blob/master/dlls/cabinet/fdi.c"/>
-    public class Decompressor
+    internal class Decompressor
     {
         /// <summary>
         /// Initialize an LZX decompressor state

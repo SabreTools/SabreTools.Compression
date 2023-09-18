@@ -9,7 +9,7 @@ namespace SabreTools.Compression.Quantum
     /// <see href="https://github.com/wine-mirror/wine/blob/master/dlls/cabinet/fdi.c"/>
     /// <see href="https://github.com/wine-mirror/wine/blob/master/include/fdi.h"/>
     /// <see href="http://www.russotto.net/quantumcomp.html"/>
-    public static class Decompressor
+    internal static class Decompressor
     {
         /// <summary>
         /// Decompress a byte array using a given State

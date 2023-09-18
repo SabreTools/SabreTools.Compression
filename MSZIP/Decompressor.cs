@@ -6,7 +6,7 @@ using static SabreTools.Models.Compression.MSZIP.Constants;
 namespace SabreTools.Compression.MSZIP
 {
     /// <see href="https://github.com/wine-mirror/wine/blob/master/dlls/cabinet/fdi.c"/>
-    public unsafe class Decompressor
+    internal unsafe class Decompressor
     {
         /// <summary>
         /// Decompress a byte array using a given State

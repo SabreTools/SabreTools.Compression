@@ -3,7 +3,7 @@ using static SabreTools.Models.Compression.LZX.Constants;
 namespace SabreTools.Compression.LZX
 {
     /// <see href="https://github.com/wine-mirror/wine/blob/master/dlls/cabinet/cabinet.h"/>
-    public class State
+    internal class State
     {
         /// <summary>
         /// the actual decoding window

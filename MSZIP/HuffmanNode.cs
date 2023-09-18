@@ -1,6 +1,6 @@
 namespace SabreTools.Compression.MSZIP
 {
-    public unsafe struct HuffmanNode
+    internal unsafe struct HuffmanNode
     {
         /// <summary>
         /// Number of extra bits or operation

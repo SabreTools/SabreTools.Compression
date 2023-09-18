@@ -3,7 +3,7 @@ using static SabreTools.Models.Compression.MSZIP.Constants;
 namespace SabreTools.Compression.MSZIP
 {
     /// <see href="https://github.com/wine-mirror/wine/blob/master/dlls/cabinet/cabinet.h"/>
-    public unsafe class State
+    internal unsafe class State
     {
         /// <summary>
         /// Current offset within the window

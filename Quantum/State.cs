@@ -4,7 +4,7 @@ namespace SabreTools.Compression.Quantum
 {
     /// <see href="https://github.com/kyz/libmspack/blob/master/libmspack/mspack/qtmd.c"/>
     /// <see href="https://github.com/wine-mirror/wine/blob/master/dlls/cabinet/cabinet.h"/>
-    public class State
+    internal class State
     {
         /// <summary>
         /// The actual decoding window
