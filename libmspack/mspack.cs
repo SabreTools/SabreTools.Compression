@@ -165,7 +165,7 @@ namespace SabreTools.Compression.libmspack
         /// </summary>
         /// <param name="sys">A custom mspack_system structure, or NULL to use the default</param>
         /// <returns>A <see cref="msoab_compressor"/> or NULL</returns>
-        public static msoab_compressor mspack_create_oab_compressor(mspack_system sys) => throw new NotImplementedException();
+        public static msoab_compressor mspack_create_oab_compressor(mspack_system sys) => null;
 
         /// <summary>
         /// Creates a new OAB decompressor.
@@ -178,7 +178,7 @@ namespace SabreTools.Compression.libmspack
         /// Destroys an existing OAB compressor.
         /// </summary>
         /// <param name="self">The <see cref="msoab_compressor"/> to destroy</param>
-        public static void mspack_destroy_oab_compressor(msoab_compressor self) => throw new NotImplementedException();
+        public static void mspack_destroy_oab_compressor(msoab_compressor self) { }
 
         /// <summary>
         /// Destroys an existing OAB decompressor.
