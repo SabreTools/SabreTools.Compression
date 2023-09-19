@@ -113,7 +113,7 @@ namespace SabreTools.Compression.libmspack
         /// </summary>
         /// <param name="sys">A custom mspack_system structure, or NULL to use the default</param>
         /// <returns>A <see cref="msszdd_compressor"/> or NULL</returns>
-        public static msszdd_compressor mspack_create_szdd_compressor(mspack_system sys) => throw new NotImplementedException();
+        public static msszdd_compressor mspack_create_szdd_compressor(mspack_system sys) => null;
 
         /// <summary>
         /// Creates a new SZDD decompressor.
@@ -126,7 +126,7 @@ namespace SabreTools.Compression.libmspack
         /// Destroys an existing SZDD compressor.
         /// </summary>
         /// <param name="self">The <see cref="msszdd_compressor"/> to destroy</param>
-        public static void mspack_destroy_szdd_compressor(msszdd_compressor self) => throw new NotImplementedException();
+        public static void mspack_destroy_szdd_compressor(msszdd_compressor self) { }
 
         /// <summary>
         /// Destroys an existing SZDD decompressor.
