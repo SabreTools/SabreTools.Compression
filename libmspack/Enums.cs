@@ -2,6 +2,8 @@ using System;
 
 namespace SabreTools.Compression.libmspack
 {
+    #region mspack.h
+
     /// <summary>
     /// Pass to mspack_version()
     /// </summary>
@@ -487,6 +489,19 @@ namespace SabreTools.Compression.libmspack
         /// Size of decompression buffer
         /// </summary>
         MSOABD_PARAM_DECOMPBUF = 0,
+    }
+
+    #endregion
+
+    #endregion
+
+    #region lzss.h
+
+    public enum LZSS_MODE : int
+    {
+        LZSS_MODE_EXPAND = 0,
+        LZSS_MODE_MSHELP = 1,
+        LZSS_MODE_QBASIC = 2,
     }
 
     #endregion
