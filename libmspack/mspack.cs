@@ -139,7 +139,7 @@ namespace SabreTools.Compression.libmspack
         /// </summary>
         /// <param name="sys">A custom mspack_system structure, or NULL to use the default</param>
         /// <returns>A <see cref="mskwaj_compressor"/> or NULL</returns>
-        public static mskwaj_compressor mspack_create_kwaj_compressor(mspack_system sys) => throw new NotImplementedException();
+        public static mskwaj_compressor mspack_create_kwaj_compressor(mspack_system sys) => null;
 
         /// <summary>
         /// Creates a new KWAJ decompressor.
@@ -152,7 +152,7 @@ namespace SabreTools.Compression.libmspack
         /// Destroys an existing KWAJ compressor.
         /// </summary>
         /// <param name="self">The <see cref="mskwaj_compressor"/> to destroy</param>
-        public static void mspack_destroy_kwaj_compressor(mskwaj_compressor self) => throw new NotImplementedException();
+        public static void mspack_destroy_kwaj_compressor(mskwaj_compressor self) { }
 
         /// <summary>
         /// Destroys an existing KWAJ decompressor.
