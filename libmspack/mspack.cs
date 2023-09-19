@@ -87,26 +87,26 @@ namespace SabreTools.Compression.libmspack
         /// </summary>
         /// <param name="sys">A custom mspack_system structure, or NULL to use the default</param>
         /// <returns>A <see cref="mshlp_compressor"/> or NULL</returns>
-        public static mshlp_compressor mspack_create_hlp_compressor(mspack_system sys) => throw new NotImplementedException();
+        public static mshlp_compressor mspack_create_hlp_compressor(mspack_system sys) => null;
 
         /// <summary>
         /// Creates a new HLP decompressor.
         /// </summary>
         /// <param name="sys">A custom mspack_system structure, or NULL to use the default</param>
         /// <returns>A <see cref="mshlp_decompressor"/> or NULL</returns>
-        public static mshlp_decompressor mspack_create_hlp_decompressor(mspack_system sys) => throw new NotImplementedException();
+        public static mshlp_decompressor mspack_create_hlp_decompressor(mspack_system sys) => null;
 
         /// <summary>
         /// Destroys an existing hlp compressor.
         /// </summary>
         /// <param name="self">The <see cref="mshlp_compressor"/> to destroy</param>
-        public static void mspack_destroy_hlp_compressor(mshlp_compressor self) => throw new NotImplementedException();
+        public static void mspack_destroy_hlp_compressor(mshlp_compressor self) { }
 
         /// <summary>
         /// Destroys an existing hlp decompressor.
         /// </summary>
         /// <param name="self">The <see cref="mshlp_decompressor"/> to destroy</param>
-        public static void mspack_destroy_hlp_decompressor(mshlp_decompressor self) => throw new NotImplementedException();
+        public static void mspack_destroy_hlp_decompressor(mshlp_decompressor self) { }
 
         /// <summary>
         /// Creates a new SZDD compressor.
