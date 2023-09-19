@@ -1,6 +1,6 @@
 namespace SabreTools.Compression.libmspack
 {
-    public abstract class mspack
+    public abstract partial class mspack
     {
         /// <summary>
         /// Creates a new CAB compressor.
