@@ -6,5 +6,7 @@ namespace SabreTools.Compression.libmspack
     public class mshlp_decompressor
     {
         public int dummy { get; set; }
+
+        public mspack_system system { get; set; }
     }
 }
