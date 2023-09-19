@@ -7,6 +7,8 @@ namespace SabreTools.Compression.libmspack
     /// </summary>
     public class msszddd_header
     {
+        public mspack_file fh { get; set; }
+
         /// <summary>
         /// The file format
         /// </summary>
