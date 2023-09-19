@@ -9,6 +9,14 @@ namespace SabreTools.Compression.libmspack
     /// <see cref="mspack_destroy_chm_compressor()"/> 
     public abstract class mschm_compressor
     {
+        public mspack_system system { get; set; }
+
+        public string temp_file { get; set; }
+
+        public int use_temp_file { get; set; }
+
+        public MSPACK_ERR error { get; set; }
+
         /// <summary>
         /// Generates a CHM help file.
         /// 
