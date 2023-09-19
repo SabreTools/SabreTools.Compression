@@ -120,8 +120,7 @@ namespace SabreTools.Compression.libmspack
         /// <inheritdoc/>
         public override unsafe void* alloc(int bytes)
         {
-            var arr = new byte[bytes];
-            return (byte*)arr[0];
+            return system.CreateArray<byte>(bytes);
         }
 
         /// <inheritdoc/>
