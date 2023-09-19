@@ -61,26 +61,26 @@ namespace SabreTools.Compression.libmspack
         /// </summary>
         /// <param name="sys">A custom mspack_system structure, or NULL to use the default</param>
         /// <returns>A <see cref="mslit_compressor"/> or NULL</returns>
-        public static mslit_compressor mspack_create_lit_compressor(mspack_system sys) => throw new NotImplementedException();
+        public static mslit_compressor mspack_create_lit_compressor(mspack_system sys) => null;
 
         /// <summary>
         /// Creates a new LIT decompressor.
         /// </summary>
         /// <param name="sys">A custom mspack_system structure, or NULL to use the default</param>
         /// <returns>A <see cref="mslit_decompressor"/> or NULL</returns>
-        public static mslit_decompressor mspack_create_lit_decompressor(mspack_system sys) => throw new NotImplementedException();
+        public static mslit_decompressor mspack_create_lit_decompressor(mspack_system sys) => null;
 
         /// <summary>
         /// Destroys an existing LIT compressor.
         /// </summary>
         /// <param name="self">The <see cref="mslit_compressor"/> to destroy</param>
-        public static void mspack_destroy_lit_compressor(mslit_compressor self) => throw new NotImplementedException();
+        public static void mspack_destroy_lit_compressor(mslit_compressor self) { }
 
         /// <summary>
         /// Destroys an existing LIT decompressor.
         /// </summary>
         /// <param name="self">The <see cref="mslit_decompressor"/> to destroy</param>
-        public static void mspack_destroy_lit_decompressor(mslit_decompressor self) => throw new NotImplementedException();
+        public static void mspack_destroy_lit_decompressor(mslit_decompressor self) { }
 
         /// <summary>
         /// Creates a new HLP compressor.
