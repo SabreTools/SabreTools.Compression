@@ -107,7 +107,7 @@ namespace SabreTools.Compression.libmspack
         /// <returns>Zero for success, non-zero for an error</returns>
         /// <see cref="open(in string, MSPACK_SYS_OPEN)"/> 
         /// <see cref="tell(mspack_file)"/> 
-        public abstract int seek(mspack_file file, int offset, MSPACK_SYS_SEEK mode);
+        public abstract int seek(mspack_file file, long offset, MSPACK_SYS_SEEK mode);
 
         /// <summary>
         /// Returns the current file position (in bytes) of the given file.
