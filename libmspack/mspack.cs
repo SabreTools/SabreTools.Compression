@@ -8,19 +8,18 @@ namespace SabreTools.Compression.libmspack
         /// <summary>
         /// Creates a new CAB compressor.
         /// </summary>
-        /// <param name="sys">A custom mspack_system structure, or NULL to use the default</param>
-        /// <returns>A <see cref="mscab_compressor"/> or NULL</returns>
+        /// <param name="sys">A custom mspack_system structure, or null to use the default</param>
+        /// <returns>A <see cref="mscab_compressor"/> or null</returns>
         public static mscab_compressor mspack_create_cab_compressor(mspack_system sys) => null;
 
         /// <summary>
         /// Creates a new CAB decompressor.
         /// </summary>
-        /// <param name="sys">A custom mspack_system structure, or NULL to use the default</param>
-        /// <returns>A <see cref="mscab_decompressor"/> or NULL</returns>
+        /// <param name="sys">A custom mspack_system structure, or null to use the default</param>
+        /// <returns>A <see cref="mscab_decompressor"/> or null</returns>
         public static mscab_decompressor mspack_create_cab_decompressor(mspack_system sys)
         {
-            if (sys == null)
-                return null;
+            if (sys == null) sys = new mspack_mscab_system();
 
             var self = new mscab_decompressor
             {
@@ -66,15 +65,15 @@ namespace SabreTools.Compression.libmspack
         /// <summary>
         /// Creates a new CHM compressor.
         /// </summary>
-        /// <param name="sys">A custom mspack_system structure, or NULL to use the default</param>
-        /// <returns>A <see cref="mschm_compressor"/> or NULL</returns>
+        /// <param name="sys">A custom mspack_system structure, or null to use the default</param>
+        /// <returns>A <see cref="mschm_compressor"/> or null</returns>
         public static mschm_compressor mspack_create_chm_compressor(mspack_system sys) => null;
 
         /// <summary>
         /// Creates a new CHM decompressor.
         /// </summary>
-        /// <param name="sys">A custom mspack_system structure, or NULL to use the default</param>
-        /// <returns>A <see cref="mschm_decompressor"/> or NULL</returns>
+        /// <param name="sys">A custom mspack_system structure, or null to use the default</param>
+        /// <returns>A <see cref="mschm_decompressor"/> or null</returns>
         public static mschm_decompressor mspack_create_chm_decompressor(mspack_system sys) => throw new NotImplementedException();
 
         /// <summary>
@@ -92,15 +91,15 @@ namespace SabreTools.Compression.libmspack
         /// <summary>
         /// Creates a new LIT compressor.
         /// </summary>
-        /// <param name="sys">A custom mspack_system structure, or NULL to use the default</param>
-        /// <returns>A <see cref="mslit_compressor"/> or NULL</returns>
+        /// <param name="sys">A custom mspack_system structure, or null to use the default</param>
+        /// <returns>A <see cref="mslit_compressor"/> or null</returns>
         public static mslit_compressor mspack_create_lit_compressor(mspack_system sys) => null;
 
         /// <summary>
         /// Creates a new LIT decompressor.
         /// </summary>
-        /// <param name="sys">A custom mspack_system structure, or NULL to use the default</param>
-        /// <returns>A <see cref="mslit_decompressor"/> or NULL</returns>
+        /// <param name="sys">A custom mspack_system structure, or null to use the default</param>
+        /// <returns>A <see cref="mslit_decompressor"/> or null</returns>
         public static mslit_decompressor mspack_create_lit_decompressor(mspack_system sys) => null;
 
         /// <summary>
@@ -118,15 +117,15 @@ namespace SabreTools.Compression.libmspack
         /// <summary>
         /// Creates a new HLP compressor.
         /// </summary>
-        /// <param name="sys">A custom mspack_system structure, or NULL to use the default</param>
-        /// <returns>A <see cref="mshlp_compressor"/> or NULL</returns>
+        /// <param name="sys">A custom mspack_system structure, or null to use the default</param>
+        /// <returns>A <see cref="mshlp_compressor"/> or null</returns>
         public static mshlp_compressor mspack_create_hlp_compressor(mspack_system sys) => null;
 
         /// <summary>
         /// Creates a new HLP decompressor.
         /// </summary>
-        /// <param name="sys">A custom mspack_system structure, or NULL to use the default</param>
-        /// <returns>A <see cref="mshlp_decompressor"/> or NULL</returns>
+        /// <param name="sys">A custom mspack_system structure, or null to use the default</param>
+        /// <returns>A <see cref="mshlp_decompressor"/> or null</returns>
         public static mshlp_decompressor mspack_create_hlp_decompressor(mspack_system sys) => null;
 
         /// <summary>
@@ -144,15 +143,15 @@ namespace SabreTools.Compression.libmspack
         /// <summary>
         /// Creates a new SZDD compressor.
         /// </summary>
-        /// <param name="sys">A custom mspack_system structure, or NULL to use the default</param>
-        /// <returns>A <see cref="msszdd_compressor"/> or NULL</returns>
+        /// <param name="sys">A custom mspack_system structure, or null to use the default</param>
+        /// <returns>A <see cref="msszdd_compressor"/> or null</returns>
         public static msszdd_compressor mspack_create_szdd_compressor(mspack_system sys) => null;
 
         /// <summary>
         /// Creates a new SZDD decompressor.
         /// </summary>
-        /// <param name="sys">A custom mspack_system structure, or NULL to use the default</param>
-        /// <returns>A <see cref="msszdd_decompressor"/> or NULL</returns>
+        /// <param name="sys">A custom mspack_system structure, or null to use the default</param>
+        /// <returns>A <see cref="msszdd_decompressor"/> or null</returns>
         public static msszdd_decompressor mspack_create_szdd_decompressor(mspack_system sys)
         {
             msszdd_decompressor self = null;
@@ -188,15 +187,15 @@ namespace SabreTools.Compression.libmspack
         /// <summary>
         /// Creates a new KWAJ compressor.
         /// </summary>
-        /// <param name="sys">A custom mspack_system structure, or NULL to use the default</param>
-        /// <returns>A <see cref="mskwaj_compressor"/> or NULL</returns>
+        /// <param name="sys">A custom mspack_system structure, or null to use the default</param>
+        /// <returns>A <see cref="mskwaj_compressor"/> or null</returns>
         public static mskwaj_compressor mspack_create_kwaj_compressor(mspack_system sys) => null;
 
         /// <summary>
         /// Creates a new KWAJ decompressor.
         /// </summary>
-        /// <param name="sys">A custom mspack_system structure, or NULL to use the default</param>
-        /// <returns>A <see cref="mskwaj_decompressor"/> or NULL</returns>
+        /// <param name="sys">A custom mspack_system structure, or null to use the default</param>
+        /// <returns>A <see cref="mskwaj_decompressor"/> or null</returns>
         public static mskwaj_decompressor mspack_create_kwaj_decompressor(mspack_system sys) => throw new NotImplementedException();
 
         /// <summary>
@@ -214,22 +213,37 @@ namespace SabreTools.Compression.libmspack
         /// <summary>
         /// Creates a new OAB compressor.
         /// </summary>
-        /// <param name="sys">A custom mspack_system structure, or NULL to use the default</param>
-        /// <returns>A <see cref="msoab_compressor"/> or NULL</returns>
-        public static msoab_compressor mspack_create_oab_compressor(mspack_system sys) => null;
+        /// <param name="sys">A custom mspack_system structure, or null to use the default</param>
+        /// <returns>A <see cref="msoab_compressor"/> or null</returns>
+        public static msoab_compressor mspack_create_oab_compressor(mspack_system sys) => throw new NotImplementedException();
 
         /// <summary>
         /// Creates a new OAB decompressor.
         /// </summary>
-        /// <param name="sys">A custom mspack_system structure, or NULL to use the default</param>
-        /// <returns>A <see cref="msoab_decompressor"/> or NULL</returns>
-        public static msoab_decompressor mspack_create_oab_decompressor(mspack_system sys) => throw new NotImplementedException();
+        /// <param name="sys">A custom mspack_system structure, or null to use the default</param>
+        /// <returns>A <see cref="msoab_decompressor"/> or null</returns>
+        public static msoab_decompressor mspack_create_oab_decompressor(mspack_system sys)
+        {
+            if (sys == null) sys = new mspack_oab_system();
+
+            msoab_decompressor self = new msoab_decompressor();
+            self.system = sys;
+            self.buf_size = 4096;
+            return self;
+        }
 
         /// <summary>
         /// Destroys an existing OAB compressor.
         /// </summary>
         /// <param name="self">The <see cref="msoab_compressor"/> to destroy</param>
-        public static void mspack_destroy_oab_compressor(msoab_compressor self) { }
+        public static void mspack_destroy_oab_compressor(msoab_compressor self)
+        {
+            if (self != null)
+            {
+                mspack_system sys = self.system;
+                //sys.free(self);
+            }
+        }
 
         /// <summary>
         /// Destroys an existing OAB decompressor.

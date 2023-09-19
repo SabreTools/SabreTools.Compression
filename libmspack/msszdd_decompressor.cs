@@ -10,10 +10,8 @@ namespace SabreTools.Compression.libmspack
     /// </summary>
     /// <see cref="mspack_create_szdd_decompressor()"/>
     /// <see cref="mspack_destroy_szdd_decompressor()"/>
-    public unsafe class msszdd_decompressor
+    public unsafe class msszdd_decompressor : Decompressor
     {
-        public mspack_system system { get; set; }
-
         public MSPACK_ERR error { get; set; }
 
         /// <summary>

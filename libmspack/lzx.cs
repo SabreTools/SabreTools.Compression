@@ -34,7 +34,7 @@ namespace SabreTools.Compression.libmspack
         /// 
         /// This routine uses system->alloc() to allocate memory. If memory
         /// allocation fails, or the parameters to this function are invalid,
-        /// NULL is returned.
+        /// null is returned.
         /// </summary>
         /// <param name="system">
         /// An mspack_system structure used to read from
@@ -77,7 +77,7 @@ namespace SabreTools.Compression.libmspack
         /// non-zero for LZX DELTA encoded data.
         /// </param>
         /// <returns>
-        /// A pointer to an initialised lzxd_stream structure, or NULL if
+        /// A pointer to an initialised lzxd_stream structure, or null if
         /// there was not enough memory or parameters to the function were wrong.
         /// </returns>
         public static lzxd_stream lzxd_init(mspack_system system, mspack_file input, mspack_file output, int window_bits, int reset_interval, int input_buffer_size, long output_length, char is_delta) => null;

@@ -8,7 +8,7 @@ namespace SabreTools.Compression.libmspack
     public class mschmd_file
     {
         /// <summary>
-        /// A pointer to the next file in the list, or NULL if this is the final
+        /// A pointer to the next file in the list, or null if this is the final
         /// file.
         /// </summary>
         public mschmd_file next { get; set; }

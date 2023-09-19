@@ -7,10 +7,8 @@ namespace SabreTools.Compression.libmspack
     /// </summary>
     /// <see cref="mspack_create_kwaj_decompressor()"/> 
     /// <see cref="mspack_destroy_kwaj_decompressor()"/> 
-    public abstract class mskwaj_decompressor
+    public abstract class mskwaj_decompressor : Decompressor
     {
-        public mspack_system system { get; set; }
-
         public MSPACK_ERR error { get; set; }
 
         /// <summary>
@@ -19,7 +17,7 @@ namespace SabreTools.Compression.libmspack
         /// If the file opened is a valid KWAJ file, all headers will be read and
         /// a mskwajd_header structure will be returned.
         ///
-        /// In the case of an error occuring, NULL is returned and the error code
+        /// In the case of an error occuring, null is returned and the error code
         /// is available from last_error().
         ///
         /// The filename pointer should be considered "in use" until close() is
@@ -29,7 +27,7 @@ namespace SabreTools.Compression.libmspack
         /// The filename of the KWAJ compressed file. This is
         /// passed directly to mspack_system::open().
         /// </param>
-        /// <returns>A pointer to a mskwajd_header structure, or NULL on failure</returns>
+        /// <returns>A pointer to a mskwajd_header structure, or null on failure</returns>
         /// <see cref="close(mskwajd_header)"/>
         public abstract mskwajd_header open(in string filename);
 

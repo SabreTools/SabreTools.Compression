@@ -32,7 +32,7 @@ namespace SabreTools.Compression.libmspack
         /// 
         /// - uses system->alloc() to allocate memory
         ///
-        /// - returns NULL if not enough memory
+        /// - returns null if not enough memory
         ///
         /// - input_buffer_size is how many bytes to use as an input bitstream buffer
         ///

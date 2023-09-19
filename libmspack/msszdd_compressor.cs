@@ -7,10 +7,8 @@ namespace SabreTools.Compression.libmspack
     /// </summary>
     /// <see cref="mspack_create_szdd_compressor()"/>
     /// <see cref="mspack_destroy_szdd_compressor()"/>
-    public abstract class msszdd_compressor
+    public abstract class msszdd_compressor : Compressor
     {
-        public mspack_system system { get; set; }
-
         public MSPACK_ERR error { get; set; }
 
         /// <summary>

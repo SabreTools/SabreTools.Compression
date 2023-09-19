@@ -7,7 +7,7 @@ namespace SabreTools.Compression.libmspack
     /// </summary>
     /// <see cref="mspack_create_kwaj_compressor()"/>
     /// <see cref="mspack_destroy_kwaj_compressor()"/>
-    public unsafe abstract class mskwaj_compressor
+    public unsafe abstract class mskwaj_compressor : Compressor
     {
         public mspack_system system { get; set; }
 
@@ -70,7 +70,7 @@ namespace SabreTools.Compression.libmspack
         /// MS-DOS "8.3" type filename (up to 8 bytes for the filename, then
         /// optionally a "." and up to 3 bytes for a filename extension).
         ///
-        /// If NULL is passed as the filename, no filename is included in the
+        /// If null is passed as the filename, no filename is included in the
         /// header. This is the default.
         /// </summary>
         /// <param name="filename">The original filename to use</param>
@@ -86,7 +86,7 @@ namespace SabreTools.Compression.libmspack
         /// as the overall size of the header must not exceed 65535 bytes.
         /// The data can contain null bytes if desired.
         ///
-        /// If NULL is passed as the data pointer, or zero is passed as the
+        /// If null is passed as the data pointer, or zero is passed as the
         /// length, no extra data is included in the header. This is the
         /// default.
         /// </summary>

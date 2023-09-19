@@ -12,7 +12,7 @@ namespace SabreTools.Compression.libmspack
     public class mscabd_folder
     {
         /// <summary>
-        /// A pointer to the next folder in this cabinet or cabinet set, or NULL
+        /// A pointer to the next folder in this cabinet or cabinet set, or null
         /// if this is the final folder.
         /// </summary>
         public mscabd_folder next { get; set; }

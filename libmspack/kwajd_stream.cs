@@ -3,28 +3,8 @@ using static SabreTools.Compression.libmspack.lzss;
 
 namespace SabreTools.Compression.libmspack
 {
-    public unsafe class kwajd_stream
+    public unsafe class kwajd_stream : readbits
     {
-        #region I/O buffering
-
-        public mspack_system sys { get; set; }
-
-        public mspack_file input { get; set; }
-
-        public mspack_file output { get; set; }
-
-        public byte* i_ptr { get; set; }
-
-        public byte* i_end { get; set; }
-
-        public uint bit_buffer { get; set; }
-
-        public uint bits_left { get; set; }
-
-        public int input_end { get; set; }
-
-        #endregion
-
         #region Huffman code lengths
 
         public byte[] MATCHLEN1_len { get; set; } = new byte[KWAJ_MATCHLEN1_SYMS];
@@ -55,7 +35,7 @@ namespace SabreTools.Compression.libmspack
 
         #region Input buffer
 
-        public byte[] inbuf { get; set; } = new byte[KWAJ_INPUT_SIZE];
+        public new byte[] inbuf { get; set; } = new byte[KWAJ_INPUT_SIZE];
 
         #endregion
 
@@ -64,5 +44,17 @@ namespace SabreTools.Compression.libmspack
         public byte[] window { get; set; } = new byte[LZSS_WINDOW_SIZE];
 
         #endregion
+
+        public override void READ_BYTES()
+        {
+            if (i_ptr >= i_end)
+            {
+                if ((err = lzh_read_input(lzh)))
+                    return err;
+                i_ptr = lzh.i_ptr;
+                i_end = lzh.i_end;
+            }
+            INJECT_BITS_MSB(*i_ptr++, 8);
+        }
     }
 }

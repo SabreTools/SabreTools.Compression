@@ -7,10 +7,8 @@ namespace SabreTools.Compression.libmspack
     /// </summary>
     /// <see cref="mspack_create_chm_decompressor()"/>
     /// <see cref="mspack_destroy_chm_decompressor()"/>
-    public abstract class mschm_decompressor
+    public abstract class mschm_decompressor : Decompressor
     {
-        public mspack_system system { get; set; }
-
         public mschmd_decompress_state d { get; set; }
 
         public MSPACK_ERR error { get; set; }
@@ -22,7 +20,7 @@ namespace SabreTools.Compression.libmspack
         /// and a mschmd_header structure will be returned, with a full list of
         /// files.
         ///
-        /// In the case of an error occuring, NULL is returned and the error code
+        /// In the case of an error occuring, null is returned and the error code
         /// is available from last_error().
         ///
         /// The filename pointer should be considered "in use" until close() is
@@ -32,7 +30,7 @@ namespace SabreTools.Compression.libmspack
         /// The filename of the CHM helpfile. This is passed
         /// directly to mspack_system::open().
         /// </param>
-        /// <returns>A pointer to a mschmd_header structure, or NULL on failure</returns>
+        /// <returns>A pointer to a mschmd_header structure, or null on failure</returns>
         /// <see cref="close(mschmd_header)"/>
         public abstract mschmd_header open(in string filename);
 
@@ -86,11 +84,11 @@ namespace SabreTools.Compression.libmspack
         ///
         /// If the file opened is a valid CHM helpfile, only essential headers
         /// will be read. A mschmd_header structure will be still be returned, as
-        /// with open(), but the mschmd_header::files field will be NULL. No
+        /// with open(), but the mschmd_header::files field will be null. No
         /// files details will be automatically read.  The fast_find() method
         /// must be used to obtain file details.
         ///
-        /// In the case of an error occuring, NULL is returned and the error code
+        /// In the case of an error occuring, null is returned and the error code
         /// is available from last_error().
         ///
         /// The filename pointer should be considered "in use" until close() is
@@ -100,7 +98,7 @@ namespace SabreTools.Compression.libmspack
         /// The filename of the CHM helpfile. This is passed
         /// directly to mspack_system::open().
         /// </param>
-        /// <returns>A pointer to a mschmd_header structure, or NULL on failure</returns>
+        /// <returns>A pointer to a mschmd_header structure, or null on failure</returns>
         /// <see cref="open(in string)"/> 
         /// <see cref="close(mschmd_header)"/> 
         /// <see cref="fast_find(mschmd_header, in string, mschmd_file, int)"/> 
@@ -123,14 +121,14 @@ namespace SabreTools.Compression.libmspack
         /// - section: the correct value for the found file
         /// - offset: the correct value for the found file
         /// - length: the correct value for the found file
-        /// - all other structure elements: NULL or 0
+        /// - all other structure elements: null or 0
         ///
         /// If the file was not found, MSPACK_ERR_OK will still be returned as the
         /// result, but the caller-provided structure will be filled out like so:
-        /// - section: NULL
+        /// - section: null
         /// - offset: 0
         /// - length: 0
-        /// - all other structure elements: NULL or 0
+        /// - all other structure elements: null or 0
         ///
         /// This method is intended to be used in conjunction with CHM helpfiles
         /// opened with fast_open(), but it also works with helpfiles opened

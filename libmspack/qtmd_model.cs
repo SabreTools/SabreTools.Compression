@@ -6,6 +6,6 @@ namespace SabreTools.Compression.libmspack
 
         public int entries { get; set; }
 
-        public qtmd_modelsym** syms { get; set; }
+        public qtmd_modelsym* syms { get; set; }
     }
 }

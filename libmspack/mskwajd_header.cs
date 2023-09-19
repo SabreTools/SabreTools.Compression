@@ -28,7 +28,7 @@ namespace SabreTools.Compression.libmspack
         public long length { get; set; }
 
         /// <summary>
-        /// Output filename, or NULL if not present
+        /// Output filename, or null if not present
         /// </summary>
         public string filename { get; set; }
 

@@ -1,6 +1,8 @@
+using System;
+
 namespace SabreTools.Compression.libmspack
 {
-    public static class cab
+    public unsafe static class cab
     {
         /* structure offsets */
         public const byte cfhead_Signature = 0x00;
@@ -36,13 +38,6 @@ namespace SabreTools.Compression.libmspack
 
         /* flags */
         public const ushort cffoldCOMPTYPE_MASK = 0x000f;
-        public const ushort cffoldCOMPTYPE_NONE = 0x0000;
-        public const ushort cffoldCOMPTYPE_MSZIP = 0x0001;
-        public const ushort cffoldCOMPTYPE_QUANTUM = 0x0002;
-        public const ushort cffoldCOMPTYPE_LZX = 0x0003;
-        public const ushort cfheadPREV_CABINET = 0x0001;
-        public const ushort cfheadNEXT_CABINET = 0x0002;
-        public const ushort cfheadRESERVE_PRESENT = 0x0004;
         public const ushort cffileCONTINUED_FROM_PREV = 0xFFFD;
         public const ushort cffileCONTINUED_TO_NEXT = 0xFFFE;
         public const ushort cffileCONTINUED_PREV_AND_NEXT = 0xFFFF;
@@ -71,5 +66,91 @@ namespace SabreTools.Compression.libmspack
          */
         public const int CAB_FOLDERMAX = 65535;
         public const int CAB_LENGTHMAX = CAB_BLOCKMAX * CAB_FOLDERMAX;
+
+        #region decomp
+
+        /// <summary>
+        /// cabd_free_decomp frees decompression state, according to which method
+        /// was used.
+        /// </summary>
+        public static MSPACK_ERR cabd_init_decomp(mscab_decompressor self, MSCAB_COMP ct)
+        {
+            mspack_file fh = self;
+
+            self.d.comp_type = ct;
+
+            switch ((MSCAB_COMP)((int)ct & cffoldCOMPTYPE_MASK))
+            {
+                case MSCAB_COMP.MSCAB_COMP_NONE:
+                    self.d = new mscabd_noned_decompress_state();
+                    self.d.state = noned_init(self.d.sys, fh, fh, self.buf_size);
+                    break;
+                case MSCAB_COMP.MSCAB_COMP_MSZIP:
+                    self.d = new mscabd_mszipd_decompress_state();
+                    self.d.state = mszipd_init(self.d.sys, fh, fh, self.buf_size, self.fix_mszip);
+                    break;
+                case MSCAB_COMP.MSCAB_COMP_QUANTUM:
+                    self.d = new mscabd_qtmd_decompress_state();
+                    self.d.state = qtmd_init(self.d.sys, fh, fh, ((int)ct >> 8) & 0x1f, self.buf_size);
+                    break;
+                case MSCAB_COMP.MSCAB_COMP_LZX:
+                    self.d = new mscabd_lzxd_decompress_state();
+                    self.d.state = lzxd_init(self.d.sys, fh, fh, ((int)ct >> 8) & 0x1f, 0, self.buf_size, 0, 0);
+                    break;
+                default:
+                    return self.error = MSPACK_ERR.MSPACK_ERR_DATAFORMAT;
+            }
+            return self.error = (self.d.state != null) ? MSPACK_ERR.MSPACK_ERR_OK : MSPACK_ERR.MSPACK_ERR_NOMEMORY;
+        }
+
+        /// <summary>
+        /// cabd_init_decomp initialises decompression state, according to which
+        /// decompression method was used. relies on self.d.folder being the same
+        /// as when initialised.
+        /// </summary>
+        public static void cabd_free_decomp(mscab_decompressor self)
+        {
+            if (self == null || self.d == null || self.d.state == null) return;
+
+            switch ((MSCAB_COMP)((int)self.d.comp_type & cffoldCOMPTYPE_MASK))
+            {
+                case MSCAB_COMP.MSCAB_COMP_NONE: noned_free((noned_state)self.d.state); break;
+                case MSCAB_COMP.MSCAB_COMP_MSZIP: mszipd_free((mszipd_stream)self.d.state); break;
+                case MSCAB_COMP.MSCAB_COMP_QUANTUM: qtmd_free((qtmd_stream)self.d.state); break;
+                case MSCAB_COMP.MSCAB_COMP_LZX: lzxd_free((lzxd_stream)self.d.state); break;
+            }
+
+            //self.d.decompress = null;
+            self.d.state = null;
+        }
+
+        #endregion
+
+        #region noned_state
+
+        public static noned_state noned_init(mspack_system sys, mspack_file @in, mspack_file @out, int bufsize)
+        {
+            noned_state state = new noned_state();
+
+            state.sys = sys;
+            state.i = @in;
+            state.o = @out;
+            state.buf = system.CreateArray<byte>(bufsize);
+            state.bufsize = bufsize;
+            return state;
+        }
+
+        public static void noned_free(noned_state state)
+        {
+            mspack_system sys;
+            if (state != null)
+            {
+                sys = state.sys;
+                sys.free(state.buf);
+                //sys.free(state);
+            }
+        }
+
+        #endregion
     }
 }

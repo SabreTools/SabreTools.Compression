@@ -3,10 +3,8 @@ namespace SabreTools.Compression.libmspack
     /// <summary>
     /// TODO
     /// </summary>
-    public class mscab_compressor
+    public class mscab_compressor : Compressor
     {
         public int dummy { get; set; }
-
-        public mspack_system system { get; set; }
     }
 }

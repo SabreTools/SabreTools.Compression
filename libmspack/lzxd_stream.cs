@@ -2,23 +2,8 @@ using static SabreTools.Compression.libmspack.lzx;
 
 namespace SabreTools.Compression.libmspack
 {
-    public unsafe class lzxd_stream
+    public unsafe class lzxd_stream : readbits
     {
-        /// <summary>
-        /// I/O routines
-        /// </summary>
-        public mspack_system sys { get; set; }
-
-        /// <summary>
-        /// Input file handle
-        /// </summary>
-        public mspack_file input { get; set; }
-
-        /// <summary>
-        /// Output file handle
-        /// </summary>
-        public mspack_file output { get; set; }
-
         /// <summary>
         /// Number of bytes actually output
         /// </summary>
@@ -48,11 +33,6 @@ namespace SabreTools.Compression.libmspack
         /// Number of match_offset entries in table
         /// </summary>
         public uint num_offsets { get; set; }
-
-        /// <summary>
-        /// Decompression offset within window
-        /// </summary>
-        public uint window_posn { get; set; }
 
         /// <summary>
         /// Current frame offset within in window
@@ -117,34 +97,12 @@ namespace SabreTools.Compression.libmspack
         /// <summary>
         /// Have we reached the end of input?
         /// </summary>
-        public byte input_end { get; set; }
+        public new byte input_end { get; set; }
 
         /// <summary>
         /// Does stream follow LZX DELTA spec?
         /// </summary>
         public byte is_delta { get; set; }
-
-        public MSPACK_ERR error { get; set; }
-
-        #region I/O buffering
-
-        public byte* inbuf { get; set; }
-
-        public byte* i_ptr { get; set; }
-
-        public byte* i_end { get; set; }
-
-        public byte* o_ptr { get; set; }
-
-        public byte* o_end { get; set; }
-
-        public uint bit_buffer { get; set; }
-
-        public uint bits_left { get; set; }
-
-        public uint inbuf_size { get; set; }
-
-        #endregion
 
         #region Huffman code lengths
 
@@ -176,5 +134,15 @@ namespace SabreTools.Compression.libmspack
         /// This is used purely for doing the intel E8 transform
         /// </summary>
         public byte[] e8_buf { get; set; } = new byte[LZX_FRAME_SIZE];
+
+        public override void READ_BYTES()
+        {
+            byte b0, b1;
+            READ_IF_NEEDED(ref i_ptr, ref i_end);
+            b0 = *i_ptr++;
+            READ_IF_NEEDED(ref i_ptr, ref i_end);
+            b1 = *i_ptr++;
+            INJECT_BITS_MSB((b1 << 8) | b0, 16);
+        }
     }
 }

@@ -42,15 +42,12 @@ namespace SabreTools.Compression.libmspack
         /// <summary>
         /// Decompressor code
         /// </summary>
-        /// <param name="data"></param>
-        /// <param name="offset"></param>
-        /// <returns></returns>
-        public abstract int decompress(void* data, long offset);
+        public abstract MSPACK_ERR decompress(object data, long offset);
 
         /// <summary>
         /// Decompressor state
         /// </summary>
-        public void* state { get; set; }
+        public object state { get; set; }
 
         /// <summary>
         /// Cabinet where input data comes from
@@ -81,5 +78,26 @@ namespace SabreTools.Compression.libmspack
         /// One input block of data
         /// </summary>
         public byte[] input { get; set; } = new byte[CAB_INPUTBUF];
+    }
+
+    public unsafe class mscabd_noned_decompress_state : mscabd_decompress_state
+    {
+        /// <inheritdoc/>
+        public override unsafe MSPACK_ERR decompress(object data, long bytes)
+        {
+            noned_state s = data as noned_state;
+            while (bytes > 0)
+            {
+                int run = (bytes > s.bufsize) ? s.bufsize : (int)bytes;
+                {
+                    if (s.sys.read(s.i, &s.buf[0], run) != run) return MSPACK_ERR.MSPACK_ERR_READ;
+                    if (s.sys.write(s.o, &s.buf[0], run) != run) return MSPACK_ERR.MSPACK_ERR_WRITE;
+                    bytes -= run;
+                }
+                return MSPACK_ERR.MSPACK_ERR_OK;
+            }
+
+            return MSPACK_ERR.MSPACK_ERR_DECRUNCH;
+        }
     }
 }

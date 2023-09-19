@@ -9,10 +9,8 @@ namespace SabreTools.Compression.libmspack
     /// </summary>
     /// <see cref="mspack_create_oab_decompressor()"/> 
     /// <see cref="mspack_destroy_oab_decompressor()"/> 
-    public unsafe class msoab_decompressor
+    public unsafe class msoab_decompressor : Decompressor
     {
-        public mspack_system system { get; set; }
-
         public int buf_size { get; set; }
 
         /// <summary>
@@ -33,56 +31,54 @@ namespace SabreTools.Compression.libmspack
         /// <returns>An error code, or MSPACK_ERR.MSPACK_ERR_OK if successful</returns>
         public MSPACK_ERR decompress(in string input, in string output)
         {
-            msoab_decompressor_p* self = (msoab_decompressor_p*)_self;
-            mspack_system* sys;
-            mspack_file* infh = NULL;
-            mspack_file* outfh = NULL;
-            byte* buf = NULL;
+            mspack_system sys;
+            mspack_file infh = null;
+            mspack_file outfh = null;
+            byte* buf = null;
             byte[] hdrbuf = new byte[oabhead_SIZEOF];
             uint block_max, target_size;
-            lzxd_stream* lzx = NULL;
-            mspack_system oabd_sys;
+            lzxd_stream lzx = null;
+            mspack_oab_system oabd_sys;
             oabd_file in_ofh, out_ofh;
             uint window_bits;
-            int ret = MSPACK_ERR_OK;
+            MSPACK_ERR ret = MSPACK_ERR.MSPACK_ERR_OK;
 
-            if (!self) return MSPACK_ERR_ARGS;
-            sys = self->system;
+            sys = this.system;
 
-            infh = sys->open(sys, input, MSPACK_SYS_OPEN_READ);
+            infh = sys.open(sys, input, MSPACK_SYS_OPEN.MSPACK_SYS_OPEN_READ);
             if (!infh)
             {
-                ret = MSPACK_ERR_OPEN;
+                ret = MSPACK_ERR.MSPACK_ERR_OPEN;
                 goto outlbl;
             }
 
-            if (sys->read(infh, hdrbuf, oabhead_SIZEOF) != oabhead_SIZEOF)
+            if (sys.read(infh, hdrbuf, oabhead_SIZEOF) != oabhead_SIZEOF)
             {
-                ret = MSPACK_ERR_READ;
+                ret = MSPACK_ERR.MSPACK_ERR_READ;
                 goto outlbl;
             }
 
             if (EndGetI32(&hdrbuf[oabhead_VersionHi]) != 3 ||
                 EndGetI32(&hdrbuf[oabhead_VersionLo]) != 1)
             {
-                ret = MSPACK_ERR_SIGNATURE;
+                ret = MSPACK_ERR.MSPACK_ERR_SIGNATURE;
                 goto outlbl;
             }
 
             block_max = EndGetI32(&hdrbuf[oabhead_BlockMax]);
             target_size = EndGetI32(&hdrbuf[oabhead_TargetSize]);
 
-            outfh = sys->open(sys, output, MSPACK_SYS_OPEN_WRITE);
+            outfh = sys.open(sys, output, MSPACK_SYS_OPEN.MSPACK_SYS_OPEN_WRITE);
             if (!outfh)
             {
-                ret = MSPACK_ERR_OPEN;
+                ret = MSPACK_ERR.MSPACK_ERR_OPEN;
                 goto outlbl;
             }
 
-            buf = sys->alloc(sys, self->buf_size);
+            buf = sys.alloc(sys, this.buf_size);
             if (!buf)
             {
-                ret = MSPACK_ERR_NOMEMORY;
+                ret = MSPACK_ERR.MSPACK_ERR_NOMEMORY;
                 goto outlbl;
             }
 
@@ -100,9 +96,9 @@ namespace SabreTools.Compression.libmspack
             {
                 uint blk_csize, blk_dsize, blk_crc, blk_flags;
 
-                if (sys->read(infh, buf, oabblk_SIZEOF) != oabblk_SIZEOF)
+                if (sys.read(infh, buf, oabblk_SIZEOF) != oabblk_SIZEOF)
                 {
-                    ret = MSPACK_ERR_READ;
+                    ret = MSPACK_ERR.MSPACK_ERR_READ;
                     goto outlbl;
                 }
                 blk_flags = EndGetI32(&buf[oabblk_Flags]);
@@ -112,7 +108,7 @@ namespace SabreTools.Compression.libmspack
 
                 if (blk_dsize > block_max || blk_dsize > target_size || blk_flags > 1)
                 {
-                    ret = MSPACK_ERR_DATAFORMAT;
+                    ret = MSPACK_ERR.MSPACK_ERR_DATAFORMAT;
                     goto outlbl;
                 }
 
@@ -121,10 +117,10 @@ namespace SabreTools.Compression.libmspack
                     /* Uncompressed block */
                     if (blk_dsize != blk_csize)
                     {
-                        ret = MSPACK_ERR_DATAFORMAT;
+                        ret = MSPACK_ERR.MSPACK_ERR_DATAFORMAT;
                         goto outlbl;
                     }
-                    ret = copy_fh(sys, infh, outfh, blk_dsize, buf, self->buf_size);
+                    ret = copy_fh(sys, infh, outfh, blk_dsize, buf, this.buf_size);
                     if (ret) goto outlbl;
                 }
                 else
@@ -139,27 +135,27 @@ namespace SabreTools.Compression.libmspack
                     out_ofh.crc = 0xffffffff;
 
                     lzx = lzxd_init(&oabd_sys, (void*)&in_ofh, (void*)&out_ofh, window_bits,
-                                    0, self->buf_size, blk_dsize, 1);
+                                    0, this.buf_size, blk_dsize, 1);
                     if (!lzx)
                     {
-                        ret = MSPACK_ERR_NOMEMORY;
+                        ret = MSPACK_ERR.MSPACK_ERR_NOMEMORY;
                         goto outlbl;
                     }
 
                     ret = lzxd_decompress(lzx, blk_dsize);
-                    if (ret != MSPACK_ERR_OK)
+                    if (ret != MSPACK_ERR.MSPACK_ERR_OK)
                         goto outlbl;
 
                     lzxd_free(lzx);
-                    lzx = NULL;
+                    lzx = null;
 
                     /* Consume any trailing padding bytes before the next block */
-                    ret = copy_fh(sys, infh, NULL, in_ofh.available, buf, self->buf_size);
+                    ret = copy_fh(sys, infh, null, in_ofh.available, buf, this.buf_size);
                     if (ret) goto outlbl;
 
                     if (out_ofh.crc != blk_crc)
                     {
-                        ret = MSPACK_ERR_CHECKSUM;
+                        ret = MSPACK_ERR.MSPACK_ERR_CHECKSUM;
                         goto outlbl;
                     }
                 }
@@ -168,9 +164,9 @@ namespace SabreTools.Compression.libmspack
 
         outlbl:
             if (lzx) lzxd_free(lzx);
-            if (outfh) sys->close(outfh);
-            if (infh) sys->close(infh);
-            sys->free(buf);
+            if (outfh) sys.close(outfh);
+            if (infh) sys.close(infh);
+            sys.free(buf);
 
             return ret;
         }

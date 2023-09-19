@@ -7,10 +7,8 @@ namespace SabreTools.Compression.libmspack
     /// </summary>
     /// <see cref="mspack_create_oab_compressor()"/> 
     /// <see cref="mspack_destroy_oab_compressor()"/> 
-    public abstract class msoab_compressor
+    public abstract class msoab_compressor : Compressor
     {
-        public mspack_system system { get; set; }
-
         /// <summary>
         /// Compress a full OAB file.
         ///

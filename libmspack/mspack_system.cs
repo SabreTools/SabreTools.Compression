@@ -7,7 +7,7 @@ namespace SabreTools.Compression.libmspack
     /// with the file system and to allocate, free and copy all memory. It also
     /// uses it to send literal messages to the library user.
     /// 
-    /// When the library is compiled normally, passing NULL to a compressor or
+    /// When the library is compiled normally, passing null to a compressor or
     /// decompressor constructor will result in a default mspack_system being
     /// used, where all methods are implemented with the standard C library.
     /// 
@@ -35,7 +35,7 @@ namespace SabreTools.Compression.libmspack
         /// A pointer to a mspack_file structure. This structure officially
         /// contains no members, its true contents are up to the
         /// mspack_system implementor. It should contain whatever is needed
-        /// for other mspack_system methods to operate. Returning the NULL
+        /// for other mspack_system methods to operate. Returning the null
         /// pointer indicates an error condition.
         /// </returns>
         /// <see cref="close(mspack_file)"/> 
@@ -127,7 +127,7 @@ namespace SabreTools.Compression.libmspack
         /// </summary>
         /// <param name="file">
         /// May be a file handle returned from open() if this message
-        /// pertains to a specific open file, or NULL if not related to
+        /// pertains to a specific open file, or null if not related to
         /// a specific file.
         /// </param>
         /// <param name="format">
@@ -141,7 +141,7 @@ namespace SabreTools.Compression.libmspack
         /// </summary>
         /// <param name="bytes">The number of bytes to allocate</param>
         /// <returns>
-        /// A pointer to the requested number of bytes, or NULL if
+        /// A pointer to the requested number of bytes, or null if
         /// not enough memory is available
         /// </returns>
         /// <see cref="free(void*)"/> 
@@ -150,7 +150,7 @@ namespace SabreTools.Compression.libmspack
         /// <summary>
         /// Frees memory
         /// </summary>
-        /// <param name="ptr">The memory to be freed. NULL is accepted and ignored.</param>
+        /// <param name="ptr">The memory to be freed. null is accepted and ignored.</param>
         /// <see cref="alloc(int)"/> 
         public abstract void free(void* ptr);
 

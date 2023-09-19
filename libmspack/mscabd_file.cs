@@ -8,7 +8,7 @@ namespace SabreTools.Compression.libmspack
     public class mscabd_file
     {
         /// <summary>
-        /// The next file in the cabinet or cabinet set, or NULL if this is the
+        /// The next file in the cabinet or cabinet set, or null if this is the
         /// final file.
         /// </summary>
         public mscabd_file next { get; set; }

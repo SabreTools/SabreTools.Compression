@@ -3,10 +3,8 @@ namespace SabreTools.Compression.libmspack
     /// <summary>
     /// TODO
     /// </summary>
-    public class mshlp_decompressor
+    public class mshlp_decompressor : Decompressor
     {
         public int dummy { get; set; }
-
-        public mspack_system system { get; set; }
     }
 }

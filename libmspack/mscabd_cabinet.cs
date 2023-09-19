@@ -15,7 +15,7 @@ namespace SabreTools.Compression.libmspack
     {
         /// <summary>
         /// The next cabinet in a chained list, if this cabinet was opened with
-        /// mscab_decompressor::search(). May be NULL to mark the end of the
+        /// mscab_decompressor::search(). May be null to mark the end of the
         /// list.
         /// </summary>
         public mscabd_cabinet next { get; set; }
@@ -38,34 +38,34 @@ namespace SabreTools.Compression.libmspack
         public uint length { get; set; }
 
         /// <summary>
-        /// The previous cabinet in a cabinet set, or NULL.
+        /// The previous cabinet in a cabinet set, or null.
         /// </summary>
         public mscabd_cabinet prevcab { get; set; }
 
         /// <summary>
-        /// The next cabinet in a cabinet set, or NULL.
+        /// The next cabinet in a cabinet set, or null.
         /// </summary>
         public mscabd_cabinet nextcab { get; set; }
 
         /// <summary>
-        /// The filename of the previous cabinet in a cabinet set, or NULL.
+        /// The filename of the previous cabinet in a cabinet set, or null.
         /// </summary>
         public string prevname { get; set; }
 
         /// <summary>
-        /// The filename of the next cabinet in a cabinet set, or NULL.
+        /// The filename of the next cabinet in a cabinet set, or null.
         /// </summary>
         public string nextname { get; set; }
 
         /// <summary>
         /// The name of the disk containing the previous cabinet in a cabinet
-        /// set, or NULL.
+        /// set, or null.
         /// </summary>
         public string previnfo { get; set; }
 
         /// <summary>
         /// The name of the disk containing the next cabinet in a cabinet set,
-        /// or NULL.
+        /// or null.
         /// </summary>
         public string nextinfo { get; set; }
 

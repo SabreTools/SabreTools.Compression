@@ -1,22 +1,7 @@
 namespace SabreTools.Compression.libmspack
 {
-    public unsafe class qtmd_stream
+    public unsafe class qtmd_stream : readbits
     {
-        /// <summary>
-        /// I/O routines
-        /// </summary>
-        public mspack_system sys { get; set; }
-
-        /// <summary>
-        /// Input file handle
-        /// </summary>
-        public mspack_file input { get; set; }
-
-        /// <summary>
-        /// Output file handle
-        /// </summary>
-        public mspack_file output { get; set; }
-
         /// <summary>
         /// Decoding window
         /// </summary>
@@ -26,11 +11,6 @@ namespace SabreTools.Compression.libmspack
         /// Window size
         /// </summary>
         public uint window_size { get; set; }
-
-        /// <summary>
-        /// Decompression offset within window
-        /// </summary>
-        public uint window_posn { get; set; }
 
         /// <summary>
         /// Bytes remaining for current frame
@@ -56,30 +36,6 @@ namespace SabreTools.Compression.libmspack
         /// Have we started decoding a new frame?
         /// </summary>
         public byte header_read { get; set; }
-
-        public MSPACK_ERR error { get; set; }
-
-        #region I/O buffering
-
-        public byte* inbuf { get; set; }
-
-        public byte* i_ptr { get; set; }
-
-        public byte* i_end { get; set; }
-
-        public byte* o_ptr { get; set; }
-
-        public byte* o_end { get; set; }
-
-        public uint bit_buffer { get; set; }
-
-        public uint inbuf_size { get; set; }
-
-        public byte bits_left { get; set; }
-
-        public byte input_end { get; set; }
-
-        #endregion
 
         #region Models
 
@@ -156,5 +112,15 @@ namespace SabreTools.Compression.libmspack
         public qtmd_modelsym[] m7sym { get; set; } = new qtmd_modelsym[7 + 1];
 
         #endregion
+
+        public override void READ_BYTES()
+        {
+            byte b0, b1;
+            READ_IF_NEEDED;
+            b0 = *i_ptr++;
+            READ_IF_NEEDED;
+            b1 = *i_ptr++;
+            INJECT_BITS_MSB((b0 << 8) | b1, 16);
+        }
     }
 }
