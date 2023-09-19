@@ -9,12 +9,12 @@
 
 namespace SabreTools.Compression.libmspack
 {
-    public static class system
+    public unsafe static class system
     {
         /// <summary>
         /// Returns the length of a file opened for reading
         /// </summary>
-        public unsafe static MSPACK_ERR mspack_sys_filelen(mspack_system system, mspack_file file, long* length)
+        public static MSPACK_ERR mspack_sys_filelen(mspack_system system, mspack_file file, long* length)
         {
             if (system == null || file == null || length == null) return MSPACK_ERR.MSPACK_ERR_OPEN;
 
@@ -37,6 +37,19 @@ namespace SabreTools.Compression.libmspack
             }
 
             return MSPACK_ERR.MSPACK_ERR_OK;
+        }
+
+        public static T* CreateArray<T>(int length)
+        {
+            T[] buf = new T[length];
+            return GetArrayPointer(buf);
+        }
+
+        public static T* GetArrayPointer<T>(T[] arr)
+        {
+            var bufRef = __makeref(arr);
+            var bufPtr = **(System.IntPtr**)&bufRef;
+            return (T*)bufPtr.ToPointer();
         }
     }
 }

@@ -1,4 +1,5 @@
 using System;
+using System.Runtime.Serialization;
 
 namespace SabreTools.Compression.libmspack
 {
@@ -16,7 +17,25 @@ namespace SabreTools.Compression.libmspack
         /// </summary>
         /// <param name="sys">A custom mspack_system structure, or NULL to use the default</param>
         /// <returns>A <see cref="mscab_decompressor"/> or NULL</returns>
-        public static mscab_decompressor mspack_create_cab_decompressor(mspack_system sys) => throw new NotImplementedException();
+        public static mscab_decompressor mspack_create_cab_decompressor(mspack_system sys)
+        {
+            if (sys == null)
+                return null;
+
+            var self = new mscab_decompressor
+            {
+                system = sys,
+                d = null,
+                error = MSPACK_ERR.MSPACK_ERR_OK,
+
+                searchbuf_size = 32768,
+                fix_mszip = 0,
+                buf_size = 4096,
+                salvage = 0,
+            };
+
+            return self;
+        }
 
         /// <summary>
         /// Destroys an existing CAB compressor.
@@ -28,7 +47,21 @@ namespace SabreTools.Compression.libmspack
         /// Destroys an existing CAB decompressor.
         /// </summary>
         /// <param name="self">The <see cref="mscab_decompressor"/> to destroy</param>
-        public static void mspack_destroy_cab_decompressor(mscab_decompressor self) => throw new NotImplementedException();
+        public static void mspack_destroy_cab_decompressor(mscab_decompressor self)
+        {
+            if (self != null)
+            {
+                mspack_system sys = self.system;
+                if (self.d != null)
+                {
+                    if (self.d.infh != null) sys.close(self.d.infh);
+                    cabd_free_decomp(self);
+                    //sys.free(self.d);
+                }
+
+                //sys.free(self);
+            }
+        }
 
         /// <summary>
         /// Creates a new CHM compressor.
@@ -120,7 +153,18 @@ namespace SabreTools.Compression.libmspack
         /// </summary>
         /// <param name="sys">A custom mspack_system structure, or NULL to use the default</param>
         /// <returns>A <see cref="msszdd_decompressor"/> or NULL</returns>
-        public static msszdd_decompressor mspack_create_szdd_decompressor(mspack_system sys) => throw new NotImplementedException();
+        public static msszdd_decompressor mspack_create_szdd_decompressor(mspack_system sys)
+        {
+            msszdd_decompressor self = null;
+
+            if (sys == null) sys = new mspack_default_system();
+
+            self = new msszdd_decompressor();
+            self.system = sys;
+            self.error = MSPACK_ERR.MSPACK_ERR_OK;
+
+            return self;
+        }
 
         /// <summary>
         /// Destroys an existing SZDD compressor.
@@ -132,7 +176,14 @@ namespace SabreTools.Compression.libmspack
         /// Destroys an existing SZDD decompressor.
         /// </summary>
         /// <param name="self">The <see cref="msszdd_decompressor"/> to destroy</param>
-        public static void mspack_destroy_szdd_decompressor(msszdd_decompressor self) => throw new NotImplementedException();
+        public static void mspack_destroy_szdd_decompressor(msszdd_decompressor self)
+        {
+            if (self != null)
+            {
+                mspack_system sys = self.system;
+                //sys.free(self);
+            }
+        }
 
         /// <summary>
         /// Creates a new KWAJ compressor.

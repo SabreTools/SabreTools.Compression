@@ -9,7 +9,7 @@
 
 namespace SabreTools.Compression.libmspack
 {
-    public static class SZDD
+    public static class szdd
     {
         /// <summary>
         /// Input buffer size during decompression - not worth parameterising IMHO
