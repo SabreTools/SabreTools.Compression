@@ -111,5 +111,15 @@ namespace SabreTools.Compression.libmspack
         /// <see cref="nextinfo"/> 
         /// <see cref="header_resv"/> 
         public MSCAB_HDR flags { get; set; }
+
+        /// <summary>
+        /// Offset to data blocks
+        /// </summary>
+        public long blocks_off { get; set; }
+
+        /// <summary>
+        /// Reserved space in data blocks
+        /// </summary>
+        public int block_resv { get; set; }
     }
 }

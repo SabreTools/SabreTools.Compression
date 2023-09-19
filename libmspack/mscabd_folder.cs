@@ -34,5 +34,20 @@ namespace SabreTools.Compression.libmspack
         /// one cabinet.
         /// </summary>
         public uint num_blocks { get; set; }
+
+        /// <summary>
+        /// Where are the data blocks?
+        /// </summary>
+        public mscabd_folder_data data { get; set; }
+
+        /// <summary>
+        /// First file needing backwards merge
+        /// </summary>
+        public mscabd_file merge_prev { get; set; }
+
+        /// <summary>
+        /// First file needing forwards merge
+        /// </summary>
+        public mscabd_file merge_next { get; set; }
     }
 }

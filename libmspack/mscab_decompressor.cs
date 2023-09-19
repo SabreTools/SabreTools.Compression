@@ -9,6 +9,22 @@ namespace SabreTools.Compression.libmspack
     /// <see cref="mspack_destroy_cab_decompressor()"/>
     public abstract class mscab_decompressor
     {
+        public mscabd_decompress_state d { get; set; }
+
+        public mspack_system system { get; set; }
+
+        public int buf_size { get; set; }
+
+        public int searchbuf_size { get; set; }
+
+        public int fix_mszip { get; set; }
+
+        public int salvage { get; set; }
+
+        public MSPACK_ERR error { get; set; }
+
+        public MSPACK_ERR read_error { get; set; }
+
         /// <summary>
         /// Opens a cabinet file and reads its contents.
         /// 
