@@ -9,6 +9,12 @@ namespace SabreTools.Compression.libmspack
     /// <see cref="mspack_destroy_kwaj_compressor()"/>
     public unsafe abstract class mskwaj_compressor
     {
+        public mspack_system system { get; set; }
+
+        public int[] param { get; set; } = new int[2];
+
+        public MSPACK_ERR error { get; set; }
+
         /// <summary>
         /// Reads an input file and creates a compressed output file in the
         /// KWAJ compressed file format. The KWAJ compression format is quick

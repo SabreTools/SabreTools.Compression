@@ -42,5 +42,7 @@ namespace SabreTools.Compression.libmspack
         /// Length of extra uncompressed data in the header
         /// </summary>
         public ushort extra_length { get; set; }
+
+        public mspack_file fh { get; set; }
     }
 }
