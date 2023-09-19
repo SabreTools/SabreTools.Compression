@@ -35,7 +35,7 @@ namespace SabreTools.Compression.libmspack
         /// </summary>
         /// <param name="sys">A custom mspack_system structure, or NULL to use the default</param>
         /// <returns>A <see cref="mschm_compressor"/> or NULL</returns>
-        public static mschm_compressor mspack_create_chm_compressor(mspack_system sys) => throw new NotImplementedException();
+        public static mschm_compressor mspack_create_chm_compressor(mspack_system sys) => null;
 
         /// <summary>
         /// Creates a new CHM decompressor.
@@ -48,7 +48,7 @@ namespace SabreTools.Compression.libmspack
         /// Destroys an existing CHM compressor.
         /// </summary>
         /// <param name="self">The <see cref="mschm_compressor"/> to destroy</param>
-        public static void mspack_destroy_chm_compressor(mschm_compressor self) => throw new NotImplementedException();
+        public static void mspack_destroy_chm_compressor(mschm_compressor self) { }
 
         /// <summary>
         /// Destroys an existing CHM decompressor.
