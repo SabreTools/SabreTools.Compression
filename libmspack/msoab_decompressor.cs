@@ -9,6 +9,10 @@ namespace SabreTools.Compression.libmspack
     /// <see cref="mspack_destroy_oab_decompressor()"/> 
     public abstract class msoab_decompressor
     {
+        public mspack_system system { get; set; }
+
+        public int buf_size { get; set; }
+
         /// <summary>
         /// Decompresses a full Offline Address Book file.
         ///
@@ -56,7 +60,7 @@ namespace SabreTools.Compression.libmspack
         /// </param>
         /// <returns>An error code, or MSPACK_ERR_OK if successful</returns>
         public abstract MSPACK_ERR decompress_incremental(in string input, in string @base, in string output);
-    
+
         /// <summary>
         /// Sets an OAB decompression engine parameter. Available only in OAB
         /// decompressor version 2 and above.
