@@ -1,4 +1,4 @@
-namespace SabreTools.Compression.libmspack.CAB
+namespace SabreTools.Compression.libmspack.LIT
 {
     /// <summary>
     /// TODO
@@ -6,11 +6,11 @@ namespace SabreTools.Compression.libmspack.CAB
     public class Compressor : BaseCompressor
     {
         /// <summary>
-        /// Creates a new CAB compressor
+        /// Creates a new LIT compressor
         /// </summary>
         public Compressor()
         {
-            this.system = new CABSystem();
+            this.system = new mspack_default_system();
             this.error = MSPACK_ERR.MSPACK_ERR_OK;
         }
     }

@@ -1,15 +1,41 @@
-namespace SabreTools.Compression.libmspack
+using System;
+
+namespace SabreTools.Compression.libmspack.CHM
 {
     /// <summary>
     /// A decompressor for .CHM (Microsoft HTMLHelp) files
     /// 
     /// All fields are READ ONLY.
     /// </summary>
-    /// <see cref="mspack_create_chm_decompressor()"/>
-    /// <see cref="mspack_destroy_chm_decompressor()"/>
-    public abstract class mschm_decompressor : BaseDecompressor
+    /// <see cref="mspack.DestroyCHMDecomperssor(Decompressor)"/>
+    public class Decompressor : BaseDecompressor
     {
-        public mschmd_decompress_state d { get; set; }
+        public mschmd_decompress_state d { get; private set; }
+
+        /// <summary>
+        /// Creates a new CHM decompressor
+        /// </summary>
+        public Decompressor()
+        {
+            this.system = new mspack_default_system();
+            error = MSPACK_ERR.MSPACK_ERR_OK;
+            d = null;
+        }
+
+        /// <summary>
+        /// Destroys an existing CHM decompressor
+        /// </summary>
+        ~Decompressor()
+        {
+            mspack_system sys = this.system;
+            if (this.d != null)
+            {
+                if (this.d.infh != null) sys.close(this.d.infh);
+                if (this.d.state != null) lzxd_free(this.d.state);
+                //sys.free(this.d);
+            }
+            //sys.free(this);
+        }
 
         /// <summary>
         /// Opens a CHM helpfile and reads its contents.
@@ -30,7 +56,7 @@ namespace SabreTools.Compression.libmspack
         /// </param>
         /// <returns>A pointer to a mschmd_header structure, or null on failure</returns>
         /// <see cref="close(mschmd_header)"/>
-        public abstract mschmd_header open(in string filename);
+        public mschmd_header open(in string filename) => throw new NotImplementedException();
 
         /// <summary>
         /// Closes a previously opened CHM helpfile.
@@ -47,7 +73,7 @@ namespace SabreTools.Compression.libmspack
         /// <param name="chm">The CHM helpfile to close</param>
         /// <see cref="open(in string)"/>
         /// <see cref="fast_open(in string)"/>
-        public abstract void close(mschmd_header chm);
+        public void close(mschmd_header chm) => throw new NotImplementedException();
 
         /// <summary>
         /// Extracts a file from a CHM helpfile.
@@ -64,7 +90,7 @@ namespace SabreTools.Compression.libmspack
         /// <param name="file">The file to be decompressed</param>
         /// <param name="filename">The filename of the file being written to</param>
         /// <returns>An error code, or MSPACK_ERR_OK if successful</returns>
-        public abstract MSPACK_ERR extract(mschmd_file file, in string filename);
+        public MSPACK_ERR extract(mschmd_file file, in string filename) => throw new NotImplementedException();
 
         /// <summary>
         /// Returns the error code set by the most recently called method.
@@ -75,7 +101,7 @@ namespace SabreTools.Compression.libmspack
         /// <returns>The most recent error code</returns>
         /// <see cref="open(in string)"/>
         /// <see cref="extract(mschmd_file, in string)"/>
-        public abstract MSPACK_ERR last_error();
+        public MSPACK_ERR last_error() => throw new NotImplementedException();
 
         /// <summary>
         /// Opens a CHM helpfile quickly.
@@ -101,7 +127,7 @@ namespace SabreTools.Compression.libmspack
         /// <see cref="close(mschmd_header)"/> 
         /// <see cref="fast_find(mschmd_header, in string, mschmd_file, int)"/> 
         /// <see cref="extract(mschmd_file, in string)"/>
-        public abstract mschmd_header fast_open(in string filename);
+        public mschmd_header fast_open(in string filename) => throw new NotImplementedException();
 
         /// <summary>
         /// Finds file details quickly.
@@ -141,6 +167,6 @@ namespace SabreTools.Compression.libmspack
         /// <see cref="close(mschmd_header)"/> 
         /// <see cref="fast_find(mschmd_header, in string, mschmd_file, int)"/> 
         /// <see cref="extract(mschmd_file, in string)"/>
-        public abstract MSPACK_ERR fast_find(mschmd_header chm, in string filename, mschmd_file f_ptr, int f_size);
+        public MSPACK_ERR fast_find(mschmd_header chm, in string filename, mschmd_file f_ptr, int f_size) => throw new NotImplementedException();
     }
 }

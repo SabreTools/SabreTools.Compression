@@ -4,141 +4,35 @@ namespace SabreTools.Compression.libmspack
 {
     public partial class mspack
     {
-        #region CAB
-
-        /// <summary>
-        /// Creates a new CAB compressor.
-        /// </summary>
-        /// <param name="sys">A custom <see cref="mspack_system"/> structure, or null to use the default</param>
-        /// <returns>A <see cref="CAB.Compressor"/> or null</returns>
-        public static CAB.Compressor CreateCABCompressor(mspack_system sys) => null;
-
-        /// <summary>
-        /// Creates a new CAB decompressor.
-        /// </summary>
-        /// <returns>A <see cref="CAB.Decompressor"/> or null</returns>
-        public static CAB.Decompressor CreateCABDecompressor()
-        {
-            var self = new CAB.Decompressor
-            {
-                system = new CAB.CABSystem(),
-                d = null,
-                error = MSPACK_ERR.MSPACK_ERR_OK,
-
-                searchbuf_size = 32768,
-                fix_mszip = 0,
-                buf_size = 4096,
-                salvage = 0,
-            };
-
-            return self;
-        }
-
-        /// <summary>
-        /// Destroys an existing CAB compressor.
-        /// </summary>
-        /// <param name="self">The <see cref="CAB.Compressor"/> to destroy</param>
-        public static void DestroyCABCompressor(CAB.Compressor self) { }
-
-        /// <summary>
-        /// Destroys an existing CAB decompressor.
-        /// </summary>
-        /// <param name="self">The <see cref="CAB.Decompressor"/> to destroy</param>
-        public static void DestroyCABDecompressor(CAB.Decompressor self)
-        {
-            if (self != null)
-            {
-                mspack_system sys = self.system;
-                if (self.d != null)
-                {
-                    if (self.d.infh != null) sys.close(self.d.infh);
-                    cab.cabd_free_decomp(self);
-                    //sys.free(self.d);
-                }
-
-                //sys.free(self);
-            }
-        }
-
-        #endregion
-
-        /// <summary>
-        /// Creates a new CHM compressor.
-        /// </summary>
-        /// <param name="sys">A custom <see cref="mspack_system"/> structure, or null to use the default</param>
-        /// <returns>A <see cref="CHM.Compressor"/> or null</returns>
-        public static CHM.Compressor CreateCHMCompressor(mspack_system sys) => null;
-
-        /// <summary>
-        /// Creates a new CHM decompressor.
-        /// </summary>
-        /// <param name="sys">A custom <see cref="mspack_system"/> structure, or null to use the default</param>
-        /// <returns>A <see cref="mschm_decompressor"/> or null</returns>
-        public static mschm_decompressor mspack_create_chm_decompressor(mspack_system sys) => throw new NotImplementedException();
-
-        /// <summary>
-        /// Destroys an existing CHM compressor.
-        /// </summary>
-        /// <param name="self">The <see cref="CHM.Compressor"/> to destroy</param>
-        public static void DestroyCHMCompressor(CHM.Compressor self) { }
-
-        /// <summary>
-        /// Destroys an existing CHM decompressor.
-        /// </summary>
-        /// <param name="self">The <see cref="mschm_decompressor"/> to destroy</param>
-        public static void mspack_destroy_chm_decompressor(mschm_decompressor self) => throw new NotImplementedException();
-
-        /// <summary>
-        /// Creates a new LIT compressor.
-        /// </summary>
-        /// <param name="sys">A custom <see cref="mspack_system"/> structure, or null to use the default</param>
-        /// <returns>A <see cref="mslit_compressor"/> or null</returns>
-        public static mslit_compressor mspack_create_lit_compressor(mspack_system sys) => null;
-
-        /// <summary>
-        /// Creates a new LIT decompressor.
-        /// </summary>
-        /// <param name="sys">A custom <see cref="mspack_system"/> structure, or null to use the default</param>
-        /// <returns>A <see cref="mslit_decompressor"/> or null</returns>
-        public static mslit_decompressor mspack_create_lit_decompressor(mspack_system sys) => null;
-
-        /// <summary>
-        /// Destroys an existing LIT compressor.
-        /// </summary>
-        /// <param name="self">The <see cref="mslit_compressor"/> to destroy</param>
-        public static void mspack_destroy_lit_compressor(mslit_compressor self) { }
-
-        /// <summary>
-        /// Destroys an existing LIT decompressor.
-        /// </summary>
-        /// <param name="self">The <see cref="mslit_decompressor"/> to destroy</param>
-        public static void mspack_destroy_lit_decompressor(mslit_decompressor self) { }
+        #region HLP
 
         /// <summary>
         /// Creates a new HLP compressor.
         /// </summary>
-        /// <param name="sys">A custom <see cref="mspack_system"/> structure, or null to use the default</param>
-        /// <returns>A <see cref="mshlp_compressor"/> or null</returns>
-        public static mshlp_compressor mspack_create_hlp_compressor(mspack_system sys) => null;
+        /// <returns>A <see cref="HLP.Compressor"/> or null</returns>
+        public static HLP.Compressor CreateHLPCompressor() => null;
 
         /// <summary>
         /// Creates a new HLP decompressor.
         /// </summary>
-        /// <param name="sys">A custom <see cref="mspack_system"/> structure, or null to use the default</param>
-        /// <returns>A <see cref="mshlp_decompressor"/> or null</returns>
-        public static mshlp_decompressor mspack_create_hlp_decompressor(mspack_system sys) => null;
+        /// <returns>A <see cref="HLP.Decompressor"/> or null</returns>
+        public static HLP.Decompressor CreateHLPDecompressor() => null;
 
         /// <summary>
         /// Destroys an existing hlp compressor.
         /// </summary>
-        /// <param name="self">The <see cref="mshlp_compressor"/> to destroy</param>
-        public static void mspack_destroy_hlp_compressor(mshlp_compressor self) { }
+        /// <param name="self">The <see cref="HLP.Compressor"/> to destroy</param>
+        public static void DestroyHLPCompressor(HLP.Compressor self) { }
 
         /// <summary>
         /// Destroys an existing hlp decompressor.
         /// </summary>
-        /// <param name="self">The <see cref="mshlp_decompressor"/> to destroy</param>
-        public static void mspack_destroy_hlp_decompressor(mshlp_decompressor self) { }
+        /// <param name="self">The <see cref="HLP.Decompressor"/> to destroy</param>
+        public static void DestroyHLPDecompressor(HLP.Decompressor self) { }
+
+        #endregion
+
+        #region SZDD
 
         /// <summary>
         /// Creates a new SZDD compressor.
@@ -150,16 +44,11 @@ namespace SabreTools.Compression.libmspack
         /// <summary>
         /// Creates a new SZDD decompressor.
         /// </summary>
-        /// <param name="sys">A custom <see cref="mspack_system"/> structure, or null to use the default</param>
         /// <returns>A <see cref="msszdd_decompressor"/> or null</returns>
-        public static msszdd_decompressor mspack_create_szdd_decompressor(mspack_system sys)
+        public static msszdd_decompressor mspack_create_szdd_decompressor()
         {
-            msszdd_decompressor self = null;
-
-            if (sys == null) sys = new mspack_default_system();
-
-            self = new msszdd_decompressor();
-            self.system = sys;
+            msszdd_decompressor self = new msszdd_decompressor();
+            self.system = new mspack_default_system();
             self.error = MSPACK_ERR.MSPACK_ERR_OK;
 
             return self;
@@ -183,6 +72,8 @@ namespace SabreTools.Compression.libmspack
                 //sys.free(self);
             }
         }
+
+        #endregion
 
         /// <summary>
         /// Creates a new KWAJ compressor.

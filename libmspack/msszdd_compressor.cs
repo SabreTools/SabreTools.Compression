@@ -5,8 +5,8 @@ namespace SabreTools.Compression.libmspack
     /// 
     /// All fields are READ ONLY.
     /// </summary>
-    /// <see cref="mspack_create_szdd_compressor()"/>
-    /// <see cref="mspack_destroy_szdd_compressor()"/>
+    /// <see cref="mspack.mspack_create_szdd_compressor(mspack_system)"/>
+    /// <see cref="mspack.mspack_destroy_szdd_compressor(msszdd_compressor)"/>
     public abstract class msszdd_compressor : BaseCompressor
     {
         /// <summary>

@@ -8,8 +8,8 @@ namespace SabreTools.Compression.libmspack
     /// 
     /// All fields are READ ONLY.
     /// </summary>
-    /// <see cref="mspack_create_szdd_decompressor()"/>
-    /// <see cref="mspack_destroy_szdd_decompressor()"/>
+    /// <see cref="mspack.mspack_create_szdd_decompressor()"/>
+    /// <see cref="mspack.mspack_destroy_szdd_decompressor(msszdd_decompressor)"/>
     public unsafe class msszdd_decompressor : BaseDecompressor
     {
         /// <summary>
@@ -37,7 +37,7 @@ namespace SabreTools.Compression.libmspack
             mspack_file fh = sys.open(filename, MSPACK_SYS_OPEN.MSPACK_SYS_OPEN_READ);
             msszddd_header hdr = new msszddd_header();
             hdr.fh = fh;
-            this.error = szddd_read_headers(sys, fh, hdr);
+            this.error = ReadHeaders(sys, fh, hdr);
 
             if (this.error != MSPACK_ERR.MSPACK_ERR_OK)
             {
@@ -88,7 +88,7 @@ namespace SabreTools.Compression.libmspack
         /// <param name="fh"></param>
         /// <param name="hdr"></param>
         /// <returns></returns>
-        private static MSPACK_ERR szddd_read_headers(mspack_system sys, mspack_file fh, msszddd_header hdr)
+        private static MSPACK_ERR ReadHeaders(mspack_system sys, mspack_file fh, msszddd_header hdr)
         {
             byte[] buf = new byte[8];
             byte* bufPtr = libmspack.system.GetArrayPointer<byte>(buf);

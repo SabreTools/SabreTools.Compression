@@ -1,9 +1,9 @@
-namespace SabreTools.Compression.libmspack
+namespace SabreTools.Compression.libmspack.HLP
 {
     /// <summary>
     /// TODO
     /// </summary>
-    public class mshlp_compressor : BaseCompressor
+    public class Compressor : BaseCompressor
     {
         public int dummy { get; set; }
     }

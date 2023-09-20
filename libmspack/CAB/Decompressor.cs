@@ -8,21 +8,50 @@ namespace SabreTools.Compression.libmspack.CAB
     /// 
     /// All fields are READ ONLY.
     /// </summary>
-    /// <see cref="mspack.CreateCABDecompressor()"/>
-    /// <see cref="mspack.DestroyCABDecompressor(Decompressor)"/>
     public unsafe class Decompressor : BaseDecompressor
     {
-        public mscabd_decompress_state d { get; set; }
+        public mscabd_decompress_state d { get; private set; }
 
-        public int buf_size { get; set; }
+        public int buf_size { get; private set; }
 
-        public int searchbuf_size { get; set; }
+        public int searchbuf_size { get; private set; }
 
-        public int fix_mszip { get; set; }
+        public int fix_mszip { get; private set; }
 
-        public int salvage { get; set; }
+        public int salvage { get; private set; }
 
-        public MSPACK_ERR read_error { get; set; }
+        public MSPACK_ERR read_error { get; private set; }
+
+        /// <summary>
+        /// Creates a new CAB decompressor
+        /// </summary>
+        public Decompressor()
+        {
+            this.system = new CABSystem();
+            this.d = null;
+            this.error = MSPACK_ERR.MSPACK_ERR_OK;
+
+            this.searchbuf_size = 32768;
+            this.fix_mszip = 0;
+            this.buf_size = 4096;
+            this.salvage = 0;
+        }
+
+        /// <summary>
+        /// Destroys an existing CAB decompressor.
+        /// </summary>
+        ~Decompressor()
+        {
+            mspack_system sys = this.system;
+            if (this.d != null)
+            {
+                if (this.d.infh != null) sys.close(this.d.infh);
+                cab.cabd_free_decomp(this);
+                //sys.free(this.d);
+            }
+
+            //sys.free(this);
+        }
 
         /// <summary>
         /// Opens a cabinet file and reads its contents.

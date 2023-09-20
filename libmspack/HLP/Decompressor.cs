@@ -1,9 +1,9 @@
-namespace SabreTools.Compression.libmspack
+namespace SabreTools.Compression.libmspack.HLP
 {
     /// <summary>
     /// TODO
     /// </summary>
-    public class mslit_decompressor : BaseDecompressor
+    public class Decompressor : BaseDecompressor
     {
         public int dummy { get; set; }
     }

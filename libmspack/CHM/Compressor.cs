@@ -5,13 +5,21 @@ namespace SabreTools.Compression.libmspack.CHM
     /// 
     /// All fields are READ ONLY.
     /// </summary>
-    /// <see cref="mspack.CreateCHMCompressor(mspack_system)"/> 
     /// <see cref="mspack.DestroyCHMCompressor(Compressor)"/> 
     public class Compressor : BaseCompressor
     {
-        public string temp_file { get; set; }
+        public string temp_file { get; private set; }
 
-        public int use_temp_file { get; set; }
+        public int use_temp_file { get; private set; }
+
+        /// <summary>
+        /// Creates a new CHM compressor
+        /// </summary>
+        public Compressor()
+        {
+            this.system = new mspack_default_system();
+            this.error = MSPACK_ERR.MSPACK_ERR_OK;
+        }
 
         /// <summary>
         /// Generates a CHM help file.
