@@ -7,7 +7,7 @@ namespace SabreTools.Compression.libmspack
     /// </summary>
     /// <see cref="mspack_create_chm_decompressor()"/>
     /// <see cref="mspack_destroy_chm_decompressor()"/>
-    public abstract class mschm_decompressor : Decompressor
+    public abstract class mschm_decompressor : BaseDecompressor
     {
         public mschmd_decompress_state d { get; set; }
 

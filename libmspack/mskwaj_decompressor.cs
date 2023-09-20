@@ -7,7 +7,7 @@ namespace SabreTools.Compression.libmspack
     /// </summary>
     /// <see cref="mspack_create_kwaj_decompressor()"/> 
     /// <see cref="mspack_destroy_kwaj_decompressor()"/> 
-    public abstract class mskwaj_decompressor : Decompressor
+    public abstract class mskwaj_decompressor : BaseDecompressor
     {
         /// <summary>
         /// Opens a KWAJ file and reads the header.

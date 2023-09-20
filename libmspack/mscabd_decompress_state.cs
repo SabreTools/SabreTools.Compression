@@ -1,8 +1,9 @@
-using static SabreTools.Compression.libmspack.cab;
+using SabreTools.Compression.libmspack.CAB;
+using static SabreTools.Compression.libmspack.CAB.Constants;
 
 namespace SabreTools.Compression.libmspack
 {
-    public abstract unsafe class mscabd_decompress_state
+    public unsafe class mscabd_decompress_state
     {
         /// <summary>
         /// Current folder we're extracting from
@@ -32,7 +33,7 @@ namespace SabreTools.Compression.libmspack
         /// <summary>
         /// Special I/O code for decompressor
         /// </summary>
-        public mspack_system sys { get; set; }
+        public CABSystem sys { get; set; }
 
         /// <summary>
         /// Type of compression used by folder
@@ -42,7 +43,7 @@ namespace SabreTools.Compression.libmspack
         /// <summary>
         /// Decompressor code
         /// </summary>
-        public abstract MSPACK_ERR decompress(object data, long offset);
+        public virtual MSPACK_ERR decompress(object data, long offset) => MSPACK_ERR.MSPACK_ERR_NOMEMORY;
 
         /// <summary>
         /// Decompressor state

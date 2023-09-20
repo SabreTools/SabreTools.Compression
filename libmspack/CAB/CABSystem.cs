@@ -1,8 +1,8 @@
-using static SabreTools.Compression.libmspack.cab;
+using static SabreTools.Compression.libmspack.CAB.Constants;
 
-namespace SabreTools.Compression.libmspack
+namespace SabreTools.Compression.libmspack.CAB
 {
-    public unsafe class mspack_mscab_system : mspack_default_system
+    public unsafe class CABSystem : mspack_default_system
     {
         /// <summary>
         /// cabd_sys_read is the internal reader function which the decompressors
@@ -11,12 +11,12 @@ namespace SabreTools.Compression.libmspack
         /// </summary>
         public override unsafe int read(mspack_file file, void* buffer, int bytes)
         {
-            mscab_decompressor self = (mscab_decompressor)file;
+            Decompressor self = (Decompressor)file;
             byte* buf = (byte*)buffer;
             mspack_system sys = self.system;
-            int avail, todo, outlen, ignore_cksum, ignore_blocksize;
+            int avail, todo, outlen = 0, ignore_cksum, ignore_blocksize;
 
-            ignore_cksum = self.salvage != 0 || (self.fix_mszip != 0 && (((int)self.d.comp_type & cffoldCOMPTYPE_MASK) == cffoldCOMPTYPE_MSZIP)) == true ? 1 : 0;
+            ignore_cksum = self.salvage != 0 || (self.fix_mszip != 0 && ((MSCAB_COMP)((int)self.d.comp_type & cffoldCOMPTYPE_MASK) == MSCAB_COMP.MSCAB_COMP_MSZIP)) == true ? 1 : 0;
             ignore_blocksize = self.salvage;
 
             todo = bytes;
@@ -53,14 +53,14 @@ namespace SabreTools.Compression.libmspack
                     }
 
                     // Read a block
-                    self.read_error = cabd_sys_read_block(sys, self.d, ref outlen, ignore_cksum, ignore_blocksize);
+                    self.read_error = ReadBlock(sys, self.d, ref outlen, ignore_cksum, ignore_blocksize);
                     if (self.read_error != MSPACK_ERR.MSPACK_ERR_OK) return -1;
                     self.d.outlen += outlen;
 
                     // Special Quantum hack -- trailer byte to allow the decompressor
                     // to realign itself. CAB Quantum blocks, unlike LZX blocks, can have
                     // anything from 0 to 4 trailing null bytes.
-                    if (((int)self.d.comp_type & cffoldCOMPTYPE_MASK) == cffoldCOMPTYPE_QUANTUM)
+                    if ((MSCAB_COMP)((int)self.d.comp_type & cffoldCOMPTYPE_MASK) == MSCAB_COMP.MSCAB_COMP_QUANTUM)
                     {
                         *self.d.i_end++ = 0xFF;
                     }
@@ -68,10 +68,10 @@ namespace SabreTools.Compression.libmspack
                     // Is this the last block?
                     if (self.d.block >= self.d.folder.num_blocks)
                     {
-                        if (((int)self.d.comp_type & cffoldCOMPTYPE_MASK) == cffoldCOMPTYPE_LZX)
+                        if ((MSCAB_COMP)((int)self.d.comp_type & cffoldCOMPTYPE_MASK) == MSCAB_COMP.MSCAB_COMP_LZX)
                         {
-                            /* special LZX hack -- on the last block, inform LZX of the
-                             * size of the output data stream. */
+                            // Special LZX hack -- on the last block, inform LZX of the
+                            // size of the output data stream.
                             lzxd_set_output_length((lzxd_stream)self.d.state, self.d.outlen);
                         }
                     }
@@ -88,7 +88,7 @@ namespace SabreTools.Compression.libmspack
         /// </summary>
         public override unsafe int write(mspack_file file, void* buffer, int bytes)
         {
-            mscab_decompressor self = (mscab_decompressor)file;
+            Decompressor self = (Decompressor)file;
             self.d.offset += (uint)bytes;
             if (self.d.outfh != null)
             {
@@ -101,7 +101,7 @@ namespace SabreTools.Compression.libmspack
         /// Reads a whole data block from a cab file. the block may span more than
         /// one cab file, if it does then the fragments will be reassembled
         /// </summary>
-        private static MSPACK_ERR cabd_sys_read_block(mspack_system sys, mscabd_decompress_state d, ref int @out, int ignore_cksum, int ignore_blocksize)
+        private static MSPACK_ERR ReadBlock(mspack_system sys, mscabd_decompress_state d, ref int @out, int ignore_cksum, int ignore_blocksize)
         {
             byte[] hdr = new byte[cfdata_SIZEOF];
             uint cksum;
@@ -126,7 +126,7 @@ namespace SabreTools.Compression.libmspack
                 }
 
                 // Blocks must not be over CAB_INPUTMAX in size
-                len = EndGetI16(&hdr[cfdata_CompressedSize]);
+                len = System.BitConverter.ToUInt16(hdr, cfdata_CompressedSize);
                 full_len = (int)(d.i_end - d.i_ptr + len); // Include cab-spanning blocks */
                 if (full_len > CAB_INPUTMAX)
                 {
@@ -139,7 +139,7 @@ namespace SabreTools.Compression.libmspack
                 }
 
                 // Blocks must not expand to more than CAB_BLOCKMAX
-                if (EndGetI16(&hdr[cfdata_UncompressedSize]) > CAB_BLOCKMAX)
+                if (System.BitConverter.ToUInt16(hdr, cfdata_UncompressedSize) > CAB_BLOCKMAX)
                 {
                     System.Console.Error.WriteLine("block size > CAB_BLOCKMAX");
                     if (ignore_blocksize == 0) return MSPACK_ERR.MSPACK_ERR_DATAFORMAT;
@@ -152,10 +152,10 @@ namespace SabreTools.Compression.libmspack
                 }
 
                 // Perform checksum test on the block (if one is stored)
-                if ((cksum = EndGetI32(&hdr[cfdata_CheckSum])))
+                if ((cksum = System.BitConverter.ToUInt32(hdr, cfdata_CheckSum)) != 0)
                 {
-                    uint sum2 = cabd_checksum(d.i_end, (uint)len, 0);
-                    if (cabd_checksum(&hdr[4], 4, sum2) != cksum)
+                    uint sum2 = Checksum(d.i_end, (uint)len, 0);
+                    if (Checksum(&hdr[4], 4, sum2) != cksum)
                     {
                         if (ignore_cksum == 0) return MSPACK_ERR.MSPACK_ERR_CHECKSUM;
                         sys.message(d.infh, "WARNING; bad block checksum found");
@@ -171,7 +171,7 @@ namespace SabreTools.Compression.libmspack
                 // reading needs to be done.
 
                 // EXIT POINT OF LOOP -- uncompressed size != 0
-                if ((@out = EndGetI16(&hdr[cfdata_UncompressedSize])))
+                if ((@out = System.BitConverter.ToInt16(hdr, cfdata_UncompressedSize)) != 0)
                 {
                     return MSPACK_ERR.MSPACK_ERR_OK;
                 }
@@ -207,13 +207,13 @@ namespace SabreTools.Compression.libmspack
             return MSPACK_ERR.MSPACK_ERR_OK;
         }
 
-        private static uint cabd_checksum(byte* data, uint bytes, uint cksum)
+        private static uint Checksum(byte* data, uint bytes, uint cksum)
         {
             uint len, ul = 0;
 
             for (len = bytes >> 2; len-- > 0; data += 4)
             {
-                cksum ^= EndGetI32(data);
+                cksum ^= System.BitConverter.ToInt32(data, 0);
             }
 
             switch (bytes & 3)

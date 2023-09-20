@@ -1,3 +1,5 @@
+using static SabreTools.Compression.libmspack.CAB.Constants;
+
 namespace SabreTools.Compression.libmspack
 {
     public unsafe static class cab
@@ -8,7 +10,7 @@ namespace SabreTools.Compression.libmspack
         /// cabd_free_decomp frees decompression state, according to which method
         /// was used.
         /// </summary>
-        public static MSPACK_ERR cabd_init_decomp(mscab_decompressor self, MSCAB_COMP ct)
+        public static MSPACK_ERR cabd_init_decomp(CAB.Decompressor self, MSCAB_COMP ct)
         {
             mspack_file fh = self;
 
@@ -43,7 +45,7 @@ namespace SabreTools.Compression.libmspack
         /// decompression method was used. relies on self.d.folder being the same
         /// as when initialised.
         /// </summary>
-        public static void cabd_free_decomp(mscab_decompressor self)
+        public static void cabd_free_decomp(CAB.Decompressor self)
         {
             if (self == null || self.d == null || self.d.state == null) return;
 

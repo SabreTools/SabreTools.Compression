@@ -10,7 +10,7 @@ namespace SabreTools.Compression.libmspack
     /// </summary>
     /// <see cref="mspack_create_szdd_decompressor()"/>
     /// <see cref="mspack_destroy_szdd_decompressor()"/>
-    public unsafe class msszdd_decompressor : Decompressor
+    public unsafe class msszdd_decompressor : BaseDecompressor
     {
         /// <summary>
         /// Opens a SZDD file and reads the header.
@@ -105,7 +105,7 @@ namespace SabreTools.Compression.libmspack
                 if (sys.read(fh, bufPtr, 6) != 6) return MSPACK_ERR.MSPACK_ERR_READ;
                 if (buf[0] != 0x41) return MSPACK_ERR.MSPACK_ERR_DATAFORMAT;
                 hdr.missing_char = (char)buf[1];
-                hdr.length = EndGetI32(&buf[2]);
+                hdr.length = System.BitConverter.ToInt32(buf, 2);
             }
             else if (buf.SequenceEqual(szdd_signature_qbasic))
             {
@@ -113,7 +113,7 @@ namespace SabreTools.Compression.libmspack
                 hdr.format = MSSZDD_FMT.MSSZDD_FMT_QBASIC;
                 if (sys.read(fh, bufPtr, 4) != 4) return MSPACK_ERR.MSPACK_ERR_READ;
                 hdr.missing_char = '\0';
-                hdr.length = EndGetI32(buf);
+                hdr.length = System.BitConverter.ToInt32(buf, 0);
             }
             else
             {

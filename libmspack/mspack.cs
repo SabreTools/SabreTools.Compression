@@ -4,6 +4,8 @@ namespace SabreTools.Compression.libmspack
 {
     public partial class mspack
     {
+        #region CAB
+
         /// <summary>
         /// Creates a new CAB compressor.
         /// </summary>
@@ -14,15 +16,12 @@ namespace SabreTools.Compression.libmspack
         /// <summary>
         /// Creates a new CAB decompressor.
         /// </summary>
-        /// <param name="sys">A custom <see cref="mspack_system"/> structure, or null to use the default</param>
-        /// <returns>A <see cref="mscab_decompressor"/> or null</returns>
-        public static mscab_decompressor mspack_create_cab_decompressor(mspack_system sys)
+        /// <returns>A <see cref="CAB.Decompressor"/> or null</returns>
+        public static CAB.Decompressor CreateCABDecompressor()
         {
-            if (sys == null) sys = new mspack_mscab_system();
-
-            var self = new mscab_decompressor
+            var self = new CAB.Decompressor
             {
-                system = sys,
+                system = new CAB.CABSystem(),
                 d = null,
                 error = MSPACK_ERR.MSPACK_ERR_OK,
 
@@ -44,8 +43,8 @@ namespace SabreTools.Compression.libmspack
         /// <summary>
         /// Destroys an existing CAB decompressor.
         /// </summary>
-        /// <param name="self">The <see cref="mscab_decompressor"/> to destroy</param>
-        public static void mspack_destroy_cab_decompressor(mscab_decompressor self)
+        /// <param name="self">The <see cref="CAB.Decompressor"/> to destroy</param>
+        public static void DestroyCABDecompressor(CAB.Decompressor self)
         {
             if (self != null)
             {
@@ -53,13 +52,15 @@ namespace SabreTools.Compression.libmspack
                 if (self.d != null)
                 {
                     if (self.d.infh != null) sys.close(self.d.infh);
-                    cabd_free_decomp(self);
+                    cab.cabd_free_decomp(self);
                     //sys.free(self.d);
                 }
 
                 //sys.free(self);
             }
         }
+
+        #endregion
 
         /// <summary>
         /// Creates a new CHM compressor.
