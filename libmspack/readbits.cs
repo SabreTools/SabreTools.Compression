@@ -202,7 +202,7 @@ namespace SabreTools.Compression.libmspack
         {
             if (i_ptr >= i_end)
             {
-                if (read_input() != MSPACK_ERR.MSPACK_ERR_OK)
+                if (ReadInput() != MSPACK_ERR.MSPACK_ERR_OK)
                     return this.error;
 
                 i_ptr = this.i_ptr;
@@ -212,7 +212,7 @@ namespace SabreTools.Compression.libmspack
             return MSPACK_ERR.MSPACK_ERR_OK;
         }
 
-        private MSPACK_ERR read_input()
+        private MSPACK_ERR ReadInput()
         {
             int read = this.sys.read(this.input, this.inbuf, (int)this.inbuf_size);
             if (read < 0) return this.error = MSPACK_ERR.MSPACK_ERR_READ;

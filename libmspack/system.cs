@@ -42,14 +42,7 @@ namespace SabreTools.Compression.libmspack
         public static T* CreateArray<T>(int length)
         {
             T[] buf = new T[length];
-            return GetArrayPointer(buf);
-        }
-
-        public static T* GetArrayPointer<T>(T[] arr)
-        {
-            var bufRef = __makeref(arr);
-            var bufPtr = **(System.IntPtr**)&bufRef;
-            return (T*)bufPtr.ToPointer();
+            return &buf[0];
         }
     }
 }

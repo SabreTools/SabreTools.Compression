@@ -109,10 +109,9 @@ namespace SabreTools.Compression.libmspack.SZDD
         private static MSPACK_ERR ReadHeaders(mspack_system sys, mspack_file fh, msszddd_header hdr)
         {
             byte[] buf = new byte[8];
-            byte* bufPtr = libmspack.system.GetArrayPointer<byte>(buf);
 
             // Read and check signature
-            if (sys.read(fh, buffer: bufPtr, 8) != 8) return MSPACK_ERR.MSPACK_ERR_READ;
+            if (sys.read(fh, buffer: &buf[0], 8) != 8) return MSPACK_ERR.MSPACK_ERR_READ;
 
             if (buf.SequenceEqual(szdd_signature_expand))
             {
@@ -120,7 +119,7 @@ namespace SabreTools.Compression.libmspack.SZDD
                 hdr.format = MSSZDD_FMT.MSSZDD_FMT_NORMAL;
 
                 // Read the rest of the header
-                if (sys.read(fh, bufPtr, 6) != 6) return MSPACK_ERR.MSPACK_ERR_READ;
+                if (sys.read(fh, &buf[0], 6) != 6) return MSPACK_ERR.MSPACK_ERR_READ;
                 if (buf[0] != 0x41) return MSPACK_ERR.MSPACK_ERR_DATAFORMAT;
                 hdr.missing_char = (char)buf[1];
                 hdr.length = System.BitConverter.ToInt32(buf, 2);
@@ -129,7 +128,7 @@ namespace SabreTools.Compression.libmspack.SZDD
             {
                 // Special QBasic SZDD
                 hdr.format = MSSZDD_FMT.MSSZDD_FMT_QBASIC;
-                if (sys.read(fh, bufPtr, 4) != 4) return MSPACK_ERR.MSPACK_ERR_READ;
+                if (sys.read(fh, &buf[0], 4) != 4) return MSPACK_ERR.MSPACK_ERR_READ;
                 hdr.missing_char = '\0';
                 hdr.length = System.BitConverter.ToInt32(buf, 0);
             }
@@ -137,6 +136,7 @@ namespace SabreTools.Compression.libmspack.SZDD
             {
                 return MSPACK_ERR.MSPACK_ERR_SIGNATURE;
             }
+
             return MSPACK_ERR.MSPACK_ERR_OK;
         }
 

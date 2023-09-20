@@ -235,7 +235,7 @@ namespace SabreTools.Compression.libmspack.CAB
             }
 
             // Read in the CFHEADER
-            if (sys.read(fh, libmspack.system.GetArrayPointer(buf), cfhead_SIZEOF) != cfhead_SIZEOF)
+            if (sys.read(fh, &buf[0], cfhead_SIZEOF) != cfhead_SIZEOF)
             {
                 return MSPACK_ERR.MSPACK_ERR_READ;
             }
@@ -278,7 +278,7 @@ namespace SabreTools.Compression.libmspack.CAB
 
             if (cab.flags.HasFlag(MSCAB_HDR.MSCAB_HDR_RESV))
             {
-                if (sys.read(fh, libmspack.system.GetArrayPointer(buf), cfheadext_SIZEOF) != cfheadext_SIZEOF)
+                if (sys.read(fh, &buf[0], cfheadext_SIZEOF) != cfheadext_SIZEOF)
                 {
                     return MSPACK_ERR.MSPACK_ERR_READ;
                 }
@@ -328,7 +328,7 @@ namespace SabreTools.Compression.libmspack.CAB
             // Read folders
             for (i = 0; i < num_folders; i++)
             {
-                if (sys.read(fh, libmspack.system.GetArrayPointer(buf), cffold_SIZEOF) != cffold_SIZEOF)
+                if (sys.read(fh, &buf[0], cffold_SIZEOF) != cffold_SIZEOF)
                 {
                     return MSPACK_ERR.MSPACK_ERR_READ;
                 }
@@ -360,7 +360,7 @@ namespace SabreTools.Compression.libmspack.CAB
             // Read files
             for (i = 0; i < num_files; i++)
             {
-                if (sys.read(fh, libmspack.system.GetArrayPointer(buf), cffile_SIZEOF) != cffile_SIZEOF)
+                if (sys.read(fh, &buf[0], cffile_SIZEOF) != cffile_SIZEOF)
                 {
                     return MSPACK_ERR.MSPACK_ERR_READ;
                 }
@@ -465,7 +465,7 @@ namespace SabreTools.Compression.libmspack.CAB
             int len, i, ok;
 
             // Read up to 256 bytes */
-            if ((len = sys.read(fh, libmspack.system.GetArrayPointer(buf), 256)) <= 0)
+            if ((len = sys.read(fh, &buf[0], 256)) <= 0)
             {
                 error = MSPACK_ERR.MSPACK_ERR_READ;
                 return null;
@@ -492,7 +492,7 @@ namespace SabreTools.Compression.libmspack.CAB
             }
 
             char[] strchr = new char[len];
-            sys.copy(libmspack.system.GetArrayPointer(buf), libmspack.system.GetArrayPointer(strchr), len);
+            sys.copy(&buf[0], &strchr[0], len);
             str = new string(strchr);
             error = MSPACK_ERR.MSPACK_ERR_OK;
             return str;
@@ -1131,7 +1131,7 @@ namespace SabreTools.Compression.libmspack.CAB
                 this.d.offset = 0;
                 this.d.block = 0;
                 this.d.outlen = 0;
-                this.d.i_ptr = this.d.i_end = libmspack.system.GetArrayPointer(d.input);
+                this.d.i_ptr = this.d.i_end = &d.input[0];
 
                 // Read_error lasts for the lifetime of a decompressor
                 this.read_error = MSPACK_ERR.MSPACK_ERR_OK;

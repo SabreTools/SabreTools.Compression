@@ -1,4 +1,5 @@
 using System;
+using static SabreTools.Compression.libmspack.KWAJ.Constants;
 
 namespace SabreTools.Compression.libmspack.KWAJ
 {
@@ -104,7 +105,7 @@ namespace SabreTools.Compression.libmspack.KWAJ
             int i;
 
             // Read in the header
-            if (sys.read(fh, libmspack.system.GetArrayPointer(buf), kwajh_SIZEOF) != kwajh_SIZEOF)
+            if (sys.read(fh, &buf[0], kwajh_SIZEOF) != kwajh_SIZEOF)
             {
                 return MSPACK_ERR.MSPACK_ERR_READ;
             }

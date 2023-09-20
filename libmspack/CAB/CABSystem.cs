@@ -9,7 +9,7 @@ namespace SabreTools.Compression.libmspack.CAB
         /// use. will read data blocks (and merge split blocks) from the cabinet
         /// and serve the read bytes to the decompressors
         /// </summary>
-        public override unsafe int read(mspack_file file, void* buffer, int bytes)
+        public override int read(mspack_file file, void* buffer, int bytes)
         {
             Decompressor self = (Decompressor)file;
             byte* buf = (byte*)buffer;
@@ -86,7 +86,7 @@ namespace SabreTools.Compression.libmspack.CAB
         /// sys.write() function, or does nothing with the data when
         /// self.d.outfh == null. advances self.d.offset
         /// </summary>
-        public override unsafe int write(mspack_file file, void* buffer, int bytes)
+        public override int write(mspack_file file, void* buffer, int bytes)
         {
             Decompressor self = (Decompressor)file;
             self.d.offset += (uint)bytes;
@@ -108,12 +108,12 @@ namespace SabreTools.Compression.libmspack.CAB
             int len, full_len;
 
             // Reset the input block pointer and end of block pointer
-            d.i_ptr = d.i_end = system.GetArrayPointer(d.input);
+            d.i_ptr = d.i_end = &d.input[0];
 
             do
             {
                 // Read the block header
-                if (sys.read(d.infh, system.GetArrayPointer(hdr), cfdata_SIZEOF) != cfdata_SIZEOF)
+                if (sys.read(d.infh, &hdr[0], cfdata_SIZEOF) != cfdata_SIZEOF)
                 {
                     return MSPACK_ERR.MSPACK_ERR_READ;
                 }

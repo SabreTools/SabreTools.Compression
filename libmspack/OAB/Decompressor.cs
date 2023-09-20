@@ -61,7 +61,7 @@ namespace SabreTools.Compression.libmspack.OAB
                 goto outlbl;
             }
 
-            if (sys.read(infh, libmspack.system.GetArrayPointer(hdrbuf), oabhead_SIZEOF) != oabhead_SIZEOF)
+            if (sys.read(infh, &hdrbuf[0], oabhead_SIZEOF) != oabhead_SIZEOF)
             {
                 ret = MSPACK_ERR.MSPACK_ERR_READ;
                 goto outlbl;
@@ -225,8 +225,7 @@ namespace SabreTools.Compression.libmspack.OAB
             }
 
             byte[] hdrbuf = new byte[patchhead_SIZEOF];
-            byte* hdrbufPtr = libmspack.system.GetArrayPointer(hdrbuf);
-            if (sys.read(infh, hdrbufPtr, patchhead_SIZEOF) != patchhead_SIZEOF)
+            if (sys.read(infh, &hdrbuf[0], patchhead_SIZEOF) != patchhead_SIZEOF)
             {
                 ret = MSPACK_ERR.MSPACK_ERR_READ;
                 goto outlbl;
