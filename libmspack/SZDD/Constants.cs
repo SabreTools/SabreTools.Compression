@@ -7,9 +7,9 @@
  * For further details, see the file COPYING.LIB distributed with libmspack
  */
 
-namespace SabreTools.Compression.libmspack
+namespace SabreTools.Compression.libmspack.SZDD
 {
-    public static class szdd
+    public static class Constants
     {
         /// <summary>
         /// Input buffer size during decompression - not worth parameterising IMHO

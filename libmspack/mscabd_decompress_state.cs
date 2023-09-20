@@ -3,7 +3,7 @@ using static SabreTools.Compression.libmspack.CAB.Constants;
 
 namespace SabreTools.Compression.libmspack
 {
-    public unsafe class mscabd_decompress_state
+    public unsafe abstract class mscabd_decompress_state
     {
         /// <summary>
         /// Current folder we're extracting from
@@ -41,11 +41,6 @@ namespace SabreTools.Compression.libmspack
         public MSCAB_COMP comp_type { get; set; }
 
         /// <summary>
-        /// Decompressor code
-        /// </summary>
-        public virtual MSPACK_ERR decompress(object data, long offset) => MSPACK_ERR.MSPACK_ERR_NOMEMORY;
-
-        /// <summary>
         /// Decompressor state
         /// </summary>
         public object state { get; set; }
@@ -79,26 +74,10 @@ namespace SabreTools.Compression.libmspack
         /// One input block of data
         /// </summary>
         public byte[] input { get; set; } = new byte[CAB_INPUTBUF];
-    }
 
-    public unsafe class mscabd_noned_decompress_state : mscabd_decompress_state
-    {
-        /// <inheritdoc/>
-        public override unsafe MSPACK_ERR decompress(object data, long bytes)
-        {
-            noned_state s = data as noned_state;
-            while (bytes > 0)
-            {
-                int run = (bytes > s.bufsize) ? s.bufsize : (int)bytes;
-                {
-                    if (s.sys.read(s.i, &s.buf[0], run) != run) return MSPACK_ERR.MSPACK_ERR_READ;
-                    if (s.sys.write(s.o, &s.buf[0], run) != run) return MSPACK_ERR.MSPACK_ERR_WRITE;
-                    bytes -= run;
-                }
-                return MSPACK_ERR.MSPACK_ERR_OK;
-            }
-
-            return MSPACK_ERR.MSPACK_ERR_DECRUNCH;
-        }
+        /// <summary>
+        /// Decompressor code
+        /// </summary>
+        public abstract MSPACK_ERR decompress(object data, long offset);
     }
 }

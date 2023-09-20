@@ -1,6 +1,6 @@
-namespace SabreTools.Compression.libmspack
+namespace SabreTools.Compression.libmspack.KWAJ
 {
-    public static class kwaj
+    public static class Constants
     {
         public const byte kwajh_Signature1 = 0x00;
         public const byte kwajh_Signature2 = 0x04;

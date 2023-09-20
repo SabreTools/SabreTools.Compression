@@ -1,5 +1,4 @@
 using System;
-using static SabreTools.Compression.libmspack.kwaj;
 
 namespace SabreTools.Compression.libmspack.KWAJ
 {
@@ -45,8 +44,8 @@ namespace SabreTools.Compression.libmspack.KWAJ
         /// passed directly to mspack_system::open().
         /// </param>
         /// <returns>A pointer to a mskwajd_header structure, or null on failure</returns>
-        /// <see cref="close(mskwajd_header)"/>
-        public mskwajd_header open(in string filename)
+        /// <see cref="Close(mskwajd_header)"/>
+        public mskwajd_header Open(in string filename)
         {
             mspack_system sys = this.system;
 
@@ -63,7 +62,7 @@ namespace SabreTools.Compression.libmspack.KWAJ
             MSPACK_ERR err;
             if ((err = ReadHeaders(sys, fh, hdr)) != MSPACK_ERR.MSPACK_ERR_OK)
             {
-                close(hdr);
+                Close(hdr);
                 this.error = err;
                 return null;
             }
@@ -79,8 +78,8 @@ namespace SabreTools.Compression.libmspack.KWAJ
         /// used again.
         /// </summary>
         /// <param name="kwaj">The KWAJ file to close</param>
-        /// <see cref="open(in string)"/> 
-        public void close(mskwajd_header kwaj)
+        /// <see cref="Open(in string)"/> 
+        public void Close(mskwajd_header kwaj)
         {
             if (this.system == null)
                 return;
@@ -150,7 +149,7 @@ namespace SabreTools.Compression.libmspack.KWAJ
                 if (sys.read(fh, &buf[0], 2) != 2)
                     return MSPACK_ERR.MSPACK_ERR_READ;
                 i = BitConverter.ToUInt16(buf, 0);
-                if (sys.seek(fh, i, MSPACK_SYS_SEEK.MSPACK_SYS_SEEK_CUR))
+                if (sys.seek(fh, i, MSPACK_SYS_SEEK.MSPACK_SYS_SEEK_CUR) != 0)
                     return MSPACK_ERR.MSPACK_ERR_SEEK;
             }
 
@@ -160,8 +159,8 @@ namespace SabreTools.Compression.libmspack.KWAJ
                 int len;
 
                 // Allocate memory for maximum length filename
-                char* fn = (char*)sys.alloc(sys, 13);
-                if (!(hdr.filename = fn))
+                char* fn = (char*)sys.alloc(13);
+                if ((hdr.extra = fn) == null)
                     return MSPACK_ERR.MSPACK_ERR_NOMEMORY;
 
                 // Copy filename if present
@@ -170,8 +169,9 @@ namespace SabreTools.Compression.libmspack.KWAJ
                     // Read and copy up to 9 bytes of a null terminated string
                     if ((len = sys.read(fh, &buf[0], 9)) < 2)
                         return MSPACK_ERR.MSPACK_ERR_READ;
+
                     for (i = 0; i < len; i++)
-                        if (!(*fn++ = buf[i]))
+                        if ((*fn++ = (char)buf[i]) == '\0')
                             break;
 
                     // If string was 9 bytes with no null terminator, reject it
@@ -179,7 +179,7 @@ namespace SabreTools.Compression.libmspack.KWAJ
                         return MSPACK_ERR.MSPACK_ERR_DATAFORMAT;
 
                     // Seek to byte after string ended in file
-                    if (sys.seek(fh, i + 1 - len, MSPACK_SYS_SEEK.MSPACK_SYS_SEEK_CUR))
+                    if (sys.seek(fh, i + 1 - len, MSPACK_SYS_SEEK.MSPACK_SYS_SEEK_CUR) != 0)
                         return MSPACK_ERR.MSPACK_ERR_SEEK;
 
                     fn--; // Remove the null terminator
@@ -195,7 +195,7 @@ namespace SabreTools.Compression.libmspack.KWAJ
                         return MSPACK_ERR.MSPACK_ERR_READ;
 
                     for (i = 0; i < len; i++)
-                        if (!(*fn++ = buf[i]))
+                        if ((*fn++ = (char)buf[i]) == '\0')
                             break;
 
                     // If string was 4 bytes with no null terminator, reject it
@@ -203,7 +203,7 @@ namespace SabreTools.Compression.libmspack.KWAJ
                         return MSPACK_ERR.MSPACK_ERR_DATAFORMAT;
 
                     // Seek to byte after string ended in file
-                    if (sys.seek(fh, i + 1 - len, MSPACK_SYS_SEEK.MSPACK_SYS_SEEK_CUR))
+                    if (sys.seek(fh, i + 1 - len, MSPACK_SYS_SEEK.MSPACK_SYS_SEEK_CUR) != 0)
                         return MSPACK_ERR.MSPACK_ERR_SEEK;
 
                     fn--; // Remove the null terminator
@@ -218,15 +218,15 @@ namespace SabreTools.Compression.libmspack.KWAJ
                     return MSPACK_ERR.MSPACK_ERR_READ;
 
                 i = BitConverter.ToUInt16(&buf[0]);
-                hdr.extra = (char*)sys.alloc(sys, i + 1);
-                if (!hdr.extra)
+                hdr.extra = (char*)sys.alloc(i + 1);
+                if (hdr.extra == null)
                     return MSPACK_ERR.MSPACK_ERR_NOMEMORY;
 
                 if (sys.read(fh, hdr.extra, i) != i)
                     return MSPACK_ERR.MSPACK_ERR_READ;
 
                 hdr.extra[i] = '\0';
-                hdr.extra_length = i;
+                hdr.extra_length = (ushort)i;
             }
 
             return MSPACK_ERR.MSPACK_ERR_OK;
@@ -244,7 +244,88 @@ namespace SabreTools.Compression.libmspack.KWAJ
         /// is passed directly to mspack_system::open().
         /// </param>
         /// <returns>An error code, or MSPACK_ERR_OK if successful</returns>
-        public MSPACK_ERR extract(mskwajd_header kwaj, in string filename) => throw new NotImplementedException();
+        public MSPACK_ERR Extract(mskwajd_header kwaj, in string filename)
+        {
+            if (kwaj == null)
+                return this.error = MSPACK_ERR.MSPACK_ERR_ARGS;
+
+            mspack_system sys = this.system;
+            mspack_file fh = kwaj.fh;
+
+            // Seek to the compressed data
+            if (sys.seek(fh, kwaj.data_offset, MSPACK_SYS_SEEK.MSPACK_SYS_SEEK_START) != 0)
+            {
+                return this.error = MSPACK_ERR.MSPACK_ERR_SEEK;
+            }
+
+            // Open file for output
+            mspack_file outfh;
+            if ((outfh = sys.open(filename, MSPACK_SYS_OPEN.MSPACK_SYS_OPEN_WRITE)) == null)
+            {
+                return this.error = MSPACK_ERR.MSPACK_ERR_OPEN;
+            }
+
+            this.error = MSPACK_ERR.MSPACK_ERR_OK;
+
+            // Decompress based on format
+            if (kwaj.comp_type == MSKWAJ_COMP.MSKWAJ_COMP_NONE || kwaj.comp_type == MSKWAJ_COMP.MSKWAJ_COMP_XOR)
+            {
+                // NONE is a straight copy. XOR is a copy xored with 0xFF
+                byte* buf = (byte*)sys.alloc(KWAJ_INPUT_SIZE);
+                if (buf != null)
+                {
+                    int read, i;
+                    while ((read = sys.read(fh, buf, KWAJ_INPUT_SIZE)) > 0)
+                    {
+                        if (kwaj.comp_type == MSKWAJ_COMP.MSKWAJ_COMP_XOR)
+                        {
+                            for (i = 0; i < read; i++)
+                                buf[i] ^= 0xFF;
+                        }
+
+                        if (sys.write(outfh, buf, read) != read)
+                        {
+                            this.error = MSPACK_ERR.MSPACK_ERR_WRITE;
+                            break;
+                        }
+                    }
+
+                    if (read < 0)
+                        this.error = MSPACK_ERR.MSPACK_ERR_READ;
+
+                    sys.free(buf);
+                }
+                else
+                {
+                    this.error = MSPACK_ERR.MSPACK_ERR_NOMEMORY;
+                }
+            }
+            else if (kwaj.comp_type == MSKWAJ_COMP.MSKWAJ_COMP_SZDD)
+            {
+                this.error = lzss_decompress(sys, fh, outfh, KWAJ_INPUT_SIZE, LZSS_MODE.LZSS_MODE_QBASIC);
+            }
+            else if (kwaj.comp_type == MSKWAJ_COMP.MSKWAJ_COMP_LZH)
+            {
+                kwajd_stream lzh = lzh_init(sys, fh, outfh);
+                this.error = (lzh != null) ? lzh_decompress(lzh) : MSPACK_ERR.MSPACK_ERR_NOMEMORY;
+                lzh_free(lzh);
+            }
+            else if (kwaj.comp_type == MSKWAJ_COMP.MSKWAJ_COMP_MSZIP)
+            {
+                mszipd_stream zip = mszipd_init(sys, fh, outfh, KWAJ_INPUT_SIZE, 0);
+                this.error = (zip != null) ? mszipd_decompress_kwaj(zip) : MSPACK_ERR.MSPACK_ERR_NOMEMORY;
+                mszipd_free(zip);
+            }
+            else
+            {
+                this.error = MSPACK_ERR.MSPACK_ERR_DATAFORMAT;
+            }
+
+            // Close output file
+            sys.close(outfh);
+
+            return this.error;
+        }
 
         /// <summary>
         /// Decompresses an KWAJ file to an output file in one step.
@@ -264,7 +345,16 @@ namespace SabreTools.Compression.libmspack.KWAJ
         /// is passed directly to mspack_system::open().
         /// </param>
         /// <returns>An error code, or MSPACK_ERR_OK if successful</returns>
-        public MSPACK_ERR decompress(in string input, in string output) => throw new NotImplementedException();
+        public MSPACK_ERR Decompress(in string input, in string output)
+        {
+            mskwajd_header hdr;
+            if ((hdr = Open(input)) == null)
+                return this.error;
+
+            MSPACK_ERR error = Extract(hdr, output);
+            Close(hdr);
+            return this.error = error;
+        }
 
         /// <summary>
         /// Returns the error code set by the most recently called method.
@@ -273,8 +363,11 @@ namespace SabreTools.Compression.libmspack.KWAJ
         /// error code directly.
         /// </summary>
         /// <returns>The most recent error code</returns>
-        /// <see cref="open(in string)"/> 
+        /// <see cref="Open(in string)"/> 
         /// <see cref="search()"/> 
-        public MSPACK_ERR last_error() => throw new NotImplementedException();
+        public MSPACK_ERR LastError()
+        {
+            return this.error;
+        }
     }
 }

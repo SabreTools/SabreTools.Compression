@@ -10,7 +10,7 @@ namespace SabreTools.Compression.libmspack.CAB
     /// </summary>
     public unsafe class Decompressor : BaseDecompressor
     {
-        public mscabd_decompress_state d { get; private set; }
+        public mscabd_decompress_state d { get; set; }
 
         public int buf_size { get; private set; }
 
@@ -1092,13 +1092,8 @@ namespace SabreTools.Compression.libmspack.CAB
             // Allocate generic decompression state
             if (this.d == null)
             {
-                this.d = new mscabd_decompress_state();
-                this.d.folder = null;
-                this.d.data = null;
+                this.d = new None.DecompressState();
                 this.d.sys = sys as CABSystem;
-                this.d.state = null;
-                this.d.infh = null;
-                this.d.incab = null;
             }
 
             // Do we need to change folder or reset the current folder?

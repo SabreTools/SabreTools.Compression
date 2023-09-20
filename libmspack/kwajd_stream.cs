@@ -1,4 +1,4 @@
-using static SabreTools.Compression.libmspack.kwaj;
+using static SabreTools.Compression.libmspack.KWAJ.Constants;
 using static SabreTools.Compression.libmspack.lzss;
 
 namespace SabreTools.Compression.libmspack

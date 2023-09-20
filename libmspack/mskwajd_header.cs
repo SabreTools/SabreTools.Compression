@@ -5,7 +5,7 @@ namespace SabreTools.Compression.libmspack
     /// 
     /// All fields are READ ONLY.
     /// </summary>
-    public class mskwajd_header
+    public unsafe class mskwajd_header
     {
         /// <summary>
         /// The compression type
@@ -30,13 +30,13 @@ namespace SabreTools.Compression.libmspack
         /// <summary>
         /// Output filename, or null if not present
         /// </summary>
-        public string filename { get; set; }
+        public char* filename { get; set; }
 
         /// <summary>
         /// Extra uncompressed data (usually text) in the header.
         /// This data can contain nulls so use extra_length to get the size.
         /// </summary>
-        public string extra { get; set; }
+        public char* extra { get; set; }
 
         /// <summary>
         /// Length of extra uncompressed data in the header

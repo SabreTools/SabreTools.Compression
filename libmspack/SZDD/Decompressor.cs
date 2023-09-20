@@ -1,5 +1,5 @@
 using System.Linq;
-using static SabreTools.Compression.libmspack.szdd;
+using static SabreTools.Compression.libmspack.SZDD.Constants;
 
 namespace SabreTools.Compression.libmspack.SZDD
 {

@@ -19,8 +19,8 @@ namespace SabreTools.Compression.libmspack
             switch ((MSCAB_COMP)((int)ct & cffoldCOMPTYPE_MASK))
             {
                 case MSCAB_COMP.MSCAB_COMP_NONE:
-                    self.d = new mscabd_noned_decompress_state();
-                    self.d.state = noned_init(self.d.sys, fh, fh, self.buf_size);
+                    self.d = new None.DecompressState(self.d);
+                    self.d.state = new None.State(self.d.sys, fh, fh, self.buf_size);
                     break;
                 case MSCAB_COMP.MSCAB_COMP_MSZIP:
                     self.d = new mscabd_mszipd_decompress_state();
@@ -51,7 +51,6 @@ namespace SabreTools.Compression.libmspack
 
             switch ((MSCAB_COMP)((int)self.d.comp_type & cffoldCOMPTYPE_MASK))
             {
-                case MSCAB_COMP.MSCAB_COMP_NONE: noned_free((noned_state)self.d.state); break;
                 case MSCAB_COMP.MSCAB_COMP_MSZIP: mszipd_free((mszipd_stream)self.d.state); break;
                 case MSCAB_COMP.MSCAB_COMP_QUANTUM: qtmd_free((qtmd_stream)self.d.state); break;
                 case MSCAB_COMP.MSCAB_COMP_LZX: lzxd_free((lzxd_stream)self.d.state); break;
@@ -59,33 +58,6 @@ namespace SabreTools.Compression.libmspack
 
             //self.d.decompress = null;
             self.d.state = null;
-        }
-
-        #endregion
-
-        #region noned_state
-
-        public static noned_state noned_init(mspack_system sys, mspack_file @in, mspack_file @out, int bufsize)
-        {
-            noned_state state = new noned_state();
-
-            state.sys = sys;
-            state.i = @in;
-            state.o = @out;
-            state.buf = system.CreateArray<byte>(bufsize);
-            state.bufsize = bufsize;
-            return state;
-        }
-
-        public static void noned_free(noned_state state)
-        {
-            mspack_system sys;
-            if (state != null)
-            {
-                sys = state.sys;
-                sys.free(state.buf);
-                //sys.free(state);
-            }
         }
 
         #endregion
