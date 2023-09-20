@@ -114,22 +114,6 @@ namespace SabreTools.Compression.libmspack
         }
 
         /// <summary>
-        /// Initialises a model to decode symbols from [start] to [start]+[len]-1
-        /// </summary>
-        private static void qtmd_init_model(qtmd_model model, qtmd_modelsym* syms, int start, int len)
-        {
-            model.shiftsleft = 4;
-            model.entries = len;
-            model.syms = syms;
-
-            for (int i = 0; i <= len; i++)
-            {
-                syms[i].sym = (ushort)(start + i); // Actual symbol
-                syms[i].cumfreq = (ushort)(len - i); // Current frequency of that symbol
-            }
-        }
-
-        /// <summary>
         /// Allocates Quantum decompression state for decoding the given stream.
         ///
         /// - returns null if window_bits is outwith the range 10 to 21 (inclusive).
@@ -198,15 +182,15 @@ namespace SabreTools.Compression.libmspack
             // - model 5    depends on window size, ranges from 20 to 36
             // - model 6pos depends on window size, ranges from 20 to 42
             i = window_bits * 2;
-            qtmd_init_model(qtm.model0, qtm.m0sym, 0, 64);
-            qtmd_init_model(qtm.model1, qtm.m1sym, 64, 64);
-            qtmd_init_model(qtm.model2, qtm.m2sym, 128, 64);
-            qtmd_init_model(qtm.model3, qtm.m3sym, 192, 64);
-            qtmd_init_model(qtm.model4, qtm.m4sym, 0, (i > 24) ? 24 : i);
-            qtmd_init_model(qtm.model5, qtm.m5sym, 0, (i > 36) ? 36 : i);
-            qtmd_init_model(qtm.model6, qtm.m6sym, 0, i);
-            qtmd_init_model(qtm.model6len, qtm.m6lsym, 0, 27);
-            qtmd_init_model(qtm.model7, qtm.m7sym, 0, 7);
+            qtm.model0 = new qtmd_model(qtm.m0sym, 0, 64);
+            qtm.model1 = new qtmd_model(qtm.m1sym, 64, 64);
+            qtm.model2 = new qtmd_model(qtm.m2sym, 128, 64);
+            qtm.model3 = new qtmd_model(qtm.m3sym, 192, 64);
+            qtm.model4 = new qtmd_model(qtm.m4sym, 0, (i > 24) ? 24 : i);
+            qtm.model5 = new qtmd_model(qtm.m5sym, 0, (i > 36) ? 36 : i);
+            qtm.model6 = new qtmd_model(qtm.m6sym, 0, i);
+            qtm.model6len = new qtmd_model(qtm.m6lsym, 0, 27);
+            qtm.model7 = new qtmd_model(qtm.m7sym, 0, 7);
 
             // All ok
             return qtm;

@@ -11,7 +11,7 @@ namespace SabreTools.Compression.libmspack.None
 
         public mspack_file Output { get; private set; }
 
-        public byte* Buffer { get; private set; }
+        public FixedArray<byte> Buffer { get; private set; }
 
         public int BufferSize { get; private set; }
 
@@ -20,7 +20,7 @@ namespace SabreTools.Compression.libmspack.None
             this.InternalSystem = sys;
             this.Input = infh;
             this.Output = outfh;
-            this.Buffer = (byte*)new FixedArray<byte>(bufsize).Pointer;
+            this.Buffer = new FixedArray<byte>(bufsize);
             this.BufferSize = bufsize;
         }
 

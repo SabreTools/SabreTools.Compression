@@ -109,12 +109,12 @@ namespace SabreTools.Compression.libmspack.CAB
             int len, full_len;
 
             // Reset the input block pointer and end of block pointer
-            d.i_ptr = d.i_end = (byte*)d.input.Pointer;
+            d.i_ptr = d.i_end = d.input;
 
             do
             {
                 // Read the block header
-                if (sys.read(d.infh, (byte*)hdr.Pointer, cfdata_SIZEOF) != cfdata_SIZEOF)
+                if (sys.read(d.infh, hdr, cfdata_SIZEOF) != cfdata_SIZEOF)
                 {
                     return MSPACK_ERR.MSPACK_ERR_READ;
                 }

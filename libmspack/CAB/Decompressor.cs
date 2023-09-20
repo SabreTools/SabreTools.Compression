@@ -21,7 +21,7 @@ namespace SabreTools.Compression.libmspack.CAB
 
         public int salvage { get; private set; }
 
-        public MSPACK_ERR read_error { get; private set; }
+        public MSPACK_ERR read_error { get; set; }
 
         /// <summary>
         /// Creates a new CAB decompressor
@@ -236,7 +236,7 @@ namespace SabreTools.Compression.libmspack.CAB
             }
 
             // Read in the CFHEADER
-            if (sys.read(fh, (byte*)buf.Pointer, cfhead_SIZEOF) != cfhead_SIZEOF)
+            if (sys.read(fh, buf, cfhead_SIZEOF) != cfhead_SIZEOF)
             {
                 return MSPACK_ERR.MSPACK_ERR_READ;
             }
@@ -279,7 +279,7 @@ namespace SabreTools.Compression.libmspack.CAB
 
             if (cab.flags.HasFlag(MSCAB_HDR.MSCAB_HDR_RESV))
             {
-                if (sys.read(fh, (byte*)buf.Pointer, cfheadext_SIZEOF) != cfheadext_SIZEOF)
+                if (sys.read(fh, buf, cfheadext_SIZEOF) != cfheadext_SIZEOF)
                 {
                     return MSPACK_ERR.MSPACK_ERR_READ;
                 }
@@ -329,7 +329,7 @@ namespace SabreTools.Compression.libmspack.CAB
             // Read folders
             for (i = 0; i < num_folders; i++)
             {
-                if (sys.read(fh, (byte*)buf.Pointer, cffold_SIZEOF) != cffold_SIZEOF)
+                if (sys.read(fh, buf, cffold_SIZEOF) != cffold_SIZEOF)
                 {
                     return MSPACK_ERR.MSPACK_ERR_READ;
                 }
@@ -361,7 +361,7 @@ namespace SabreTools.Compression.libmspack.CAB
             // Read files
             for (i = 0; i < num_files; i++)
             {
-                if (sys.read(fh, (byte*)buf.Pointer, cffile_SIZEOF) != cffile_SIZEOF)
+                if (sys.read(fh, buf, cffile_SIZEOF) != cffile_SIZEOF)
                 {
                     return MSPACK_ERR.MSPACK_ERR_READ;
                 }
@@ -461,12 +461,12 @@ namespace SabreTools.Compression.libmspack.CAB
         private static string ReadString(mspack_system sys, mspack_file fh, int permit_empty, out MSPACK_ERR error)
         {
             long @base = sys.tell(fh);
-            byte[] buf = new byte[256];
+            FixedArray<byte> buf = new FixedArray<byte>(256);
             string str;
             int len, i, ok;
 
-            // Read up to 256 bytes */
-            if ((len = sys.read(fh, (byte*)buf.Pointer, 256)) <= 0)
+            // Read up to 256 bytes
+            if ((len = sys.read(fh, buf, 256)) <= 0)
             {
                 error = MSPACK_ERR.MSPACK_ERR_READ;
                 return null;
@@ -492,9 +492,9 @@ namespace SabreTools.Compression.libmspack.CAB
                 return null;
             }
 
-            char[] strchr = new char[len];
-            sys.copy((byte*)buf.Pointer, &strchr[0], len);
-            str = new string(strchr);
+            FixedArray<char> strchr = new FixedArray<char>(len);
+            sys.copy(buf, (void*)strchr, len);
+            str = new string(strchr.ToArray());
             error = MSPACK_ERR.MSPACK_ERR_OK;
             return str;
         }
@@ -538,14 +538,14 @@ namespace SabreTools.Compression.libmspack.CAB
         {
             mscabd_cabinet cab = null;
             mspack_system sys;
-            byte* search_buf;
+            FixedArray<byte> search_buf;
             mspack_file fh;
             long filelen, firstlen = 0;
 
             sys = this.system;
 
             // Allocate a search buffer
-            search_buf = (byte*)sys.alloc(this.searchbuf_size);
+            search_buf = new FixedArray<byte>(this.searchbuf_size);
             if (search_buf == null)
             {
                 this.error = MSPACK_ERR.MSPACK_ERR_NOMEMORY;
@@ -590,7 +590,7 @@ namespace SabreTools.Compression.libmspack.CAB
         /// Find is the inner loop of <see cref="search(in string)">, to make it easier to
         /// break out of the loop and be sure that all resources are freed
         /// </summary>
-        private MSPACK_ERR Find(byte* buf, mspack_file fh, in string filename, long flen, ref long firstlen, mscabd_cabinet firstcab)
+        private MSPACK_ERR Find(FixedArray<byte> buf, mspack_file fh, in string filename, long flen, ref long firstlen, mscabd_cabinet firstcab)
         {
             mscabd_cabinet cab, link = null;
             long caboff, offset, length;
@@ -624,7 +624,7 @@ namespace SabreTools.Compression.libmspack.CAB
                 }
 
                 // Read through the entire buffer.
-                for (p = (byte*)buf.Pointer, pend = &buf[length]; p < pend;)
+                for (p = buf, pend = (byte*)buf.Pointer + length; p < pend;)
                 {
                     switch (state)
                     {
@@ -660,7 +660,7 @@ namespace SabreTools.Compression.libmspack.CAB
                             foffset_u32 |= (uint)(*p++ << 24);
                             // Now we have recieved 20 bytes of potential cab header. work out
                             // the offset in the file of this potential cabinet */
-                            caboff = offset + (p - (byte*)buf.Pointer) - 20;
+                            caboff = offset + (p - buf) - 20;
 
                             // Should reading cabinet fail, restart search just after 'MSCF'
                             offset = caboff + 4;
@@ -1132,7 +1132,7 @@ namespace SabreTools.Compression.libmspack.CAB
                 this.d.offset = 0;
                 this.d.block = 0;
                 this.d.outlen = 0;
-                this.d.i_ptr = this.d.i_end = &d.input[0];
+                this.d.i_ptr = this.d.i_end = d.input;
 
                 // Read_error lasts for the lifetime of a decompressor
                 this.read_error = MSPACK_ERR.MSPACK_ERR_OK;

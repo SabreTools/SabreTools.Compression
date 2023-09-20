@@ -1,5 +1,6 @@
 using System;
 using static SabreTools.Compression.libmspack.KWAJ.Constants;
+using static SabreTools.Compression.libmspack.macros;
 
 namespace SabreTools.Compression.libmspack.KWAJ
 {
@@ -101,11 +102,11 @@ namespace SabreTools.Compression.libmspack.KWAJ
         /// </summary>
         private MSPACK_ERR ReadHeaders(mspack_system sys, mspack_file fh, mskwajd_header hdr)
         {
-            byte[] buf = new byte[16];
+            FixedArray<byte> buf = new FixedArray<byte>(16);
             int i;
 
             // Read in the header
-            if (sys.read(fh, &buf[0], kwajh_SIZEOF) != kwajh_SIZEOF)
+            if (sys.read(fh, buf, kwajh_SIZEOF) != kwajh_SIZEOF)
             {
                 return MSPACK_ERR.MSPACK_ERR_READ;
             }
@@ -131,7 +132,7 @@ namespace SabreTools.Compression.libmspack.KWAJ
             // 4 bytes: length of unpacked file
             if (hdr.headers.HasFlag(MSKWAJ_HDR.MSKWAJ_HDR_HASLENGTH))
             {
-                if (sys.read(fh, &buf[0], 4) != 4)
+                if (sys.read(fh, buf, 4) != 4)
                     return MSPACK_ERR.MSPACK_ERR_READ;
 
                 hdr.length = BitConverter.ToUInt32(buf, 0);
@@ -140,14 +141,14 @@ namespace SabreTools.Compression.libmspack.KWAJ
             // 2 bytes: unknown purpose
             if (hdr.headers.HasFlag(MSKWAJ_HDR.MSKWAJ_HDR_HASUNKNOWN1))
             {
-                if (sys.read(fh, &buf[0], 2) != 2)
+                if (sys.read(fh, buf, 2) != 2)
                     return MSPACK_ERR.MSPACK_ERR_READ;
             }
 
             // 2 bytes: length of section, then [length] bytes: unknown purpose
             if (hdr.headers.HasFlag(MSKWAJ_HDR.MSKWAJ_HDR_HASUNKNOWN2))
             {
-                if (sys.read(fh, &buf[0], 2) != 2)
+                if (sys.read(fh, buf, 2) != 2)
                     return MSPACK_ERR.MSPACK_ERR_READ;
                 i = BitConverter.ToUInt16(buf, 0);
                 if (sys.seek(fh, i, MSPACK_SYS_SEEK.MSPACK_SYS_SEEK_CUR) != 0)
@@ -168,7 +169,7 @@ namespace SabreTools.Compression.libmspack.KWAJ
                 if (hdr.headers.HasFlag(MSKWAJ_HDR.MSKWAJ_HDR_HASFILENAME))
                 {
                     // Read and copy up to 9 bytes of a null terminated string
-                    if ((len = sys.read(fh, &buf[0], 9)) < 2)
+                    if ((len = sys.read(fh, buf, 9)) < 2)
                         return MSPACK_ERR.MSPACK_ERR_READ;
 
                     for (i = 0; i < len; i++)
@@ -192,7 +193,7 @@ namespace SabreTools.Compression.libmspack.KWAJ
                     *fn++ = '.';
 
                     // Read and copy up to 4 bytes of a null terminated string
-                    if ((len = sys.read(fh, &buf[0], 4)) < 2)
+                    if ((len = sys.read(fh, buf, 4)) < 2)
                         return MSPACK_ERR.MSPACK_ERR_READ;
 
                     for (i = 0; i < len; i++)
@@ -215,10 +216,10 @@ namespace SabreTools.Compression.libmspack.KWAJ
             // 2 bytes: extra text length then [length] bytes of extra text data
             if (hdr.headers.HasFlag(MSKWAJ_HDR.MSKWAJ_HDR_HASEXTRATEXT))
             {
-                if (sys.read(fh, &buf[0], 2) != 2)
+                if (sys.read(fh, buf, 2) != 2)
                     return MSPACK_ERR.MSPACK_ERR_READ;
 
-                i = BitConverter.ToUInt16(&buf[0]);
+                i = EndGetI16(buf, 0);
                 hdr.extra = (char*)sys.alloc(i + 1);
                 if (hdr.extra == null)
                     return MSPACK_ERR.MSPACK_ERR_NOMEMORY;

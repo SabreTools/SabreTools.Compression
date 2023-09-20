@@ -115,6 +115,6 @@ namespace SabreTools.Compression.libmspack
         /// A cache of loaded chunks, filled in by mschm_decoder::fast_find().
         /// Available only in CHM decoder version 2 and above.
         /// </summary>
-        public byte** chunk_cache { get; set; }
+        public FixedArray<byte>[] chunk_cache { get; set; }
     }
 }

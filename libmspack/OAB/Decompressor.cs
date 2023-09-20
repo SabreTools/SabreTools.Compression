@@ -45,8 +45,8 @@ namespace SabreTools.Compression.libmspack.OAB
             mspack_system sys;
             mspack_file infh = null;
             mspack_file outfh = null;
-            byte* buf = null;
-            byte[] hdrbuf = new byte[oabhead_SIZEOF];
+            FixedArray<byte> buf = null;
+            FixedArray<byte> hdrbuf = new FixedArray<byte>(oabhead_SIZEOF);
             uint block_max, target_size;
             lzxd_stream lzx = null;
             OABSystem oabd_sys;
@@ -62,7 +62,7 @@ namespace SabreTools.Compression.libmspack.OAB
                 goto outlbl;
             }
 
-            if (sys.read(infh, &hdrbuf[0], oabhead_SIZEOF) != oabhead_SIZEOF)
+            if (sys.read(infh, hdrbuf, oabhead_SIZEOF) != oabhead_SIZEOF)
             {
                 ret = MSPACK_ERR.MSPACK_ERR_READ;
                 goto outlbl;
@@ -85,7 +85,7 @@ namespace SabreTools.Compression.libmspack.OAB
                 goto outlbl;
             }
 
-            buf = (byte*)sys.alloc(this.buf_size);
+            buf = new FixedArray<byte>(this.buf_size);
             if (buf == null)
             {
                 ret = MSPACK_ERR.MSPACK_ERR_NOMEMORY;
@@ -212,7 +212,7 @@ namespace SabreTools.Compression.libmspack.OAB
         {
             mspack_file infh = null, basefh = null, outfh = null;
             lzxd_stream lzx = null;
-            byte* buf = null;
+            FixedArray<byte> buf = null;
             uint window_bits, window_size;
             MSPACK_ERR ret = MSPACK_ERR.MSPACK_ERR_OK;
 
@@ -226,7 +226,7 @@ namespace SabreTools.Compression.libmspack.OAB
             }
 
             FixedArray<byte> hdrbuf = new FixedArray<byte>(patchhead_SIZEOF);
-            if (sys.read(infh, (byte*)hdrbuf.Pointer, patchhead_SIZEOF) != patchhead_SIZEOF)
+            if (sys.read(infh, hdrbuf, patchhead_SIZEOF) != patchhead_SIZEOF)
             {
                 ret = MSPACK_ERR.MSPACK_ERR_READ;
                 goto outlbl;
@@ -260,7 +260,7 @@ namespace SabreTools.Compression.libmspack.OAB
                 goto outlbl;
             }
 
-            buf = (byte*)sys.alloc(this.buf_size);
+            buf = new FixedArray<byte>(this.buf_size);
             if (buf == null)
             {
                 ret = MSPACK_ERR.MSPACK_ERR_NOMEMORY;
@@ -343,7 +343,7 @@ namespace SabreTools.Compression.libmspack.OAB
             if (outfh != null) sys.close(outfh);
             if (basefh != null) sys.close(basefh);
             if (infh != null) sys.close(infh);
-            if (buf != null) sys.free(buf);
+            //if (buf != null) sys.free(buf);
 
             return ret;
         }

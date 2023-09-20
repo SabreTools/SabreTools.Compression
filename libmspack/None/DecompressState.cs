@@ -36,8 +36,8 @@ namespace SabreTools.Compression.libmspack.None
             while (bytes > 0)
             {
                 int run = (bytes > s.BufferSize) ? s.BufferSize : (int)bytes;
-                if (s.InternalSystem.read(s.Input, &s.Buffer[0], run) != run) return MSPACK_ERR.MSPACK_ERR_READ;
-                if (s.InternalSystem.write(s.Output, &s.Buffer[0], run) != run) return MSPACK_ERR.MSPACK_ERR_WRITE;
+                if (s.InternalSystem.read(s.Input, s.Buffer, run) != run) return MSPACK_ERR.MSPACK_ERR_READ;
+                if (s.InternalSystem.write(s.Output, s.Buffer, run) != run) return MSPACK_ERR.MSPACK_ERR_WRITE;
                 bytes -= run;
             }
 
