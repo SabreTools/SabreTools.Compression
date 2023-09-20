@@ -30,5 +30,17 @@ namespace SabreTools.Compression.libmspack
         {
             Marshal.FreeHGlobal(Pointer);
         }
+
+        /// <inheritdoc cref="System.Linq.Enumerable.SequenceEqual{TSource}(System.Collections.Generic.IEnumerable{TSource}, System.Collections.Generic.IEnumerable{TSource})"/>
+        public bool SequenceEqual(T[] arr)
+        {
+            for (int i = 0; i < arr.Length; i++)
+            {
+                if (!this[i].Equals(arr[i]))
+                    return false;
+            }
+
+            return true;
+        }
     }
 }

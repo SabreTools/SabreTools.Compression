@@ -1,3 +1,4 @@
+using static SabreTools.Compression.libmspack.macros;
 using static SabreTools.Compression.libmspack.oab;
 
 namespace SabreTools.Compression.libmspack.OAB
@@ -67,15 +68,15 @@ namespace SabreTools.Compression.libmspack.OAB
                 goto outlbl;
             }
 
-            if (System.BitConverter.ToInt32(hdrbuf, oabhead_VersionHi) != 3 ||
-                System.BitConverter.ToInt32(hdrbuf, oabhead_VersionLo) != 1)
+            if (EndGetI32(hdrbuf, oabhead_VersionHi) != 3 ||
+                EndGetI32(hdrbuf, oabhead_VersionLo) != 1)
             {
                 ret = MSPACK_ERR.MSPACK_ERR_SIGNATURE;
                 goto outlbl;
             }
 
-            block_max = System.BitConverter.ToUInt32(hdrbuf, oabhead_BlockMax);
-            target_size = System.BitConverter.ToUInt32(hdrbuf, oabhead_TargetSize);
+            block_max = EndGetI32(hdrbuf, oabhead_BlockMax);
+            target_size = EndGetI32(hdrbuf, oabhead_TargetSize);
 
             outfh = sys.open(output, MSPACK_SYS_OPEN.MSPACK_SYS_OPEN_WRITE);
             if (outfh == null)
@@ -110,10 +111,10 @@ namespace SabreTools.Compression.libmspack.OAB
                     ret = MSPACK_ERR.MSPACK_ERR_READ;
                     goto outlbl;
                 }
-                blk_flags = System.BitConverter.ToInt32(buf, oabblk_Flags);
-                blk_csize = System.BitConverter.ToInt32(buf, oabblk_CompSize);
-                blk_dsize = System.BitConverter.ToInt32(buf, oabblk_UncompSize);
-                blk_crc = System.BitConverter.ToInt32(buf, oabblk_CRC);
+                blk_flags = EndGetI32(buf, oabblk_Flags);
+                blk_csize = EndGetI32(buf, oabblk_CompSize);
+                blk_dsize = EndGetI32(buf, oabblk_UncompSize);
+                blk_crc = EndGetI32(buf, oabblk_CRC);
 
                 if (blk_dsize > block_max || blk_dsize > target_size || blk_flags > 1)
                 {
@@ -224,22 +225,22 @@ namespace SabreTools.Compression.libmspack.OAB
                 goto outlbl;
             }
 
-            byte[] hdrbuf = new byte[patchhead_SIZEOF];
-            if (sys.read(infh, &hdrbuf[0], patchhead_SIZEOF) != patchhead_SIZEOF)
+            FixedArray<byte> hdrbuf = new FixedArray<byte>(patchhead_SIZEOF);
+            if (sys.read(infh, (byte*)hdrbuf.Pointer, patchhead_SIZEOF) != patchhead_SIZEOF)
             {
                 ret = MSPACK_ERR.MSPACK_ERR_READ;
                 goto outlbl;
             }
 
-            if (System.BitConverter.ToInt32(hdrbuf, patchhead_VersionHi) != 3 ||
-                System.BitConverter.ToInt32(hdrbuf, patchhead_VersionLo) != 2)
+            if (EndGetI32(hdrbuf, patchhead_VersionHi) != 3 ||
+                EndGetI32(hdrbuf, patchhead_VersionLo) != 2)
             {
                 ret = MSPACK_ERR.MSPACK_ERR_SIGNATURE;
                 goto outlbl;
             }
 
-            uint block_max = System.BitConverter.ToUInt32(hdrbuf, patchhead_BlockMax);
-            uint target_size = System.BitConverter.ToUInt32(hdrbuf, patchhead_TargetSize);
+            uint block_max = EndGetI32(hdrbuf, patchhead_BlockMax);
+            uint target_size = EndGetI32(hdrbuf, patchhead_TargetSize);
 
             // We use it for reading block headers too
             if (block_max < patchblk_SIZEOF)
@@ -284,10 +285,10 @@ namespace SabreTools.Compression.libmspack.OAB
                     goto outlbl;
                 }
 
-                uint blk_csize = System.BitConverter.ToInt32(buf, patchblk_PatchSize);
-                uint blk_dsize = System.BitConverter.ToInt32(buf, patchblk_TargetSize);
-                uint blk_ssize = System.BitConverter.ToInt32(buf, patchblk_SourceSize);
-                uint blk_crc = System.BitConverter.ToInt32(buf, patchblk_CRC);
+                uint blk_csize = EndGetI32(buf, patchblk_PatchSize);
+                uint blk_dsize = EndGetI32(buf, patchblk_TargetSize);
+                uint blk_ssize = EndGetI32(buf, patchblk_SourceSize);
+                uint blk_crc = EndGetI32(buf, patchblk_CRC);
 
                 if (blk_dsize > block_max || blk_dsize > target_size ||
                     blk_ssize > block_max)

@@ -38,11 +38,5 @@ namespace SabreTools.Compression.libmspack
 
             return MSPACK_ERR.MSPACK_ERR_OK;
         }
-
-        public static T* CreateArray<T>(int length)
-        {
-            T[] buf = new T[length];
-            return &buf[0];
-        }
     }
 }

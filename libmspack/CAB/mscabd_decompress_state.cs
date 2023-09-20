@@ -73,7 +73,7 @@ namespace SabreTools.Compression.libmspack
         /// <summary>
         /// One input block of data
         /// </summary>
-        public byte[] input { get; set; } = new byte[CAB_INPUTBUF];
+        public FixedArray<byte> input { get; set; } = new FixedArray<byte>(CAB_INPUTBUF);
 
         /// <summary>
         /// Decompressor code

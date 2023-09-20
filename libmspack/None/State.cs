@@ -20,7 +20,7 @@ namespace SabreTools.Compression.libmspack.None
             this.InternalSystem = sys;
             this.Input = infh;
             this.Output = outfh;
-            this.Buffer = system.CreateArray<byte>(bufsize);
+            this.Buffer = (byte*)new FixedArray<byte>(bufsize).Pointer;
             this.BufferSize = bufsize;
         }
 

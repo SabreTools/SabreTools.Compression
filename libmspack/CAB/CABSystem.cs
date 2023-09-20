@@ -1,3 +1,4 @@
+using static SabreTools.Compression.libmspack.macros;
 using static SabreTools.Compression.libmspack.CAB.Constants;
 
 namespace SabreTools.Compression.libmspack.CAB
@@ -103,17 +104,17 @@ namespace SabreTools.Compression.libmspack.CAB
         /// </summary>
         private static MSPACK_ERR ReadBlock(mspack_system sys, mscabd_decompress_state d, ref int @out, int ignore_cksum, int ignore_blocksize)
         {
-            byte[] hdr = new byte[cfdata_SIZEOF];
+            FixedArray<byte> hdr = new FixedArray<byte>(cfdata_SIZEOF);
             uint cksum;
             int len, full_len;
 
             // Reset the input block pointer and end of block pointer
-            d.i_ptr = d.i_end = &d.input[0];
+            d.i_ptr = d.i_end = (byte*)d.input.Pointer;
 
             do
             {
                 // Read the block header
-                if (sys.read(d.infh, &hdr[0], cfdata_SIZEOF) != cfdata_SIZEOF)
+                if (sys.read(d.infh, (byte*)hdr.Pointer, cfdata_SIZEOF) != cfdata_SIZEOF)
                 {
                     return MSPACK_ERR.MSPACK_ERR_READ;
                 }
@@ -126,7 +127,7 @@ namespace SabreTools.Compression.libmspack.CAB
                 }
 
                 // Blocks must not be over CAB_INPUTMAX in size
-                len = System.BitConverter.ToUInt16(hdr, cfdata_CompressedSize);
+                len = EndGetI16(hdr, cfdata_CompressedSize);
                 full_len = (int)(d.i_end - d.i_ptr + len); // Include cab-spanning blocks */
                 if (full_len > CAB_INPUTMAX)
                 {
@@ -139,7 +140,7 @@ namespace SabreTools.Compression.libmspack.CAB
                 }
 
                 // Blocks must not expand to more than CAB_BLOCKMAX
-                if (System.BitConverter.ToUInt16(hdr, cfdata_UncompressedSize) > CAB_BLOCKMAX)
+                if (EndGetI16(hdr, cfdata_UncompressedSize) > CAB_BLOCKMAX)
                 {
                     System.Console.Error.WriteLine("block size > CAB_BLOCKMAX");
                     if (ignore_blocksize == 0) return MSPACK_ERR.MSPACK_ERR_DATAFORMAT;
@@ -152,10 +153,10 @@ namespace SabreTools.Compression.libmspack.CAB
                 }
 
                 // Perform checksum test on the block (if one is stored)
-                if ((cksum = System.BitConverter.ToUInt32(hdr, cfdata_CheckSum)) != 0)
+                if ((cksum = EndGetI32(hdr, cfdata_CheckSum)) != 0)
                 {
                     uint sum2 = Checksum(d.i_end, (uint)len, 0);
-                    if (Checksum(&hdr[4], 4, sum2) != cksum)
+                    if (Checksum(hdr, 4, 4, sum2) != cksum)
                     {
                         if (ignore_cksum == 0) return MSPACK_ERR.MSPACK_ERR_CHECKSUM;
                         sys.message(d.infh, "WARNING; bad block checksum found");
@@ -171,7 +172,7 @@ namespace SabreTools.Compression.libmspack.CAB
                 // reading needs to be done.
 
                 // EXIT POINT OF LOOP -- uncompressed size != 0
-                if ((@out = System.BitConverter.ToInt16(hdr, cfdata_UncompressedSize)) != 0)
+                if ((@out = EndGetI16(hdr, cfdata_UncompressedSize)) != 0)
                 {
                     return MSPACK_ERR.MSPACK_ERR_OK;
                 }
@@ -207,20 +208,20 @@ namespace SabreTools.Compression.libmspack.CAB
             return MSPACK_ERR.MSPACK_ERR_OK;
         }
 
-        private static uint Checksum(byte* data, uint bytes, uint cksum)
+        private static uint Checksum(FixedArray<byte> data, int ptr, uint bytes, uint cksum)
         {
             uint len, ul = 0;
 
-            for (len = bytes >> 2; len-- > 0; data += 4)
+            for (len = bytes >> 2; len-- > 0; ptr += 4)
             {
-                cksum ^= System.BitConverter.ToInt32(data, 0);
+                cksum ^= EndGetI32(data, ptr);
             }
 
             switch (bytes & 3)
             {
-                case 3: ul |= (uint)(*data++ << 16); goto case 2;
-                case 2: ul |= (uint)(*data++ << 8); goto case 1;
-                case 1: ul |= *data; break;
+                case 3: ul |= (uint)(data[ptr++] << 16); goto case 2;
+                case 2: ul |= (uint)(data[ptr++] << 8); goto case 1;
+                case 1: ul |= data[ptr]; break;
             }
             cksum ^= ul;
 

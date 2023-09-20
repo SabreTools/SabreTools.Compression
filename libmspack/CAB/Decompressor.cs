@@ -1,4 +1,5 @@
 using static SabreTools.Compression.libmspack.cab;
+using static SabreTools.Compression.libmspack.macros;
 using static SabreTools.Compression.libmspack.CAB.Constants;
 
 namespace SabreTools.Compression.libmspack.CAB
@@ -216,7 +217,7 @@ namespace SabreTools.Compression.libmspack.CAB
             MSPACK_ERR err;
             mscabd_folder fol, linkfol = null;
             mscabd_file file, linkfile = null;
-            byte[] buf = new byte[64];
+            FixedArray<byte> buf = new FixedArray<byte>(64);
 
             // Initialise pointers
             cab.next = null;
@@ -235,24 +236,24 @@ namespace SabreTools.Compression.libmspack.CAB
             }
 
             // Read in the CFHEADER
-            if (sys.read(fh, &buf[0], cfhead_SIZEOF) != cfhead_SIZEOF)
+            if (sys.read(fh, (byte*)buf.Pointer, cfhead_SIZEOF) != cfhead_SIZEOF)
             {
                 return MSPACK_ERR.MSPACK_ERR_READ;
             }
 
             // Check for "MSCF" signature
-            if (System.BitConverter.ToInt32(buf, cfhead_Signature) != 0x4643534D)
+            if (EndGetI32(buf, cfhead_Signature) != 0x4643534D)
             {
                 return MSPACK_ERR.MSPACK_ERR_SIGNATURE;
             }
 
             // Some basic header fields
-            cab.length = System.BitConverter.ToUInt32(buf, cfhead_CabinetSize);
-            cab.set_id = System.BitConverter.ToUInt16(buf, cfhead_SetID);
-            cab.set_index = System.BitConverter.ToUInt16(buf, cfhead_CabinetIndex);
+            cab.length = EndGetI32(buf, cfhead_CabinetSize);
+            cab.set_id = EndGetI16(buf, cfhead_SetID);
+            cab.set_index = EndGetI16(buf, cfhead_CabinetIndex);
 
             // Get the number of folders
-            num_folders = System.BitConverter.ToInt16(buf, cfhead_NumFolders);
+            num_folders = EndGetI16(buf, cfhead_NumFolders);
             if (num_folders == 0)
             {
                 if (quiet == 0) sys.message(fh, "No folders in cabinet.");
@@ -260,7 +261,7 @@ namespace SabreTools.Compression.libmspack.CAB
             }
 
             // Get the number of files
-            num_files = System.BitConverter.ToInt16(buf, cfhead_NumFiles);
+            num_files = EndGetI16(buf, cfhead_NumFiles);
             if (num_files == 0)
             {
                 if (quiet == 0) sys.message(fh, "no files in cabinet.");
@@ -274,15 +275,15 @@ namespace SabreTools.Compression.libmspack.CAB
             }
 
             // Read the reserved-sizes part of header, if present
-            cab.flags = (MSCAB_HDR)System.BitConverter.ToInt16(buf, cfhead_Flags);
+            cab.flags = (MSCAB_HDR)EndGetI16(buf, cfhead_Flags);
 
             if (cab.flags.HasFlag(MSCAB_HDR.MSCAB_HDR_RESV))
             {
-                if (sys.read(fh, &buf[0], cfheadext_SIZEOF) != cfheadext_SIZEOF)
+                if (sys.read(fh, (byte*)buf.Pointer, cfheadext_SIZEOF) != cfheadext_SIZEOF)
                 {
                     return MSPACK_ERR.MSPACK_ERR_READ;
                 }
-                cab.header_resv = System.BitConverter.ToUInt16(buf, cfheadext_HeaderReserved);
+                cab.header_resv = EndGetI16(buf, cfheadext_HeaderReserved);
                 folder_resv = buf[cfheadext_FolderReserved];
                 cab.block_resv = buf[cfheadext_DataReserved];
 
@@ -328,7 +329,7 @@ namespace SabreTools.Compression.libmspack.CAB
             // Read folders
             for (i = 0; i < num_folders; i++)
             {
-                if (sys.read(fh, &buf[0], cffold_SIZEOF) != cffold_SIZEOF)
+                if (sys.read(fh, (byte*)buf.Pointer, cffold_SIZEOF) != cffold_SIZEOF)
                 {
                     return MSPACK_ERR.MSPACK_ERR_READ;
                 }
@@ -343,11 +344,11 @@ namespace SabreTools.Compression.libmspack.CAB
                 fol = new mscabd_folder();
 
                 fol.next = null;
-                fol.comp_type = (MSCAB_COMP)System.BitConverter.ToInt16(buf, cffold_CompType);
-                fol.num_blocks = (uint)System.BitConverter.ToInt16(buf, cffold_NumBlocks);
+                fol.comp_type = (MSCAB_COMP)EndGetI16(buf, cffold_CompType);
+                fol.num_blocks = (uint)EndGetI16(buf, cffold_NumBlocks);
                 fol.data.next = null;
                 fol.data.cab = cab;
-                fol.data.offset = offset + (long)((uint)System.BitConverter.ToInt32(buf, cffold_DataOffset));
+                fol.data.offset = offset + (long)((uint)EndGetI32(buf, cffold_DataOffset));
                 fol.merge_prev = null;
                 fol.merge_next = null;
 
@@ -360,7 +361,7 @@ namespace SabreTools.Compression.libmspack.CAB
             // Read files
             for (i = 0; i < num_files; i++)
             {
-                if (sys.read(fh, &buf[0], cffile_SIZEOF) != cffile_SIZEOF)
+                if (sys.read(fh, (byte*)buf.Pointer, cffile_SIZEOF) != cffile_SIZEOF)
                 {
                     return MSPACK_ERR.MSPACK_ERR_READ;
                 }
@@ -368,12 +369,12 @@ namespace SabreTools.Compression.libmspack.CAB
                 file = new mscabd_file();
 
                 file.next = null;
-                file.length = System.BitConverter.ToUInt32(buf, cffile_UncompressedSize);
-                file.attribs = (MSCAB_ATTRIB)System.BitConverter.ToInt16(buf, cffile_Attribs);
-                file.offset = System.BitConverter.ToUInt32(buf, cffile_FolderOffset);
+                file.length = EndGetI32(buf, cffile_UncompressedSize);
+                file.attribs = (MSCAB_ATTRIB)EndGetI16(buf, cffile_Attribs);
+                file.offset = EndGetI32(buf, cffile_FolderOffset);
 
                 // Set folder pointer
-                fidx = System.BitConverter.ToInt16(buf, cffile_FolderIndex);
+                fidx = EndGetI16(buf, cffile_FolderIndex);
                 if (fidx < cffileCONTINUED_FROM_PREV)
                 {
                     /* normal folder index; count up to the correct folder */
@@ -416,13 +417,13 @@ namespace SabreTools.Compression.libmspack.CAB
                 }
 
                 // Get time
-                x = System.BitConverter.ToInt16(buf, cffile_Time);
+                x = EndGetI16(buf, cffile_Time);
                 file.time_h = (char)(x >> 11);
                 file.time_m = (char)((x >> 5) & 0x3F);
                 file.time_s = (char)((x << 1) & 0x3E);
 
                 // Get date
-                x = System.BitConverter.ToInt16(buf, cffile_Date);
+                x = EndGetI16(buf, cffile_Date);
                 file.date_d = (char)(x & 0x1F);
                 file.date_m = (char)((x >> 5) & 0xF);
                 file.date_y = (x >> 9) + 1980;
@@ -465,7 +466,7 @@ namespace SabreTools.Compression.libmspack.CAB
             int len, i, ok;
 
             // Read up to 256 bytes */
-            if ((len = sys.read(fh, &buf[0], 256)) <= 0)
+            if ((len = sys.read(fh, (byte*)buf.Pointer, 256)) <= 0)
             {
                 error = MSPACK_ERR.MSPACK_ERR_READ;
                 return null;
@@ -492,7 +493,7 @@ namespace SabreTools.Compression.libmspack.CAB
             }
 
             char[] strchr = new char[len];
-            sys.copy(&buf[0], &strchr[0], len);
+            sys.copy((byte*)buf.Pointer, &strchr[0], len);
             str = new string(strchr);
             error = MSPACK_ERR.MSPACK_ERR_OK;
             return str;
@@ -617,13 +618,13 @@ namespace SabreTools.Compression.libmspack.CAB
                 }
 
                 // FAQ avoidance strategy
-                if ((offset == 0) && (System.BitConverter.ToInt32(buf, 0) == 0x28635349))
+                if ((offset == 0) && (EndGetI32(buf, 0) == 0x28635349))
                 {
                     sys.message(fh, "WARNING; found InstallShield header. Use unshield (https://github.com/twogood/unshield) to unpack this file");
                 }
 
                 // Read through the entire buffer.
-                for (p = &buf[0], pend = &buf[length]; p < pend;)
+                for (p = (byte*)buf.Pointer, pend = &buf[length]; p < pend;)
                 {
                     switch (state)
                     {
@@ -659,7 +660,7 @@ namespace SabreTools.Compression.libmspack.CAB
                             foffset_u32 |= (uint)(*p++ << 24);
                             // Now we have recieved 20 bytes of potential cab header. work out
                             // the offset in the file of this potential cabinet */
-                            caboff = offset + (p - &buf[0]) - 20;
+                            caboff = offset + (p - (byte*)buf.Pointer) - 20;
 
                             // Should reading cabinet fail, restart search just after 'MSCF'
                             offset = caboff + 4;
