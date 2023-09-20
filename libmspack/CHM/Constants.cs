@@ -1,6 +1,6 @@
-namespace SabreTools.Compression.libmspack
+namespace SabreTools.Compression.libmspack.CHM
 {
-    public static class chm
+    public static class Constants
     {
         public const ushort chmhead_Signature = 0x0000;
         public const ushort chmhead_Version = 0x0004;

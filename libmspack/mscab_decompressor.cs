@@ -1,4 +1,5 @@
 using static SabreTools.Compression.libmspack.cab;
+using static SabreTools.Compression.libmspack.CAB.Constants;
 
 namespace SabreTools.Compression.libmspack
 {
@@ -20,8 +21,6 @@ namespace SabreTools.Compression.libmspack
         public int fix_mszip { get; set; }
 
         public int salvage { get; set; }
-
-        public MSPACK_ERR error { get; set; }
 
         public MSPACK_ERR read_error { get; set; }
 
@@ -133,7 +132,7 @@ namespace SabreTools.Compression.libmspack
                     if (this.d != null && (this.d.folder == fol))
                     {
                         if (this.d.infh != null) sys.close(this.d.infh);
-                        cabd_free_decomp();
+                        cabd_free_decomp(this);
                         //sys.free(this.d);
                         this.d = null;
                     }
@@ -507,7 +506,7 @@ namespace SabreTools.Compression.libmspack
         /// <see cref="close(mscabd_cabinet)"/>
         /// <see cref="open(in string)"/>
         /// <see cref="last_error()"/>
-        public abstract mscabd_cabinet search(in string filename);
+        public mscabd_cabinet search(in string filename) => null;
 
         /// <summary>
         /// Appends one mscabd_cabinet to another, forming or extending a cabinet
@@ -546,7 +545,7 @@ namespace SabreTools.Compression.libmspack
         /// <see cref="prepend(mscabd_cabinet, mscabd_cabinet)"/>
         /// <see cref="open(in string)"/>
         /// <see cref="close(mscabd_cabinet)"/>
-        public abstract MSPACK_ERR append(mscabd_cabinet cab, mscabd_cabinet nextcab);
+        public MSPACK_ERR append(mscabd_cabinet cab, mscabd_cabinet nextcab) => MSPACK_ERR.MSPACK_ERR_OK;
 
         /// <summary>
         /// Prepends one mscabd_cabinet to another, forming or extending a
@@ -563,7 +562,7 @@ namespace SabreTools.Compression.libmspack
         /// <see cref="append(mscabd_cabinet, mscabd_cabinet)"/>
         /// <see cref="open(in string)"/>
         /// <see cref="close(mscabd_cabinet)"/>
-        public abstract MSPACK_ERR prepend(mscabd_cabinet cab, mscabd_cabinet prevcab);
+        public MSPACK_ERR prepend(mscabd_cabinet cab, mscabd_cabinet prevcab) => MSPACK_ERR.MSPACK_ERR_OK;
 
         /// <summary>
         /// Extracts a file from a cabinet or cabinet set.
@@ -584,7 +583,7 @@ namespace SabreTools.Compression.libmspack
         /// <param name="file">The file to be decompressed</param>
         /// <param name="filename">The filename of the file being written to</param>
         /// <returns>An error code, or MSPACK_ERR.MSPACK_ERR_OK if successful</returns>
-        public abstract MSPACK_ERR extract(mscabd_file file, in string filename);
+        public MSPACK_ERR extract(mscabd_file file, in string filename) => MSPACK_ERR.MSPACK_ERR_OK;
 
         /// <summary>
         /// Sets a CAB decompression engine parameter.

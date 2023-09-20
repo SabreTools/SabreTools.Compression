@@ -7,10 +7,8 @@ namespace SabreTools.Compression.libmspack
     /// </summary>
     /// <see cref="mspack_create_szdd_compressor()"/>
     /// <see cref="mspack_destroy_szdd_compressor()"/>
-    public abstract class msszdd_compressor : Compressor
+    public abstract class msszdd_compressor : BaseCompressor
     {
-        public MSPACK_ERR error { get; set; }
-
         /// <summary>
         /// Reads an input file and creates a compressed output file in the
         /// SZDD compressed file format. The SZDD compression format is quick

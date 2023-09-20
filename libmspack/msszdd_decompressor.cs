@@ -12,8 +12,6 @@ namespace SabreTools.Compression.libmspack
     /// <see cref="mspack_destroy_szdd_decompressor()"/>
     public unsafe class msszdd_decompressor : Decompressor
     {
-        public MSPACK_ERR error { get; set; }
-
         /// <summary>
         /// Opens a SZDD file and reads the header.
         ///

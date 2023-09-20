@@ -1,19 +1,17 @@
-namespace SabreTools.Compression.libmspack
+namespace SabreTools.Compression.libmspack.CHM
 {
     /// <summary>
     /// A compressor for .CHM (Microsoft HTMLHelp) files.
     /// 
     /// All fields are READ ONLY.
     /// </summary>
-    /// <see cref="mspack_create_chm_compressor()"/> 
-    /// <see cref="mspack_destroy_chm_compressor()"/> 
-    public abstract class mschm_compressor : Compressor
+    /// <see cref="mspack.CreateCHMCompressor(mspack_system)"/> 
+    /// <see cref="mspack.DestroyCHMCompressor(Compressor)"/> 
+    public class Compressor : BaseCompressor
     {
         public string temp_file { get; set; }
 
         public int use_temp_file { get; set; }
-
-        public MSPACK_ERR error { get; set; }
 
         /// <summary>
         /// Generates a CHM help file.
@@ -46,9 +44,9 @@ namespace SabreTools.Compression.libmspack
         /// This is passed directly to mspack_system::open()
         /// </param>
         /// <returns>An error code, or MSPACK_ERR_OK if successful</returns>
-        /// <see cref="use_temporary_file()"/>
-        /// <see cref="set_param()"/>
-        public abstract MSPACK_ERR generate(mschmc_file[] file_list, in string output_file);
+        /// <see cref="use_temporary_file(int in string)"/>
+        /// <see cref="set_param(MSCHMC_PARAM, int)"/>
+        public MSPACK_ERR generate(mschmc_file[] file_list, in string output_file) => MSPACK_ERR.MSPACK_ERR_OK;
 
         /// <summary>
         /// Specifies whether a temporary file is used during CHM generation.
@@ -104,7 +102,7 @@ namespace SabreTools.Compression.libmspack
         /// </param>
         /// <returns>An error code, or MSPACK_ERR_OK if successful</returns>
         /// <see cref="generate(mschmc_file[], in string)"/>
-        public abstract MSPACK_ERR use_temporary_file(int use_temp_file, in string temp_file);
+        public MSPACK_ERR use_temporary_file(int use_temp_file, in string temp_file) => MSPACK_ERR.MSPACK_ERR_OK;
 
         /// <summary>
         /// Sets a CHM compression engine parameter.
@@ -150,7 +148,7 @@ namespace SabreTools.Compression.libmspack
         /// is a problem with either parameter or value.
         /// </returns>
         /// <see cref="generate(mschmc_file[], in string)"/>
-        public abstract MSPACK_ERR set_param(MSCHMC_PARAM param, int value);
+        public MSPACK_ERR set_param(MSCHMC_PARAM param, int value) => MSPACK_ERR.MSPACK_ERR_OK;
 
         /// <summary>
         /// Returns the error code set by the most recently called method.
@@ -158,6 +156,6 @@ namespace SabreTools.Compression.libmspack
         /// <returns>The most recent error code</returns>
         /// <see cref="set_param(int, int)"/> 
         /// <see cref="generate(mschmc_file[], in string)"/>
-        public abstract MSPACK_ERR last_error();
+        public MSPACK_ERR last_error() => MSPACK_ERR.MSPACK_ERR_OK;
     }
 }

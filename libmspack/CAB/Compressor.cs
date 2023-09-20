@@ -1,9 +1,9 @@
-namespace SabreTools.Compression.libmspack
+namespace SabreTools.Compression.libmspack.CAB
 {
     /// <summary>
     /// TODO
     /// </summary>
-    public class mscab_compressor : Compressor
+    public class Compressor : BaseCompressor
     {
         public int dummy { get; set; }
     }

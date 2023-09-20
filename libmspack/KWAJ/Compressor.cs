@@ -1,19 +1,15 @@
-namespace SabreTools.Compression.libmspack
+namespace SabreTools.Compression.libmspack.KWAJ
 {
     /// <summary>
     /// A compressor for the KWAJ file format.
     /// 
     /// All fields are READ ONLY.
     /// </summary>
-    /// <see cref="mspack_create_kwaj_compressor()"/>
-    /// <see cref="mspack_destroy_kwaj_compressor()"/>
-    public unsafe abstract class mskwaj_compressor : Compressor
+    /// <see cref="mspack.CreateKWAJCompressor(mspack_system)"/>
+    /// <see cref="mspack.DestroyKWAJCompressor(Compressor)"/>
+    public unsafe class Compressor : BaseCompressor
     {
-        public mspack_system system { get; set; }
-
         public int[] param { get; set; } = new int[2];
-
-        public MSPACK_ERR error { get; set; }
 
         /// <summary>
         /// Reads an input file and creates a compressed output file in the
@@ -36,7 +32,7 @@ namespace SabreTools.Compression.libmspack
         /// </param>
         /// <returns>An error code, or MSPACK_ERR_OK if successful</returns>
         /// <see cref="set_param(int, int)" />
-        public abstract MSPACK_ERR compress(in string input, in string output, long length);
+        public MSPACK_ERR compress(in string input, in string output, long length) => MSPACK_ERR.MSPACK_ERR_OK;
 
         /// <summary>
         /// Sets an KWAJ compression engine parameter.
@@ -60,7 +56,7 @@ namespace SabreTools.Compression.libmspack
         /// is a problem with either parameter or value.
         /// </returns>
         /// <see cref="generate()"/> 
-        public abstract MSPACK_ERR set_param(MSKWAJC_PARAM param, int value);
+        public MSPACK_ERR set_param(MSKWAJC_PARAM param, int value) => MSPACK_ERR.MSPACK_ERR_OK;
 
         /// <summary>
         /// Sets the original filename of the file before compression,
@@ -78,7 +74,7 @@ namespace SabreTools.Compression.libmspack
         /// MSPACK_ERR_OK if all is OK, or MSPACK_ERR_ARGS if the
         /// filename is too long
         /// </returns>
-        public abstract MSPACK_ERR set_filename(in string filename);
+        public MSPACK_ERR set_filename(in string filename) => MSPACK_ERR.MSPACK_ERR_OK;
 
         /// <summary>
         /// Sets arbitrary data that will be stored in the header of the
@@ -96,13 +92,13 @@ namespace SabreTools.Compression.libmspack
         /// MSPACK_ERR_OK if all is OK, or MSPACK_ERR_ARGS extra data
         /// is too long
         /// </returns>
-        public abstract MSPACK_ERR set_extra_data(void* data, int bytes);
+        public MSPACK_ERR set_extra_data(void* data, int bytes) => MSPACK_ERR.MSPACK_ERR_OK;
 
         /// <summary>
         /// Returns the error code set by the most recently called method.
         /// </summary>
         /// <returns>The most recent error code</returns>
         /// <see cref="compress(in string, in string, long)"/> 
-        public abstract MSPACK_ERR last_error();
+        public MSPACK_ERR last_error() => MSPACK_ERR.MSPACK_ERR_OK;
     }
 }
