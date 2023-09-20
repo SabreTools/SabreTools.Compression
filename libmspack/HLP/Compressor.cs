@@ -5,6 +5,13 @@ namespace SabreTools.Compression.libmspack.HLP
     /// </summary>
     public class Compressor : BaseCompressor
     {
-        public int dummy { get; set; }
+        /// <summary>
+        /// Creates a new HLP compressor
+        /// </summary>
+        public Compressor()
+        {
+            this.system = new mspack_default_system();
+            this.error = MSPACK_ERR.MSPACK_ERR_OK;
+        }
     }
 }

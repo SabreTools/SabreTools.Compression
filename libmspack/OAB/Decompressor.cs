@@ -1,6 +1,6 @@
 using static SabreTools.Compression.libmspack.oab;
 
-namespace SabreTools.Compression.libmspack
+namespace SabreTools.Compression.libmspack.OAB
 {
     /// <summary>
     /// A decompressor for .LZX (Offline Address Book) files
@@ -9,9 +9,19 @@ namespace SabreTools.Compression.libmspack
     /// </summary>
     /// <see cref="mspack_create_oab_decompressor()"/> 
     /// <see cref="mspack_destroy_oab_decompressor()"/> 
-    public unsafe class msoab_decompressor : BaseDecompressor
+    public unsafe class Decompressor : BaseDecompressor
     {
-        public int buf_size { get; set; }
+        public int buf_size { get; private set; }
+
+        /// <summary>
+        /// Creates a new OAB decompressor
+        /// </summary>
+        public Decompressor()
+        {
+            this.system = new OABSystem();
+            this.error = MSPACK_ERR.MSPACK_ERR_OK;
+            this.buf_size = 4096;
+        }
 
         /// <summary>
         /// Decompresses a full Offline Address Book file.
@@ -38,7 +48,7 @@ namespace SabreTools.Compression.libmspack
             byte[] hdrbuf = new byte[oabhead_SIZEOF];
             uint block_max, target_size;
             lzxd_stream lzx = null;
-            mspack_oab_system oabd_sys;
+            OABSystem oabd_sys;
             uint window_bits;
             MSPACK_ERR ret = MSPACK_ERR.MSPACK_ERR_OK;
 
@@ -81,7 +91,7 @@ namespace SabreTools.Compression.libmspack
                 goto outlbl;
             }
 
-            oabd_sys = sys as mspack_oab_system;
+            oabd_sys = sys as OABSystem;
 
             oabd_file in_ofh = new oabd_file();
             in_ofh.orig_sys = sys;
@@ -257,7 +267,7 @@ namespace SabreTools.Compression.libmspack
                 goto outlbl;
             }
 
-            mspack_oab_system oabd_sys = sys as mspack_oab_system;
+            OABSystem oabd_sys = sys as OABSystem;
 
             oabd_file in_ofh = new oabd_file();
             in_ofh.orig_sys = sys;

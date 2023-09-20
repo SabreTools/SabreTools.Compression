@@ -5,11 +5,18 @@ namespace SabreTools.Compression.libmspack.KWAJ
     /// 
     /// All fields are READ ONLY.
     /// </summary>
-    /// <see cref="mspack.CreateKWAJCompressor(mspack_system)"/>
-    /// <see cref="mspack.DestroyKWAJCompressor(Compressor)"/>
     public unsafe class Compressor : BaseCompressor
     {
-        public int[] param { get; set; } = new int[2];
+        public int[] param { get; private set; } = new int[2];
+
+        /// <summary>
+        /// Creates a new KWAJ compressor
+        /// </summary>
+        public Compressor()
+        {
+            this.system = new mspack_default_system();
+            this.error = MSPACK_ERR.MSPACK_ERR_OK;
+        }
 
         /// <summary>
         /// Reads an input file and creates a compressed output file in the

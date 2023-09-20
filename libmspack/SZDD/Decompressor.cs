@@ -1,7 +1,7 @@
 using System.Linq;
 using static SabreTools.Compression.libmspack.szdd;
 
-namespace SabreTools.Compression.libmspack
+namespace SabreTools.Compression.libmspack.SZDD
 {
     /// <summary>
     /// A decompressor for SZDD compressed files.
@@ -9,9 +9,27 @@ namespace SabreTools.Compression.libmspack
     /// All fields are READ ONLY.
     /// </summary>
     /// <see cref="mspack.mspack_create_szdd_decompressor()"/>
-    /// <see cref="mspack.mspack_destroy_szdd_decompressor(msszdd_decompressor)"/>
-    public unsafe class msszdd_decompressor : BaseDecompressor
+    /// <see cref="mspack.mspack_destroy_szdd_decompressor(Decompressor)"/>
+    public unsafe class Decompressor : BaseDecompressor
     {
+        /// <summary>
+        /// Creates a new SZDD decompressor
+        /// </summary>
+        public Decompressor()
+        {
+            this.system = new mspack_default_system();
+            this.error = MSPACK_ERR.MSPACK_ERR_OK;
+        }
+
+        /// <summary>
+        /// Destroys an existing SZDD decompressor
+        /// </summary>
+        ~Decompressor()
+        {
+            mspack_system sys = this.system;
+            //sys.free(self);
+        }
+
         /// <summary>
         /// Opens a SZDD file and reads the header.
         ///

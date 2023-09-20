@@ -1,14 +1,30 @@
-namespace SabreTools.Compression.libmspack
+using System;
+
+namespace SabreTools.Compression.libmspack.OAB
 {
     /// <summary>
     /// A compressor for the Offline Address Book (OAB) format.
     /// 
     /// All fields are READ ONLY.
     /// </summary>
-    /// <see cref="mspack_create_oab_compressor()"/> 
-    /// <see cref="mspack_destroy_oab_compressor()"/> 
-    public abstract class msoab_compressor : BaseCompressor
+    public class Compressor : BaseCompressor
     {
+        /// <summary>
+        /// Creates a new OAB compressor
+        /// </summary>
+        public Compressor()
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Destroys an existing OAB compressor
+        /// </summary>
+        ~Compressor()
+        {
+            throw new NotImplementedException();
+        }
+
         /// <summary>
         /// Compress a full OAB file.
         ///
@@ -24,7 +40,7 @@ namespace SabreTools.Compression.libmspack
         /// directly to mspack_system::open().
         /// </param>
         /// <returns>An error code, or MSPACK_ERR_OK if successful</returns>
-        public abstract MSPACK_ERR compress(in string input, in string output);
+        public MSPACK_ERR compress(in string input, in string output) => throw new NotImplementedException();
 
         /// <summary>
         /// Generate a compressed incremental OAB patch file.
@@ -49,6 +65,6 @@ namespace SabreTools.Compression.libmspack
         /// directly to mspack_system::open().
         /// </param>
         /// <returns>An error code, or MSPACK_ERR_OK if successful</returns>
-        public abstract MSPACK_ERR compress_incremental(in string input, in string @base, in string output);
+        public MSPACK_ERR compress_incremental(in string input, in string @base, in string output) => throw new NotImplementedException();
     }
 }

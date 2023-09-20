@@ -1,6 +1,6 @@
-namespace SabreTools.Compression.libmspack
+namespace SabreTools.Compression.libmspack.OAB
 {
-    public unsafe class mspack_oab_system : mspack_default_system
+    public unsafe class OABSystem : mspack_default_system
     {
         /// <inheritdoc/>
         public override unsafe int read(mspack_file base_file, void* buf, int size)
