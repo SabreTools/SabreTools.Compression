@@ -30,61 +30,43 @@ namespace SabreTools.Compression.MSZIP
         }
 
         /// <summary>
-        /// Decompress a stream into a byte array
+        /// Decompress a stream into a <see cref="Block"/> 
         /// </summary>
-        /// <returns>Byte array containing the decompressed data on success, null on error</returns>
+        /// <returns>Block containing the decompressed data on success, null on error</returns>
 #if NET48
-        public byte[] Process()
+        public Block Process()
 #else
-        public byte[]? Process()
+        public Block? Process()
 #endif
         {
+            // Create a new block
+            var block = new Block();
+
             // Try to read the header
-            var blockHeader = ReadBlockHeader();
-            if (blockHeader.Signature != 0x4B43)
+            block.BlockHeader = ReadBlockHeader();
+            if (block.BlockHeader.Signature != 0x4B43)
                 return null;
 
-            // Loop and read the internal blocks
-            var bytes = new List<byte>();
+            // Loop and read the deflate blocks
+            var deflateBlocks = new List<DeflateBlock>();
             while (true)
             {
-                // Try to read the deflate block header
-                var deflateBlockHeader = ReadDeflateBlockHeader();
-                switch (deflateBlockHeader.BTYPE)
-                {
-                    // If stored with no compression
-                    case CompressionType.NoCompression:
-                        var bytes00 = ReadNoCompression();
-                        if (bytes00 != null)
-                            bytes.AddRange(bytes00);
-                        break;
+                // Try to read the deflate block
+                var deflateBlock = ReadDeflateBlock();
+                if (deflateBlock == null)
+                    return null;
 
-                    // If compressed with fixed Huffman codes
-                    case CompressionType.FixedHuffman:
-                        var bytes01 = ReadFixedHuffman();
-                        if (bytes01 != null)
-                            bytes.AddRange(bytes01);
-                        break;
-
-                    // If compressed with dynamic Huffman codes
-                    case CompressionType.DynamicHuffman:
-                        var bytes10 = ReadDynamicHuffman();
-                        if (bytes10 != null)
-                            bytes.AddRange(bytes10);
-                        break;
-
-                    // Reserved is not allowed and is treated as an error
-                    case CompressionType.Reserved:
-                    default:
-                        return null;
-                }
+                // Add the deflate block to the set
+                deflateBlocks.Add(deflateBlock);
 
                 // If we're at the final block, exit out of the loop
-                if (deflateBlockHeader.BFINAL)
+                if (deflateBlock.Header.BFINAL)
                     break;
             }
 
-            return bytes.ToArray();
+            // Assign the deflate blocks to the block and return
+            block.CompressedBlocks = deflateBlocks.ToArray();
+            return block;
         }
 
         #region Headers
@@ -125,7 +107,7 @@ namespace SabreTools.Compression.MSZIP
         /// <summary>
         /// Read a FixedHuffmanCompressedBlockHeader from the input stream
         /// </summary>
-        private (FixedCompressedDataHeader, uint, uint) ReadFixedHuffmanCompressedBlockHeader()
+        private (FixedCompressedDataHeader, uint, uint) RaadFixedCompressedDataHeader()
         {
             // Nothing needs to be read, all values are fixed
             return (new FixedCompressedDataHeader(), 288, 30);
@@ -134,7 +116,7 @@ namespace SabreTools.Compression.MSZIP
         /// <summary>
         /// Read a DynamicHuffmanCompressedBlockHeader from the input stream
         /// </summary>
-        private (DynamicCompressedDataHeader, uint, uint) ReadDynamicHuffmanCompressedBlockHeader()
+        private (DynamicCompressedDataHeader, uint, uint) ReadDynamicCompressedDataHeader()
         {
             var header = new DynamicCompressedDataHeader();
 
@@ -174,66 +156,116 @@ namespace SabreTools.Compression.MSZIP
         #region Data
 
         /// <summary>
+        /// Read an RFC1951 block
+        /// </summary>
+        private DeflateBlock ReadDeflateBlock()
+        {
+            var deflateBlock = new DeflateBlock();
+
+            // Try to read the deflate block header
+            deflateBlock.Header = ReadDeflateBlockHeader();
+            switch (deflateBlock.Header.BTYPE)
+            {
+                // If stored with no compression
+                case CompressionType.NoCompression:
+                    (var header00, var bytes00) = ReadNoCompression();
+                    if (header00 == null || bytes00 == null)
+                        return null;
+
+                    deflateBlock.DataHeader = header00;
+                    deflateBlock.Data = bytes00;
+                    break;
+
+                // If compressed with fixed Huffman codes
+                case CompressionType.FixedHuffman:
+                    (var header01, var bytes01) = ReadFixedHuffman();
+                    if (header01 == null || bytes01 == null)
+                        return null;
+
+                    deflateBlock.DataHeader = header01;
+                    deflateBlock.Data = bytes01;
+                    break;
+
+                // If compressed with dynamic Huffman codes
+                case CompressionType.DynamicHuffman:
+                    (var header10, var bytes10) = ReadDynamicHuffman();
+                    if (header10 == null || bytes10 == null)
+                        return null;
+
+                    deflateBlock.DataHeader = header10;
+                    deflateBlock.Data = bytes10;
+                    break;
+
+                // Reserved is not allowed and is treated as an error
+                case CompressionType.Reserved:
+                default:
+                    return null;
+            }
+
+            return deflateBlock;
+        }
+
+        /// <summary>
         /// Read an RFC1951 block with no compression
         /// </summary>
 #if NET48
-        private byte[] ReadNoCompression()
+        private (NonCompressedBlockHeader, byte[]) ReadNoCompression()
 #else
-        private byte[]? ReadNoCompression()
+        private (NonCompressedBlockHeader?, byte[]?) ReadNoCompression()
 #endif
         {
             // Skip any remaining bits in current partially processed byte
             _bitStream.Discard();
 
             // Read LEN and NLEN
-            var nonCompressedBlockHeader = ReadNonCompressedBlockHeader();
-            if (nonCompressedBlockHeader.LEN == 0 && nonCompressedBlockHeader.NLEN == 0)
-                return null;
+            var header = ReadNonCompressedBlockHeader();
+            if (header.LEN == 0 && header.NLEN == 0)
+                return (null, null);
 
             // Copy LEN bytes of data to output
-            return _bitStream.ReadBytes(nonCompressedBlockHeader.LEN);
+            return (header, _bitStream.ReadBytes(header.LEN));
         }
 
         /// <summary>
         /// Read an RFC1951 block with fixed Huffman compression
         /// </summary>
 #if NET48
-        private byte[] ReadFixedHuffman()
+        private (FixedCompressedDataHeader, byte[]) ReadFixedHuffman()
 #else
-        private byte[]? ReadFixedHuffman()
+        private (FixedCompressedDataHeader, byte[]?) ReadFixedHuffman()
 #endif
         {
             var bytes = new List<byte>();
 
             // Get the fixed huffman header
-            (var header, uint numLiteral, uint numDistance) = ReadFixedHuffmanCompressedBlockHeader();
+            (var header, uint numLiteral, uint numDistance) = RaadFixedCompressedDataHeader();
 
             // Make the literal and distance trees
             HuffmanDecoder literalTree = new HuffmanDecoder(header.LiteralLengths, numLiteral);
             HuffmanDecoder distanceTree = new HuffmanDecoder(header.DistanceCodes, numDistance);
 
             // Now loop and decode
-            return ReadHuffmanBlock(literalTree, distanceTree);
+            return (header, ReadHuffmanBlock(literalTree, distanceTree));
         }
 
         /// <summary>
         /// Read an RFC1951 block with dynamic Huffman compression
         /// </summary>
 #if NET48
-        private byte[] ReadDynamicHuffman()
+        private (DynamicCompressedDataHeader, byte[]) ReadDynamicHuffman()
 #else
-        private byte[]? ReadDynamicHuffman()
+        private (DynamicCompressedDataHeader?, byte[]?) ReadDynamicHuffman()
 #endif
         {
             // Get the dynamic huffman header
-            (var header, uint numLiteral, uint numDistance) = ReadDynamicHuffmanCompressedBlockHeader();
+            (var header, uint numLiteral, uint numDistance) = ReadDynamicCompressedDataHeader();
 
             // Make the literal and distance trees
             HuffmanDecoder literalTree = new HuffmanDecoder(header.LiteralLengths, numLiteral);
             HuffmanDecoder distanceTree = new HuffmanDecoder(header.DistanceCodes, numDistance);
 
             // Now loop and decode
-            return ReadHuffmanBlock(literalTree, distanceTree);
+            return (header, ReadHuffmanBlock(literalTree, distanceTree));
         }
 
         /// <summary>
