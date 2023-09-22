@@ -125,18 +125,18 @@ namespace SabreTools.Compression.MSZIP
         /// <summary>
         /// Read a FixedHuffmanCompressedBlockHeader from the input stream
         /// </summary>
-        private (FixedHuffmanCompressedBlockHeader, uint, uint) ReadFixedHuffmanCompressedBlockHeader()
+        private (FixedCompressedDataHeader, uint, uint) ReadFixedHuffmanCompressedBlockHeader()
         {
             // Nothing needs to be read, all values are fixed
-            return (new FixedHuffmanCompressedBlockHeader(), 288, 30);
+            return (new FixedCompressedDataHeader(), 288, 30);
         }
 
         /// <summary>
         /// Read a DynamicHuffmanCompressedBlockHeader from the input stream
         /// </summary>
-        private (DynamicHuffmanCompressedBlockHeader, uint, uint) ReadDynamicHuffmanCompressedBlockHeader()
+        private (DynamicCompressedDataHeader, uint, uint) ReadDynamicHuffmanCompressedBlockHeader()
         {
-            var header = new DynamicHuffmanCompressedBlockHeader();
+            var header = new DynamicCompressedDataHeader();
 
             // Setup the counts first
             uint numLiteral = 257 + _bitStream.ReadBitsLSB(5) ?? 0;
@@ -158,8 +158,8 @@ namespace SabreTools.Compression.MSZIP
             HuffmanDecoder lengthTree = new HuffmanDecoder(lengthLengths, 19);
 
             // Setup the literal and distance lengths
-            header.LiteralLengths = new int[288];
-            header.DistanceCodes = new int[32];
+            header.LiteralLengths = new uint[288];
+            header.DistanceCodes = new uint[32];
 
             // Read the literal and distance codes
             int repeatCode = 1;
@@ -285,65 +285,6 @@ namespace SabreTools.Compression.MSZIP
 
             // Return the decoded array
             return bytes.ToArray();
-        }
-
-        /// <summary>
-        /// Read the huffman lengths
-        /// </summary>
-        private uint ReadHuffmanLengths(HuffmanDecoder lengthTree, int[] lengths, uint numCodes, uint repeat, ref int repeatCode)
-        {
-            int i = 0;
-
-            // First fill in any repeat codes
-            while (repeat > 0)
-            {
-                lengths[i++] = (byte)repeatCode;
-                repeat--;
-            }
-
-            // Then process the rest of the table
-            while (i < numCodes)
-            {
-                // Get the next length encoding from the stream
-                int lengthEncoding = lengthTree.Decode(_bitStream);
-
-                // Values less than 16 are encoded directly
-                if (lengthEncoding < 16)
-                {
-                    lengths[i++] = (byte)lengthEncoding;
-                    repeatCode = lengthEncoding;
-                }
-
-                // Otherwise, the repeat count is based on the next values
-                else
-                {
-                    // Determine the repeat count and code from the encoding
-                    if (lengthEncoding == 16)
-                    {
-                        repeat = 3 + _bitStream.ReadBitsLSB(2) ?? 0;
-                    }
-                    else if (lengthEncoding == 17)
-                    {
-                        repeat = 3 + _bitStream.ReadBitsLSB(3) ?? 0;
-                        repeatCode = 0;
-                    }
-                    else if (lengthEncoding == 18)
-                    {
-                        repeat = 11 + _bitStream.ReadBitsLSB(7) ?? 0;
-                        repeatCode = 0;
-                    }
-
-                    // Read in the expected lengths
-                    while (i < numCodes && repeat > 0)
-                    {
-                        lengths[i++] = (byte)repeatCode;
-                        repeat--;
-                    }
-                }
-            }
-
-            // Return any repeat value we have left over
-            return repeat;
         }
 
         /// <summary>
