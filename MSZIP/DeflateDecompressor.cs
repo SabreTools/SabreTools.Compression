@@ -33,7 +33,11 @@ namespace SabreTools.Compression.MSZIP
         /// Decompress a stream into a byte array
         /// </summary>
         /// <returns>Byte array containing the decompressed data on success, null on error</returns>
+#if NET48
         public byte[] Process()
+#else
+        public byte[]? Process()
+#endif
         {
             // Try to read the header
             var blockHeader = ReadBlockHeader();
@@ -50,20 +54,23 @@ namespace SabreTools.Compression.MSZIP
                 {
                     // If stored with no compression
                     case CompressionType.NoCompression:
-                        byte[] bytes00 = ReadNoCompression();
-                        bytes.AddRange(bytes00);
+                        var bytes00 = ReadNoCompression();
+                        if (bytes00 != null)
+                            bytes.AddRange(bytes00);
                         break;
 
                     // If compressed with fixed Huffman codes
                     case CompressionType.FixedHuffman:
-                        byte[] bytes01 = ReadFixedHuffman();
-                        bytes.AddRange(bytes01);
+                        var bytes01 = ReadFixedHuffman();
+                        if (bytes01 != null)
+                            bytes.AddRange(bytes01);
                         break;
 
                     // If compressed with dynamic Huffman codes
                     case CompressionType.DynamicHuffman:
-                        byte[] bytes10 = ReadDynamicHuffman();
-                        bytes.AddRange(bytes10);
+                        var bytes10 = ReadDynamicHuffman();
+                        if (bytes10 != null)
+                            bytes.AddRange(bytes10);
                         break;
 
                     // Reserved is not allowed and is treated as an error
@@ -140,7 +147,7 @@ namespace SabreTools.Compression.MSZIP
             uint[] lengthLengths = new uint[19];
             for (int i = 0; i < numLength; i++)
             {
-                lengthLengths[BitLengthOrder[i]] = (byte)_bitStream.ReadBitsLSB(3);
+                lengthLengths[BitLengthOrder[i]] = (byte)(_bitStream.ReadBitsLSB(3) ?? 0);
             }
             for (int i = (int)numLength; i < 19; i++)
             {
@@ -169,7 +176,11 @@ namespace SabreTools.Compression.MSZIP
         /// <summary>
         /// Read an RFC1951 block with no compression
         /// </summary>
+#if NET48
         private byte[] ReadNoCompression()
+#else
+        private byte[]? ReadNoCompression()
+#endif
         {
             // Skip any remaining bits in current partially processed byte
             _bitStream.Discard();
@@ -186,7 +197,11 @@ namespace SabreTools.Compression.MSZIP
         /// <summary>
         /// Read an RFC1951 block with fixed Huffman compression
         /// </summary>
+#if NET48
         private byte[] ReadFixedHuffman()
+#else
+        private byte[]? ReadFixedHuffman()
+#endif
         {
             var bytes = new List<byte>();
 
@@ -204,7 +219,11 @@ namespace SabreTools.Compression.MSZIP
         /// <summary>
         /// Read an RFC1951 block with dynamic Huffman compression
         /// </summary>
+#if NET48
         private byte[] ReadDynamicHuffman()
+#else
+        private byte[]? ReadDynamicHuffman()
+#endif
         {
             // Get the dynamic huffman header
             (var header, uint numLiteral, uint numDistance) = ReadDynamicHuffmanCompressedBlockHeader();
@@ -220,7 +239,11 @@ namespace SabreTools.Compression.MSZIP
         /// <summary>
         /// Read an RFC1951 block with Huffman compression
         /// </summary>
+#if NET48
         private byte[] ReadHuffmanBlock(HuffmanDecoder literalTree, HuffmanDecoder distanceTree)
+#else
+        private byte[]? ReadHuffmanBlock(HuffmanDecoder literalTree, HuffmanDecoder distanceTree)
+#endif
         {
             // Now loop and decode
             var bytes = new List<byte>();

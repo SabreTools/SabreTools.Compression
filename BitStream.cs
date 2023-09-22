@@ -27,9 +27,13 @@ namespace SabreTools.Compression
         /// <summary>
         /// Create a new BitStream from a source Stream
         /// </summary>
+#if NET48
         public BitStream(Stream source)
+#else
+        public BitStream(Stream? source)
+#endif
         {
-            if (!source.CanRead || !source.CanSeek)
+            if (source == null || !source.CanRead || !source.CanSeek)
                 throw new ArgumentException(nameof(source));
 
             _source = source;
@@ -70,7 +74,7 @@ namespace SabreTools.Compression
 
             // Get the value by bit-shifting
             int value = _bitBuffer.Value & 0x01;
-            _bitBuffer >>= 1;
+            _bitBuffer = (byte?)(_bitBuffer >> 1);
             _bitIndex++;
 
             // Reset the byte if we're at the end
@@ -200,7 +204,11 @@ namespace SabreTools.Compression
         /// <param name="bytes">Number of bytes to read</param>
         /// <returns>The next <paramref name="bytes"/> bytes, null on error or end of stream</returns>
         /// <remarks>Assumes the stream is byte-aligned</remarks>
+#if NET48
         public byte[] ReadBytes(int bytes)
+#else
+        public byte[]? ReadBytes(int bytes)
+#endif
         {
             try
             {

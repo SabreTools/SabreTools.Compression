@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 using System.Linq;
 
@@ -15,10 +16,22 @@ namespace SabreTools.Compression.MSZIP
         /// </summary>
         /// <param name="lengths">Array representing the number of bits for each value</param>
         /// <param name="numCodes">Number of Huffman codes encoded</param>
+#if NET48
         public HuffmanDecoder(int[] lengths, uint numCodes)
+#else
+        public HuffmanDecoder(int[]? lengths, uint numCodes)
+#endif
         {
+            // Ensure we have lengths
+            if (lengths == null)
+                throw new ArgumentNullException(nameof(lengths));
+
             // Set the root to null for now
-            _root = null;
+#if NET48
+            HuffmanNode root = null;
+#else
+            HuffmanNode? root = null;
+#endif
 
             // Determine the value for max_bits
             uint max_bits = (uint)lengths.Max();
@@ -66,8 +79,15 @@ namespace SabreTools.Compression.MSZIP
                     continue;
 
                 // Insert the value starting at the root
-                _root = Insert(_root, i, len, tree[i]);
+                root = Insert(root, i, len, tree[i]);
             }
+
+            // Assign the root value
+#if NET48
+            _root = root;
+#else
+            _root = root!;
+#endif
         }
 
         /// <summary>
@@ -75,10 +95,22 @@ namespace SabreTools.Compression.MSZIP
         /// </summary>
         /// <param name="lengths">Array representing the number of bits for each value</param>
         /// <param name="numCodes">Number of Huffman codes encoded</param>
+#if NET48
         public HuffmanDecoder(uint[] lengths, uint numCodes)
+#else
+        public HuffmanDecoder(uint[]? lengths, uint numCodes)
+#endif
         {
+            // Ensure we have lengths
+            if (lengths == null)
+                throw new ArgumentNullException(nameof(lengths));
+
             // Set the root to null for now
-            _root = null;
+#if NET48
+            HuffmanNode root = null;
+#else
+            HuffmanNode? root = null;
+#endif
 
             // Determine the value for max_bits
             uint max_bits = lengths.Max();
@@ -128,6 +160,13 @@ namespace SabreTools.Compression.MSZIP
                 // Insert the value starting at the root
                 _root = Insert(_root, i, len, tree[i]);
             }
+
+            // Assign the root value
+#if NET48
+            _root = root;
+#else
+            _root = root!;
+#endif
         }
 
         /// <summary>
@@ -139,7 +178,7 @@ namespace SabreTools.Compression.MSZIP
         {
             // Start at the root of the tree
             var node = _root;
-            while (node.Left != null)
+            while (node?.Left != null)
             {
                 // Read the next bit to determine direction
                 byte? nextBit = input.ReadBit();
@@ -154,7 +193,7 @@ namespace SabreTools.Compression.MSZIP
             }
 
             // We traversed to the bottom of the branch
-            return node.Value;
+            return node?.Value ?? 0;
         }
 
         /// <summary>
