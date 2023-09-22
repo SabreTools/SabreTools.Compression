@@ -17,7 +17,7 @@ namespace SabreTools.Compression
         /// <summary>
         /// Last read byte value from the stream
         /// </summary>
-        private byte? _lastRead;
+        private byte? _bitBuffer;
 
         /// <summary>
         /// Index in the byte of the current bit
@@ -33,7 +33,7 @@ namespace SabreTools.Compression
                 throw new ArgumentException(nameof(source));
 
             _source = source;
-            _lastRead = null;
+            _bitBuffer = null;
             _bitIndex = 0;
         }
 
@@ -42,21 +42,85 @@ namespace SabreTools.Compression
         /// </summary>
         public void Discard()
         {
-            _lastRead = null;
+            _bitBuffer = null;
             _bitIndex = 0;
         }
 
         /// <summary>
-        /// Read a single bit with MSB as the leftmost bit, if possible
+        /// Read a single bit, if possible
         /// </summary>
         /// <returns>The next bit encoded in a byte, null on error or end of stream</returns>
-        public byte? ReadBitMSB() => ReadBitInternal(true);
+        public byte? ReadBit()
+        {
+            // If we reached the end of the stream
+            if (_source.Position >= _source.Length)
+                return null;
+
+            // If we don't have a value cached
+            if (_bitBuffer == null)
+            {
+                // Read the next byte, if possible
+                _bitBuffer = ReadSourceByte();
+                if (_bitBuffer == null)
+                    return null;
+
+                // Reset the bit index
+                _bitIndex = 0;
+            }
+
+            // Get the value by bit-shifting
+            int value = _bitBuffer.Value & 0x01;
+            _bitBuffer >>= 1;
+            _bitIndex++;
+
+            // Reset the byte if we're at the end
+            if (_bitIndex >= 8)
+                Discard();
+
+            return (byte)value;
+        }
 
         /// <summary>
-        /// Read a single bit with LSB as the leftmost bit, if possible
+        /// Read a multiple bits in LSB, if possible
         /// </summary>
-        /// <returns>The next bit encoded in a byte, null on error or end of stream</returns>
-        public byte? ReadBitLSB() => ReadBitInternal(false);
+        /// <returns>The next bits encoded in a UInt32, null on error or end of stream</returns>
+        public uint? ReadBitsLSB(int bits)
+        {
+            uint value = 0;
+            for (int i = 0; i < bits; i++)
+            {
+                // Read the next bit
+                byte? bitValue = ReadBit();
+                if (bitValue == null)
+                    return null;
+
+                // Add the bit shifted by the current index
+                value += (uint)(bitValue.Value << i);
+            }
+
+            return value;
+        }
+
+        /// <summary>
+        /// Read a multiple bits in MSB, if possible
+        /// </summary>
+        /// <returns>The next bits encoded in a UInt32, null on error or end of stream</returns>
+        public uint? ReadBitsMSB(int bits)
+        {
+            uint value = 0;
+            for (int i = 0; i < bits; i++)
+            {
+                // Read the next bit
+                byte? bitValue = ReadBit();
+                if (bitValue == null)
+                    return null;
+
+                // Add the bit shifted by the current index
+                value += (value << 1) + bitValue.Value;
+            }
+
+            return value;
+        }
 
         /// <summary>
         /// Read a byte, if possible
@@ -65,7 +129,7 @@ namespace SabreTools.Compression
         public byte? ReadByte()
         {
             // If we don't have a value cached
-            if (_lastRead == null)
+            if (_bitBuffer == null)
             {
                 try
                 {
@@ -85,130 +149,69 @@ namespace SabreTools.Compression
         /// Read a UInt16, if possible
         /// </summary>
         /// <returns>The next UInt16, null on error or end of stream</returns>
+        /// <remarks>Assumes the stream is byte-aligned</remarks>
         public ushort? ReadUInt16()
         {
-            // If we don't have a value cached
-            if (_lastRead == null)
+            try
             {
-                try
-                {
-                    return _source.ReadUInt16();
-                }
-                catch
-                {
-                    return null;
-                }
+                return _source.ReadUInt16();
             }
-
-            // Otherwise, assemble the value from the next bits
-            throw new NotImplementedException();
+            catch
+            {
+                return null;
+            }
         }
 
         /// <summary>
         /// Read a UInt32, if possible
         /// </summary>
         /// <returns>The next UInt32, null on error or end of stream</returns>
+        /// <remarks>Assumes the stream is byte-aligned</remarks>
         public uint? ReadUInt32()
         {
-            // If we don't have a value cached
-            if (_lastRead == null)
+            try
             {
-                try
-                {
-                    return _source.ReadUInt32();
-                }
-                catch
-                {
-                    return null;
-                }
+                return _source.ReadUInt32();
             }
-
-            // Otherwise, assemble the value from the next bits
-            throw new NotImplementedException();
+            catch
+            {
+                return null;
+            }
         }
 
         /// <summary>
         /// Read a UInt64, if possible
         /// </summary>
         /// <returns>The next UInt64, null on error or end of stream</returns>
+        /// <remarks>Assumes the stream is byte-aligned</remarks>
         public ulong? ReadUInt64()
         {
-            // If we don't have a value cached
-            if (_lastRead == null)
+            try
             {
-                try
-                {
-                    return _source.ReadUInt64();
-                }
-                catch
-                {
-                    return null;
-                }
+                return _source.ReadUInt64();
             }
-
-            // Otherwise, assemble the value from the next bits
-            throw new NotImplementedException();
+            catch
+            {
+                return null;
+            }
         }
 
         /// <summary>
         /// Read <paramref name="bytes"/> bytes, if possible
         /// </summary>
         /// <param name="bytes">Number of bytes to read</param>
-        /// <returns>The next paramref name="bytes"/> bytes, null on error or end of stream</returns>
+        /// <returns>The next <paramref name="bytes"/> bytes, null on error or end of stream</returns>
+        /// <remarks>Assumes the stream is byte-aligned</remarks>
         public byte[] ReadBytes(int bytes)
         {
-            // If we don't have a value cached
-            if (_lastRead == null)
+            try
             {
-                try
-                {
-                    return _source.ReadBytes(bytes);
-                }
-                catch
-                {
-                    return null;
-                }
+                return _source.ReadBytes(bytes);
             }
-
-            // Otherwise, assemble the value from the next bits
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
-        /// Read a single bit, if possible
-        /// </summary>
-        /// <param name="msb">True if the value should be read MSB, false for LSB</param>
-        /// <returns>The next bit encoded in a byte, null on error or end of stream</returns>
-        private byte? ReadBitInternal(bool msb)
-        {
-            // If we reached the end of the stream
-            if (_source.Position >= _source.Length)
+            catch
+            {
                 return null;
-
-            // If we don't have a value cached
-            if (_lastRead == null)
-            {
-                // Read the next byte, if possible
-                _lastRead = ReadSourceByte();
-                if (_lastRead == null)
-                    return null;
-
-                // Reset the bit index
-                _bitIndex = 0;
             }
-
-            // Get the value by bit-shifting
-            int value;
-            if (msb)
-                value = (_lastRead.Value >> _bitIndex++) & 0x01;
-            else
-                value = (_lastRead.Value >> (7 - _bitIndex++)) & 0x01;
-
-            // Reset the byte if we're at the end
-            if (_bitIndex >= 8)
-                Discard();
-
-            return (byte)value;
         }
 
         /// <summary>
