@@ -59,7 +59,7 @@ namespace SabreTools.Compression
         public byte? ReadBitLSB() => ReadBitInternal(false);
 
         /// <summary>
-        /// Read a full byte, if possible
+        /// Read a byte, if possible
         /// </summary>
         /// <returns>The next byte, null on error or end of stream</returns>
         public byte? ReadByte()
@@ -82,7 +82,7 @@ namespace SabreTools.Compression
         }
 
         /// <summary>
-        /// Read a full UInt16, if possible
+        /// Read a UInt16, if possible
         /// </summary>
         /// <returns>The next UInt16, null on error or end of stream</returns>
         public ushort? ReadUInt16()
@@ -105,7 +105,7 @@ namespace SabreTools.Compression
         }
 
         /// <summary>
-        /// Read a full UInt32, if possible
+        /// Read a UInt32, if possible
         /// </summary>
         /// <returns>The next UInt32, null on error or end of stream</returns>
         public uint? ReadUInt32()
@@ -128,7 +128,7 @@ namespace SabreTools.Compression
         }
 
         /// <summary>
-        /// Read a full UInt64, if possible
+        /// Read a UInt64, if possible
         /// </summary>
         /// <returns>The next UInt64, null on error or end of stream</returns>
         public ulong? ReadUInt64()
@@ -139,6 +139,30 @@ namespace SabreTools.Compression
                 try
                 {
                     return _source.ReadUInt64();
+                }
+                catch
+                {
+                    return null;
+                }
+            }
+
+            // Otherwise, assemble the value from the next bits
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Read <paramref name="bytes"/> bytes, if possible
+        /// </summary>
+        /// <param name="bytes">Number of bytes to read</param>
+        /// <returns>The next paramref name="bytes"/> bytes, null on error or end of stream</returns>
+        public byte[] ReadBytes(int bytes)
+        {
+            // If we don't have a value cached
+            if (_lastRead == null)
+            {
+                try
+                {
+                    return _source.ReadBytes(bytes);
                 }
                 catch
                 {
