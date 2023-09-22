@@ -91,7 +91,7 @@ namespace SabreTools.Compression
         /// Read a full UInt16, if possible
         /// </summary>
         /// <returns>The next UInt16, null on error or end of stream</returns>
-        public byte? ReadUInt16()
+        public ushort? ReadUInt16()
         {
             throw new NotImplementedException();
         }
@@ -100,7 +100,7 @@ namespace SabreTools.Compression
         /// Read a full UInt32, if possible
         /// </summary>
         /// <returns>The next UInt32, null on error or end of stream</returns>
-        public byte? ReadUInt32()
+        public uint? ReadUInt32()
         {
             throw new NotImplementedException();
         }
@@ -109,7 +109,7 @@ namespace SabreTools.Compression
         /// Read a full UInt64, if possible
         /// </summary>
         /// <returns>The next UInt64, null on error or end of stream</returns>
-        public byte? ReadUInt64()
+        public ulong? ReadUInt64()
         {
             throw new NotImplementedException();
         }
