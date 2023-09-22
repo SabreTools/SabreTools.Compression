@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using SabreTools.Models.Compression.MSZIP;
-using static SabreTools.Compression.MSZIP.Constants;
 using static SabreTools.Models.Compression.MSZIP.Constants;
 
 namespace SabreTools.Compression.MSZIP
