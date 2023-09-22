@@ -126,23 +126,18 @@ namespace SabreTools.Compression
         /// Read a byte, if possible
         /// </summary>
         /// <returns>The next byte, null on error or end of stream</returns>
+        /// <remarks>Assumes the stream is byte-aligned</remarks>
         public byte? ReadByte()
         {
-            // If we don't have a value cached
-            if (_bitBuffer == null)
+            try
             {
-                try
-                {
-                    return _source.ReadByteValue();
-                }
-                catch
-                {
-                    return null;
-                }
+                Discard();
+                return _source.ReadByteValue();
             }
-
-            // Otherwise, assemble the value from the next bits
-            throw new NotImplementedException();
+            catch
+            {
+                return null;
+            }
         }
 
         /// <summary>
@@ -154,6 +149,7 @@ namespace SabreTools.Compression
         {
             try
             {
+                Discard();
                 return _source.ReadUInt16();
             }
             catch
@@ -171,6 +167,7 @@ namespace SabreTools.Compression
         {
             try
             {
+                Discard();
                 return _source.ReadUInt32();
             }
             catch
@@ -188,6 +185,7 @@ namespace SabreTools.Compression
         {
             try
             {
+                Discard();
                 return _source.ReadUInt64();
             }
             catch
@@ -206,6 +204,7 @@ namespace SabreTools.Compression
         {
             try
             {
+                Discard();
                 return _source.ReadBytes(bytes);
             }
             catch

@@ -14,8 +14,8 @@ namespace SabreTools.Compression.MSZIP
         /// Create a Huffman tree to decode with
         /// </summary>
         /// <param name="lengths">Array representing the number of bits for each value</param>
-        /// <param name="num_codes">Number of Huffman codes encoded</param>
-        public HuffmanDecoder(byte[] lengths, uint num_codes)
+        /// <param name="numCodes">Number of Huffman codes encoded</param>
+        public HuffmanDecoder(byte[] lengths, uint numCodes)
         {
             // Set the root to null for now
             _root = null;
@@ -25,7 +25,7 @@ namespace SabreTools.Compression.MSZIP
 
             // Count the number of codes for each code length
             int[] bl_count = new int[max_bits + 1];
-            for (int i = 0; i < num_codes; i++)
+            for (int i = 0; i < numCodes; i++)
             {
                 int length = lengths[i];
                 bl_count[length]++;
@@ -45,8 +45,8 @@ namespace SabreTools.Compression.MSZIP
             // values for all codes of the same length with the base
             // values determined at step 2. Codes that are never used
             // (which have a bit length of zero) must not be assigned a value.
-            int[] tree = new int[num_codes];
-            for (int i = 0; i < num_codes; i++)
+            int[] tree = new int[numCodes];
+            for (int i = 0; i < numCodes; i++)
             {
                 byte len = lengths[i];
                 if (len == 0)
@@ -58,7 +58,7 @@ namespace SabreTools.Compression.MSZIP
             }
 
             // Now insert the values into the structure
-            for (int i = 0; i < num_codes; i++)
+            for (int i = 0; i < numCodes; i++)
             {
                 // If we have a 0-length code
                 byte len = lengths[i];
