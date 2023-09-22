@@ -9,3 +9,6 @@ Find the link to the Nuget package [here](https://www.nuget.org/packages/SabreTo
 | Compression Name | Decompress | Compress |
 | --- | --- | --- |
 | LZ | Yes | No |
+| MSZIP | Yes* | No |
+
+**Note:** If something is marked with a `*` it means that it need testing.
