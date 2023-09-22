@@ -47,36 +47,16 @@ namespace SabreTools.Compression
         }
 
         /// <summary>
-        /// Read a single bit, if possible
+        /// Read a single bit with MSB as the leftmost bit, if possible
         /// </summary>
         /// <returns>The next bit encoded in a byte, null on error or end of stream</returns>
-        public byte? ReadBit()
-        {
-            // If we reached the end of the stream
-            if (_source.Position >= _source.Length)
-                return null;
+        public byte? ReadBitMSB() => ReadBitInternal(true);
 
-            // If we don't have a value cached
-            if (_lastRead == null)
-            {
-                // Read the next byte, if possible
-                _lastRead = ReadSourceByte();
-                if (_lastRead == null)
-                    return null;
-
-                // Reset the bit index
-                _bitIndex = 0;
-            }
-
-            // Get the value by bit-shifting
-            int value = (_lastRead.Value >> _bitIndex++) & 0x01;
-
-            // Reset the byte if we're at the end
-            if (_bitIndex >= 8)
-                Discard();
-
-            return (byte)value;
-        }
+        /// <summary>
+        /// Read a single bit with LSB as the leftmost bit, if possible
+        /// </summary>
+        /// <returns>The next bit encoded in a byte, null on error or end of stream</returns>
+        public byte? ReadBitLSB() => ReadBitInternal(false);
 
         /// <summary>
         /// Read a full byte, if possible
@@ -168,6 +148,43 @@ namespace SabreTools.Compression
 
             // Otherwise, assemble the value from the next bits
             throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Read a single bit, if possible
+        /// </summary>
+        /// <param name="msb">True if the value should be read MSB, false for LSB</param>
+        /// <returns>The next bit encoded in a byte, null on error or end of stream</returns>
+        private byte? ReadBitInternal(bool msb)
+        {
+            // If we reached the end of the stream
+            if (_source.Position >= _source.Length)
+                return null;
+
+            // If we don't have a value cached
+            if (_lastRead == null)
+            {
+                // Read the next byte, if possible
+                _lastRead = ReadSourceByte();
+                if (_lastRead == null)
+                    return null;
+
+                // Reset the bit index
+                _bitIndex = 0;
+            }
+
+            // Get the value by bit-shifting
+            int value;
+            if (msb)
+                value = (_lastRead.Value >> _bitIndex++) & 0x01;
+            else
+                value = (_lastRead.Value >> (7 - _bitIndex++)) & 0x01;
+
+            // Reset the byte if we're at the end
+            if (_bitIndex >= 8)
+                Discard();
+
+            return (byte)value;
         }
 
         /// <summary>
