@@ -118,9 +118,10 @@ namespace SabreTools.Compression.MSZIP
         /// <summary>
         /// Read a FixedHuffmanCompressedBlockHeader from the input stream
         /// </summary>
-        private FixedHuffmanCompressedBlockHeader ReadFixedHuffmanCompressedBlockHeader()
+        private (FixedHuffmanCompressedBlockHeader, uint, uint) ReadFixedHuffmanCompressedBlockHeader()
         {
-            return new FixedHuffmanCompressedBlockHeader();
+            // Nothing needs to be read, all values are fixed
+            return (new FixedHuffmanCompressedBlockHeader(), 288, 30);
         }
 
         /// <summary>
@@ -190,11 +191,11 @@ namespace SabreTools.Compression.MSZIP
             var bytes = new List<byte>();
 
             // Get the fixed huffman header
-            var header = ReadFixedHuffmanCompressedBlockHeader();
+            (var header, uint numLiteral, uint numDistance) = ReadFixedHuffmanCompressedBlockHeader();
 
             // Make the literal and distance trees
-            HuffmanDecoder literalTree = new HuffmanDecoder(header.LiteralLengths, 288);
-            HuffmanDecoder distanceTree = new HuffmanDecoder(header.DistanceCodes, 30);
+            HuffmanDecoder literalTree = new HuffmanDecoder(header.LiteralLengths, numLiteral);
+            HuffmanDecoder distanceTree = new HuffmanDecoder(header.DistanceCodes, numDistance);
 
             // Now loop and decode
             return ReadHuffmanBlock(literalTree, distanceTree);
