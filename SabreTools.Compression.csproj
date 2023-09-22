@@ -15,7 +15,7 @@
       <PackageReadmeFile>README.md</PackageReadmeFile>
       <RepositoryUrl>https://github.com/SabreTools/SabreTools.Printing</RepositoryUrl>
       <RepositoryType>git</RepositoryType>
-      <PackageTags>compression decompression lz</PackageTags>
+      <PackageTags>compression decompression lz mszip</PackageTags>
       <PackageLicenseExpression>MIT</PackageLicenseExpression>
     </PropertyGroup>
   
