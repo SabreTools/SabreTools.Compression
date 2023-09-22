@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using SabreTools.Models.Compression.MSZIP;
 using static SabreTools.Compression.MSZIP.Constants;
+using static SabreTools.Models.Compression.MSZIP.Constants;
 
 namespace SabreTools.Compression.MSZIP
 {
@@ -140,11 +141,11 @@ namespace SabreTools.Compression.MSZIP
             uint[] lengthLengths = new uint[19];
             for (int i = 0; i < numLength; i++)
             {
-                lengthLengths[FixedAlphabet[i]] = (byte)_bitStream.ReadBitsLSB(3);
+                lengthLengths[BitLengthOrder[i]] = (byte)_bitStream.ReadBitsLSB(3);
             }
             for (int i = (int)numLength; i < 19; i++)
             {
-                lengthLengths[FixedAlphabet[i]] = 0;
+                lengthLengths[BitLengthOrder[i]] = 0;
             }
 
             // Make the lengths tree
@@ -245,13 +246,13 @@ namespace SabreTools.Compression.MSZIP
                 else
                 {
                     sym -= 257;
-                    uint? length = MatchLengths[sym] + _bitStream.ReadBitsLSB(MatchExtraBits[sym]);
+                    uint? length = CopyLengths[sym] + _bitStream.ReadBitsLSB(LiteralExtraBits[sym]);
                     if (length == null)
                         return null;
 
                     int distanceCode = distanceTree.Decode(_bitStream);
 
-                    uint? distance = DistanceLengths[distanceCode] + _bitStream.ReadBitsLSB(DistanceExtraBits[distanceCode]);
+                    uint? distance = CopyOffsets[distanceCode] + _bitStream.ReadBitsLSB(DistanceExtraBits[distanceCode]);
                     if (distance == null)
                         return null;
 
