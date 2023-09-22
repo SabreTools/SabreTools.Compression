@@ -84,6 +84,20 @@ namespace SabreTools.Compression
         /// <returns>The next byte, null on error or end of stream</returns>
         public byte? ReadByte()
         {
+            // If we don't have a value cached
+            if (_lastRead == null)
+            {
+                try
+                {
+                    return _source.ReadByteValue();
+                }
+                catch
+                {
+                    return null;
+                }
+            }
+
+            // Otherwise, assemble the value from the next bits
             throw new NotImplementedException();
         }
 
@@ -93,6 +107,20 @@ namespace SabreTools.Compression
         /// <returns>The next UInt16, null on error or end of stream</returns>
         public ushort? ReadUInt16()
         {
+            // If we don't have a value cached
+            if (_lastRead == null)
+            {
+                try
+                {
+                    return _source.ReadUInt16();
+                }
+                catch
+                {
+                    return null;
+                }
+            }
+
+            // Otherwise, assemble the value from the next bits
             throw new NotImplementedException();
         }
 
@@ -102,6 +130,20 @@ namespace SabreTools.Compression
         /// <returns>The next UInt32, null on error or end of stream</returns>
         public uint? ReadUInt32()
         {
+            // If we don't have a value cached
+            if (_lastRead == null)
+            {
+                try
+                {
+                    return _source.ReadUInt32();
+                }
+                catch
+                {
+                    return null;
+                }
+            }
+
+            // Otherwise, assemble the value from the next bits
             throw new NotImplementedException();
         }
 
@@ -111,6 +153,20 @@ namespace SabreTools.Compression
         /// <returns>The next UInt64, null on error or end of stream</returns>
         public ulong? ReadUInt64()
         {
+            // If we don't have a value cached
+            if (_lastRead == null)
+            {
+                try
+                {
+                    return _source.ReadUInt64();
+                }
+                catch
+                {
+                    return null;
+                }
+            }
+
+            // Otherwise, assemble the value from the next bits
             throw new NotImplementedException();
         }
 
