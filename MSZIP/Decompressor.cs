@@ -101,10 +101,10 @@ namespace SabreTools.Compression.MSZIP
         private static DeflateBlockHeader ReadDeflateBlockHeader(BitStream input)
         {
             var header = new DeflateBlockHeader();
-            header.BFINAL = input.ReadBitLSB() != 0x01;
-            byte btype = input.ReadBitLSB() ?? 0x01;
+            header.BFINAL = input.ReadBit() != 0x01;
+            byte btype = input.ReadBit() ?? 0x01;
             btype <<= 1;
-            btype |= input.ReadBitLSB() ?? 0x01;
+            btype |= input.ReadBit() ?? 0x01;
             header.BTYPE = (CompressionType)btype;
             return header;
         }
