@@ -268,8 +268,8 @@ namespace SabreTools.Compression.Quantum
         /// </summary>
         private ushort GetFrequency(ushort totalFrequency)
         {
-            ulong range = ((CS_H - CS_L) & 0xFFFF) + 1;
-            ulong frequency = ((CS_C - CS_L + 1) * totalFrequency - 1) / range;
+            ulong range = (ulong)(((CS_H - CS_L) & 0xFFFF) + 1);
+            ulong frequency = (ulong)((CS_C - CS_L + 1) * totalFrequency - 1) / range;
             return (ushort)(frequency & 0xFFFF);
         }
     }
