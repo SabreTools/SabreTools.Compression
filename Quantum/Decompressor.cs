@@ -165,9 +165,9 @@ namespace SabreTools.Compression.Quantum
         /// </summary>
         private void GetCode(int prevFrequency, int currentFrequency, int totalFrequency)
         {
-            uint range = (CS_H - CS_L) + 1;
-            CS_H = CS_L + (uint)((prevFrequency * range) / totalFrequency) - 1;
-            CS_L = CS_L + (uint)((currentFrequency * range) / totalFrequency);
+            uint range = (ushort)((CS_H - CS_L) + 1);
+            CS_H = (ushort)(CS_L + (prevFrequency * range) / totalFrequency - 1);
+            CS_L = (ushort)(CS_L + (currentFrequency * range) / totalFrequency);
 
             while (true)
             {
@@ -187,8 +187,8 @@ namespace SabreTools.Compression.Quantum
                 }
 
                 CS_L <<= 1;
-                CS_H = (CS_H << 1) | 1;
-                CS_C = (CS_C << 1) | _bitStream.ReadBit() ?? 0;
+                CS_H = (ushort)((CS_H << 1) | 1);
+                CS_C = (ushort)((CS_C << 1) | _bitStream.ReadBit() ?? 0);
             }
         }
 
