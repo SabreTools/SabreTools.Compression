@@ -9,6 +9,12 @@ namespace SabreTools.Compression
     /// </summary>
     public class BitStream
     {
+        /// <inheritdoc cref="Stream.Position"/>
+        public long Position => _source.Position;
+
+        /// <inheritdoc cref="Stream.Length"/>
+        public long Length => _source.Length;
+
         /// <summary>
         /// Original stream source
         /// </summary>
