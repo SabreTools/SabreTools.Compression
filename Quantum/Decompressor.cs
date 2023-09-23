@@ -21,17 +21,16 @@ namespace SabreTools.Compression.Quantum
         /// </summary>
         public int GetSymbol(Model model)
         {
-            int i;
-            int sym;
-
             int freq = GetFrequency(model.Symbols[0].CumulativeFrequency);
+
+            int i;
             for (i = 1; i < model.Entries; i++)
             {
                 if (model.Symbols[i].CumulativeFrequency <= freq)
                     break;
             }
 
-            sym = model.Symbols[i - 1].Symbol;
+            int sym = model.Symbols[i - 1].Symbol;
 
             GetCode(model.Symbols[i - 1].CumulativeFrequency,
                     model.Symbols[i].CumulativeFrequency,
@@ -45,10 +44,8 @@ namespace SabreTools.Compression.Quantum
         /// <summary>
         /// Get the next code based on the frequencies
         /// </summary>
-        private int GetCode(int prevFrequency, int currentFrequency, int totalFrequency)
+        private void GetCode(int prevFrequency, int currentFrequency, int totalFrequency)
         {
-            int uf;
-
             uint range = (CS_H - CS_L) + 1;
             CS_H = CS_L + (uint)((prevFrequency * range) / totalFrequency) - 1;
             CS_L = CS_L + (uint)((currentFrequency * range) / totalFrequency);
@@ -74,9 +71,6 @@ namespace SabreTools.Compression.Quantum
                 CS_H = (CS_H << 1) | 1;
                 CS_C = (CS_C << 1) | _bitStream.ReadBit() ?? 0;
             }
-
-            // TODO: Incomplete implementation?
-            return 0;
         }
 
         /// <summary>
@@ -89,12 +83,11 @@ namespace SabreTools.Compression.Quantum
             {
                 var sym = model.Symbols[i];
                 sym.CumulativeFrequency += 8;
-                // model.TotalFrequency += 8; // TODO: Added in new model
             }
 
             // Decrement reordering time, if needed
-            // if (model.TotalFrequency > 3800) // TODO: Added in new model
-            //     model.TimeToReorder--;
+            if (model.Symbols[0].CumulativeFrequency > 3800)
+                model.TimeToReorder--;
 
             // If we haven't hit the reordering time
             if (model.TimeToReorder > 0)
@@ -104,34 +97,49 @@ namespace SabreTools.Compression.Quantum
                 {
                     // Divide with truncation by 2
                     var sym = model.Symbols[i];
-                    sym.CumulativeFrequency = (ushort)Math.Truncate((double)sym.CumulativeFrequency / 2);
+                    sym.CumulativeFrequency >>= 1;
 
                     // If we are lower the next frequency
-                    if (i != 0 && sym.CumulativeFrequency <= model.Symbols[i - 1].CumulativeFrequency)
-                    {
-                        sym.CumulativeFrequency = (ushort)(model.Symbols[i - 1].CumulativeFrequency + 1);
-                    }
+                    if (i != 0 && sym.CumulativeFrequency <= model.Symbols[i + 1].CumulativeFrequency)
+                        sym.CumulativeFrequency = (ushort)(model.Symbols[i + 1].CumulativeFrequency + 1);
                 }
             }
 
             // If we hit the reordering time
             else
             {
-                // Calculate frequencies
-                ushort[] frequencies = new ushort[model.Entries];
+                // Calculate frequencies from cumulative frequencies
                 for (int i = 0; i < model.Entries; i++)
                 {
-                    var sym = model.Symbols[i];
-                    frequencies[i] = GetFrequency(sym.CumulativeFrequency);
-                    frequencies[i] = (ushort)Math.Round((double)frequencies[i] / 2);
+                    if (i != model.Entries - 1)
+                        model.Symbols[i].CumulativeFrequency -= model.Symbols[i + 1].CumulativeFrequency;
+
+                    model.Symbols[i].CumulativeFrequency++;
+                    model.Symbols[i].CumulativeFrequency >>= 1;
                 }
 
-                // TODO: Finish implementation based on this statement from the docs:
-                // The table is then sorted by frequency (highest first) using
-                // an in-place selection sort (not stable!) and the cumulative
-                // frequencies recomputed.
-                // TODO: Determine if selection sort is needed
+                // Sort frequencies in decreasing order
+                for (int i = 0; i < model.Entries; i++)
+                {
+                    for (int j = i + 1; j < model.Entries; j++)
+                    {
+                        if (model.Symbols[i].CumulativeFrequency < model.Symbols[j].CumulativeFrequency)
+                        {
+                            var temp = model.Symbols[i];
+                            model.Symbols[i] = model.Symbols[j];
+                            model.Symbols[j] = temp;
+                        }
+                    }
+                }
 
+                // Calculate cumulative frequencies from frequencies
+                for (int i = model.Entries - 1; i >= 0; i--)
+                {
+                    if (i != model.Entries - 1)
+                        model.Symbols[i].CumulativeFrequency += model.Symbols[i + 1].CumulativeFrequency;
+                }
+
+                // Reset the time to reorder
                 model.TimeToReorder = 50;
             }
         }
