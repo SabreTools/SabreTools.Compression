@@ -4,12 +4,80 @@ using SabreTools.Models.Compression.Quantum;
 namespace SabreTools.Compression.Quantum
 {
     /// <see href="www.russotto.net/quantumcomp.html"/> 
-    public class Quantum
+    public class Decompressor
     {
+        /// <summary>
+        /// Internal bitstream to use for decompression
+        /// </summary>
+        private BitStream _bitStream;
+
         // TODO: Figure out what these values are
         private uint CS_H;
         private uint CS_L;
         private uint CS_C;
+
+        /// <summary>
+        /// Get the next symbol from a model
+        /// </summary>
+        public int GetSymbol(Model model)
+        {
+            int i;
+            int sym;
+
+            int freq = GetFrequency(model.Symbols[0].CumulativeFrequency);
+            for (i = 1; i < model.Entries; i++)
+            {
+                if (model.Symbols[i].CumulativeFrequency <= freq)
+                    break;
+            }
+
+            sym = model.Symbols[i - 1].Symbol;
+
+            GetCode(model.Symbols[i - 1].CumulativeFrequency,
+                    model.Symbols[i].CumulativeFrequency,
+                    model.Symbols[0].CumulativeFrequency);
+
+            UpdateModel(model, i);
+
+            return sym;
+        }
+
+        /// <summary>
+        /// Get the next code based on the frequencies
+        /// </summary>
+        private int GetCode(int prevFrequency, int currentFrequency, int totalFrequency)
+        {
+            int uf;
+
+            uint range = (CS_H - CS_L) + 1;
+            CS_H = CS_L + (uint)((prevFrequency * range) / totalFrequency) - 1;
+            CS_L = CS_L + (uint)((currentFrequency * range) / totalFrequency);
+
+            while (true)
+            {
+                if ((CS_L & 0x8000) != (CS_H & 0x8000))
+                {
+                    if ((CS_L & 0x4000) != 0 && (CS_H & 0x4000) == 0)
+                    {
+                        // Underflow case
+                        CS_C ^= 0x4000;
+                        CS_L &= 0x3FFF;
+                        CS_H |= 0x4000;
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+
+                CS_L <<= 1;
+                CS_H = (CS_H << 1) | 1;
+                CS_C = (CS_C << 1) | _bitStream.ReadBit() ?? 0;
+            }
+
+            // TODO: Incomplete implementation?
+            return 0;
+        }
 
         /// <summary>
         /// Update the model after an encode or decode step
