@@ -12,10 +12,7 @@ namespace SabreTools.Compression.Quantum
         /// </summary>
         private BitStream _bitStream;
 
-        // TODO: Figure out what these values are
-        private uint CS_H;
-        private uint CS_L;
-        private uint CS_C;
+        #region Models
 
         /// <summary>
         /// Selector 0: literal, 64 entries, starting symbol 0
@@ -57,6 +54,27 @@ namespace SabreTools.Compression.Quantum
         /// </summary>
         private Model _model6len;
 
+        #endregion
+
+        #region Coding State
+
+        /// <summary>
+        /// Artihmetic coding state: high
+        /// </summary>
+        private ushort CS_H;
+
+        /// <summary>
+        /// Artihmetic coding state: low
+        /// </summary>
+        private ushort CS_L;
+
+        /// <summary>
+        /// Artihmetic coding state: current
+        /// </summary>
+        private ushort CS_C;
+
+        #endregion
+
         /// <summary>
         /// Create a new Decompressor from a Stream
         /// </summary>
@@ -87,6 +105,11 @@ namespace SabreTools.Compression.Quantum
             this._model5 = CreateModel(0, maxBitLength > 36 ? 36 : maxBitLength);
             this._model6 = CreateModel(0, maxBitLength);
             this._model6len = CreateModel(0, 27);
+
+            // Initialize coding state
+            this.CS_H = 0;
+            this.CS_L = 0;
+            this.CS_C = 0;
         }
 
         /// <summary>
