@@ -136,8 +136,11 @@ namespace SabreTools.Compression.Quantum
             // Populate the symbol array
             for (int i = 0; i < length; i++)
             {
-                model.Symbols[i].Symbol = (ushort)(start + i);
-                model.Symbols[i].CumulativeFrequency = (ushort)(length - 1);
+                model.Symbols[i] = new ModelSymbol
+                {
+                    Symbol = (ushort)(start + i),
+                    CumulativeFrequency = (ushort)(length - 1),
+                };
             }
 
             return model;
@@ -148,20 +151,36 @@ namespace SabreTools.Compression.Quantum
         /// </summary>
         private int GetSymbol(Model model)
         {
+#if NET48
             int freq = GetFrequency(model.Symbols[0].CumulativeFrequency);
+#else
+            int freq = GetFrequency(model.Symbols![0]!.CumulativeFrequency);
+#endif
 
             int i;
             for (i = 1; i < model.Entries; i++)
             {
+#if NET48
                 if (model.Symbols[i].CumulativeFrequency <= freq)
+#else
+                if (model.Symbols[i]!.CumulativeFrequency <= freq)
+#endif
                     break;
             }
 
+#if NET48
             int sym = model.Symbols[i - 1].Symbol;
 
             GetCode(model.Symbols[i - 1].CumulativeFrequency,
                     model.Symbols[i].CumulativeFrequency,
                     model.Symbols[0].CumulativeFrequency);
+#else
+            int sym = model.Symbols![i - 1]!.Symbol;
+
+            GetCode(model.Symbols![i - 1]!.CumulativeFrequency,
+                    model.Symbols![i]!.CumulativeFrequency,
+                    model.Symbols![0]!.CumulativeFrequency);
+#endif
 
             UpdateModel(model, i);
 
@@ -208,12 +227,20 @@ namespace SabreTools.Compression.Quantum
             // Update cumulative frequencies
             for (int i = 0; i < lastUpdated; i++)
             {
+#if NET48
                 var sym = model.Symbols[i];
+#else
+                var sym = model.Symbols![i]!;
+#endif
                 sym.CumulativeFrequency += 8;
             }
 
             // Decrement reordering time, if needed
+#if NET48
             if (model.Symbols[0].CumulativeFrequency > 3800)
+#else
+            if (model.Symbols![0]!.CumulativeFrequency > 3800)
+#endif
                 model.TimeToReorder--;
 
             // If we haven't hit the reordering time
@@ -223,12 +250,21 @@ namespace SabreTools.Compression.Quantum
                 for (int i = model.Entries - 1; i >= 0; i--)
                 {
                     // Divide with truncation by 2
+#if NET48
                     var sym = model.Symbols[i];
+#else
+                    var sym = model.Symbols![i]!;
+#endif
                     sym.CumulativeFrequency >>= 1;
 
                     // If we are lower the next frequency
+#if NET48
                     if (i != 0 && sym.CumulativeFrequency <= model.Symbols[i + 1].CumulativeFrequency)
                         sym.CumulativeFrequency = (ushort)(model.Symbols[i + 1].CumulativeFrequency + 1);
+#else
+                    if (i != 0 && sym.CumulativeFrequency <= model.Symbols![i + 1]!.CumulativeFrequency)
+                        sym.CumulativeFrequency = (ushort)(model.Symbols![i + 1]!.CumulativeFrequency + 1);
+#endif
                 }
             }
 
@@ -238,11 +274,19 @@ namespace SabreTools.Compression.Quantum
                 // Calculate frequencies from cumulative frequencies
                 for (int i = 0; i < model.Entries; i++)
                 {
+#if NET48
                     if (i != model.Entries - 1)
                         model.Symbols[i].CumulativeFrequency -= model.Symbols[i + 1].CumulativeFrequency;
 
                     model.Symbols[i].CumulativeFrequency++;
                     model.Symbols[i].CumulativeFrequency >>= 1;
+#else
+                    if (i != model.Entries - 1)
+                        model.Symbols![i]!.CumulativeFrequency -= model.Symbols![i + 1]!.CumulativeFrequency;
+
+                    model.Symbols![i]!.CumulativeFrequency++;
+                    model.Symbols![i]!.CumulativeFrequency >>= 1;
+#endif
                 }
 
                 // Sort frequencies in decreasing order
@@ -250,7 +294,11 @@ namespace SabreTools.Compression.Quantum
                 {
                     for (int j = i + 1; j < model.Entries; j++)
                     {
+#if NET48
                         if (model.Symbols[i].CumulativeFrequency < model.Symbols[j].CumulativeFrequency)
+#else
+                        if (model.Symbols![i]!.CumulativeFrequency < model.Symbols![j]!.CumulativeFrequency)
+#endif
                         {
                             var temp = model.Symbols[i];
                             model.Symbols[i] = model.Symbols[j];
@@ -263,7 +311,11 @@ namespace SabreTools.Compression.Quantum
                 for (int i = model.Entries - 1; i >= 0; i--)
                 {
                     if (i != model.Entries - 1)
+#if NET48
                         model.Symbols[i].CumulativeFrequency += model.Symbols[i + 1].CumulativeFrequency;
+#else
+                        model.Symbols![i]!.CumulativeFrequency += model.Symbols![i + 1]!.CumulativeFrequency;
+#endif
                 }
 
                 // Reset the time to reorder

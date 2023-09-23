@@ -60,7 +60,11 @@ namespace SabreTools.Compression.MSZIP
                 deflateBlocks.Add(deflateBlock);
 
                 // If we're at the final block, exit out of the loop
+#if NET48
                 if (deflateBlock.Header.BFINAL)
+#else
+                if (deflateBlock.Header!.BFINAL)
+#endif
                     break;
             }
 
@@ -158,7 +162,11 @@ namespace SabreTools.Compression.MSZIP
         /// <summary>
         /// Read an RFC1951 block
         /// </summary>
+#if NET48
         private DeflateBlock ReadDeflateBlock()
+#else
+        private DeflateBlock? ReadDeflateBlock()
+#endif
         {
             var deflateBlock = new DeflateBlock();
 
