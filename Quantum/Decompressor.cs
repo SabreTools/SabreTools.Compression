@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using SabreTools.Models.Compression.Quantum;
 
 namespace SabreTools.Compression.Quantum
@@ -17,9 +18,104 @@ namespace SabreTools.Compression.Quantum
         private uint CS_C;
 
         /// <summary>
+        /// Selector 0: literal, 64 entries, starting symbol 0
+        /// </summary>
+        private Model _model0;
+
+        /// <summary>
+        /// Selector 1: literal, 64 entries, starting symbol 64
+        /// </summary>
+        private Model _model1;
+
+        /// <summary>
+        /// Selector 2: literal, 64 entries, starting symbol 128
+        /// </summary>
+        private Model _model2;
+
+        /// <summary>
+        /// Selector 3: literal, 64 entries, starting symbol 192
+        /// </summary>
+        private Model _model3;
+
+        /// <summary>
+        /// Selector 4: LZ, 3 character matches
+        /// </summary>
+        private Model _model4;
+
+        /// <summary>
+        /// Selector 5: LZ, 4 character matches
+        /// </summary>
+        private Model _model5;
+
+        /// <summary>
+        /// Selector 6: LZ, 5+ character matches
+        /// </summary>
+        private Model _model6;
+
+        /// <summary>
+        /// Selector 6 length model
+        /// </summary>
+        private Model _model6len;
+
+        /// <summary>
+        /// Create a new Decompressor from a Stream
+        /// </summary>
+        /// <param name="input">Stream to decompress</param>
+        /// <param name="windowBits">Number of bits in the sliding window</param>
+        public Decompressor(Stream input, uint windowBits)
+        {
+            // If we have an invalid stream
+            if (input == null || !input.CanRead || !input.CanSeek)
+                throw new ArgumentException(nameof(input));
+
+            // If we have an invalid value for the window bits
+            if (windowBits < 10 || windowBits > 21)
+                throw new ArgumentOutOfRangeException(nameof(windowBits));
+
+            // Wrap the stream in a BitStream
+            _bitStream = new BitStream(input);
+
+            // Initialize literal models
+            this._model0 = CreateModel(0, 64);
+            this._model1 = CreateModel(64, 64);
+            this._model2 = CreateModel(128, 64);
+            this._model3 = CreateModel(192, 64);
+
+            // Initialize LZ models
+            int maxBitLength = (int)(windowBits * 2);
+            this._model4 = CreateModel(0, maxBitLength > 24 ? 24 : maxBitLength);
+            this._model5 = CreateModel(0, maxBitLength > 36 ? 36 : maxBitLength);
+            this._model6 = CreateModel(0, maxBitLength);
+            this._model6len = CreateModel(0, 27);
+        }
+
+        /// <summary>
+        /// Create and initialize a model base on the start symbol and length
+        /// </summary>
+        private Model CreateModel(ushort start, int length)
+        {
+            // Create the model
+            var model = new Model
+            {
+                Entries = length,
+                Symbols = new ModelSymbol[length],
+                TimeToReorder = 4,
+            };
+
+            // Populate the symbol array
+            for (int i = 0; i < length; i++)
+            {
+                model.Symbols[i].Symbol = (ushort)(start + i);
+                model.Symbols[i].CumulativeFrequency = (ushort)(length - 1);
+            }
+
+            return model;
+        }
+
+        /// <summary>
         /// Get the next symbol from a model
         /// </summary>
-        public int GetSymbol(Model model)
+        private int GetSymbol(Model model)
         {
             int freq = GetFrequency(model.Symbols[0].CumulativeFrequency);
 
