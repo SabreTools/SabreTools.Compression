@@ -1,6 +1,8 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using SabreTools.Models.Compression.Quantum;
+using static SabreTools.Models.Compression.Quantum.Constants;
 
 namespace SabreTools.Compression.Quantum
 {
@@ -177,6 +179,80 @@ namespace SabreTools.Compression.Quantum
         /// <returns>Byte array representing the decompressed data, null on error</returns>
         public byte[] Process()
         {
+            // Initialize the coding state
+            CS_H = 0xffff;
+            CS_L = 0x0000;
+            CS_C = (ushort)(_bitStream.ReadBitsMSB(16) ?? 0);
+
+            // Loop until the end of the stream
+            var bytes = new List<byte>();
+            while (true)
+            {
+                // Determine the selector to use
+                int selector = GetSymbol(_selector);
+
+                // Handle literal selectors
+                if (selector < 4)
+                {
+                    switch (selector)
+                    {
+                        case 0:
+                            bytes.Add((byte)GetSymbol(_model0));
+                            break;
+                        case 1:
+                            bytes.Add((byte)GetSymbol(_model1));
+                            break;
+                        case 2:
+                            bytes.Add((byte)GetSymbol(_model2));
+                            break;
+                        case 3:
+                            bytes.Add((byte)GetSymbol(_model3));
+                            break;
+                        default:
+                            throw new ArgumentOutOfRangeException();
+                    }
+                }
+
+                // Handle LZ selectors
+                else
+                {
+                    int offset, length;
+                    switch (selector)
+                    {
+                        case 4:
+                            int model4sym = GetSymbol(_model4);
+                            int model4extra = _bitStream.ReadBitsMSB(PositionExtraBits[model4sym]);
+                            offset = PositionSlot[model4sym] + model4extra + 1;
+                            length = 3;
+                            break;
+                        
+                        case 5:
+                            int model5sym = GetSymbol(_model5);
+                            int model5extra = _bitStream.ReadBitsMSB(PositionExtraBits[model5sym]);
+                            offset = PositionSlot[model5sym] + model5extra + 1;
+                            length = 4;
+                            break;
+
+                        case 6:
+                            int lengthSym = GetSymbol(_model6len);
+                            int lengthExtra = _bitStream.ReadBitsMSB(LengthExtraBits[lengthSym]);
+                            length = LengthSlot[lengthSym] + lengthExtra + 5;
+
+                            int model6sym = GetSymbol(_model6);
+                            int model6extra = _bitStream.ReadBitsMSB(PositionExtraBits[model6sym]);
+                            offset = PositionSlot[model6sym] + model6extra + 1;
+                            break;
+
+                        default:
+                            throw new ArgumentOutOfRangeException();
+                    }
+
+                    // TODO: Finish implementation:
+                    // - Copy data from the offsets to the lengths
+                    // - Return the decoded byte array
+                }
+            }
+
             throw new NotImplementedException();
         }
 
