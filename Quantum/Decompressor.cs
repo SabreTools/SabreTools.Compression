@@ -121,6 +121,15 @@ namespace SabreTools.Compression.Quantum
         }
 
         /// <summary>
+        /// Process the stream and return the decompressed output
+        /// </summary>
+        /// <returns>Byte array representing the decompressed data, null on error</returns>
+        public byte[] Process()
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
         /// Create and initialize a model base on the start symbol and length
         /// </summary>
         private Model CreateModel(ushort start, int length)
