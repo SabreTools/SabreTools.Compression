@@ -81,11 +81,62 @@ namespace SabreTools.Compression.Quantum
         #endregion
 
         /// <summary>
+        /// Create a new Decompressor from a byte array
+        /// </summary>
+        /// <param name="input">Byte array to decompress</param>
+        /// <param name="windowBits">Number of bits in the sliding window</param>
+#if NET48
+        public Decompressor(byte[] input, uint windowBits)
+#else
+        public Decompressor(byte[]? input, uint windowBits)
+#endif
+        {
+            // If we have an invalid stream
+            if (input == null || input.Length == 0)
+                throw new ArgumentException(nameof(input));
+
+            // If we have an invalid value for the window bits
+            if (windowBits < 10 || windowBits > 21)
+                throw new ArgumentOutOfRangeException(nameof(windowBits));
+
+            // Create a memory stream to wrap
+            var ms = new MemoryStream(input);
+
+            // Wrap the stream in a BitStream
+            _bitStream = new BitStream(ms);
+
+            // Initialize literal models
+            this._model0 = CreateModel(0, 64);
+            this._model1 = CreateModel(64, 64);
+            this._model2 = CreateModel(128, 64);
+            this._model3 = CreateModel(192, 64);
+
+            // Initialize LZ models
+            int maxBitLength = (int)(windowBits * 2);
+            this._model4 = CreateModel(0, maxBitLength > 24 ? 24 : maxBitLength);
+            this._model5 = CreateModel(0, maxBitLength > 36 ? 36 : maxBitLength);
+            this._model6 = CreateModel(0, maxBitLength);
+            this._model6len = CreateModel(0, 27);
+
+            // Initialze the selector model
+            this._selector = CreateModel(0, 7);
+
+            // Initialize coding state
+            this.CS_H = 0;
+            this.CS_L = 0;
+            this.CS_C = 0;
+        }
+
+        /// <summary>
         /// Create a new Decompressor from a Stream
         /// </summary>
         /// <param name="input">Stream to decompress</param>
         /// <param name="windowBits">Number of bits in the sliding window</param>
+#if NET48
         public Decompressor(Stream input, uint windowBits)
+#else
+        public Decompressor(Stream? input, uint windowBits)
+#endif
         {
             // If we have an invalid stream
             if (input == null || !input.CanRead || !input.CanSeek)

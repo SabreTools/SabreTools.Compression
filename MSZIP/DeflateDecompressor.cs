@@ -16,10 +16,35 @@ namespace SabreTools.Compression.MSZIP
         private BitStream _bitStream;
 
         /// <summary>
+        /// Create a new Decompressor from a byte array
+        /// </summary>
+        /// <param name="input">Byte array to decompress</param>
+#if NET48
+        public DeflateDecompressor(byte[] input)
+#else
+        public DeflateDecompressor(byte[]? input)
+#endif
+        {
+            // If we have an invalid stream
+            if (input == null || input.Length == 0)
+                throw new ArgumentException(nameof(input));
+
+            // Create a memory stream to wrap
+            var ms = new MemoryStream(input);
+
+            // Wrap the stream in a BitStream
+            _bitStream = new BitStream(ms);
+        }
+
+        /// <summary>
         /// Create a new Decompressor from a Stream
         /// </summary>
         /// <param name="input">Stream to decompress</param>
+#if NET48
         public DeflateDecompressor(Stream input)
+#else
+        public DeflateDecompressor(Stream? input)
+#endif
         {
             // If we have an invalid stream
             if (input == null || !input.CanRead || !input.CanSeek)
