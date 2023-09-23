@@ -186,7 +186,7 @@ namespace SabreTools.Compression.Quantum
 
             // Loop until the end of the stream
             var bytes = new List<byte>();
-            while (true)
+            while (_bitStream.Position < _bitStream.Length)
             {
                 // Determine the selector to use
                 int selector = GetSymbol(_selector);
@@ -247,13 +247,19 @@ namespace SabreTools.Compression.Quantum
                             throw new ArgumentOutOfRangeException();
                     }
 
-                    // TODO: Finish implementation:
-                    // - Copy data from the offsets to the lengths
-                    // - Return the decoded byte array
+                    // Copy the previous data
+                    int copyIndex = bytes.Count - offset;
+                    while (length-- > 0)
+                    {
+                        bytes.Add(bytes[copyIndex++]);
+                    }
+
+                    // TODO: Add MS-CAB specific padding
+                    // TODO: Add Cinematronics specific checksum
                 }
             }
 
-            throw new NotImplementedException();
+            return bytes.ToArray();
         }
 
         /// <summary>
