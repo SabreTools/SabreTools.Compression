@@ -54,6 +54,11 @@ namespace SabreTools.Compression.Quantum
         /// </summary>
         private Model _model6len;
 
+        /// <summary>
+        /// Selector selector model
+        /// </summary>
+        private Model _selector;
+
         #endregion
 
         #region Coding State
@@ -105,6 +110,9 @@ namespace SabreTools.Compression.Quantum
             this._model5 = CreateModel(0, maxBitLength > 36 ? 36 : maxBitLength);
             this._model6 = CreateModel(0, maxBitLength);
             this._model6len = CreateModel(0, 27);
+
+            // Initialze the selector model
+            this._selector = CreateModel(0, 7);
 
             // Initialize coding state
             this.CS_H = 0;
