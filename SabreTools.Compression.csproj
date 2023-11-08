@@ -1,35 +1,34 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-    <PropertyGroup>
-      <!-- Assembly Properties -->
-      <TargetFrameworks>net48;net6.0;net7.0;net8.0</TargetFrameworks>
-      <RuntimeIdentifiers>win-x86;win-x64;linux-x64;osx-x64</RuntimeIdentifiers>
-      <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-      <LangVersion>latest</LangVersion>
-      <Nullable>enable</Nullable>
-      <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-      <Version>0.1.1</Version>
+  <PropertyGroup>
+    <!-- Assembly Properties -->
+    <TargetFrameworks>net48;net6.0;net7.0;net8.0</TargetFrameworks>
+    <RuntimeIdentifiers>win-x86;win-x64;linux-x64;osx-x64</RuntimeIdentifiers>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <Version>0.1.1</Version>
   
-      <!-- Package Properties -->
-      <Authors>Matt Nadareski</Authors>
-      <Description>Clean compression implementations</Description>
-      <Copyright>Copyright (c) Matt Nadareski 2022-2023</Copyright>
-      <PackageProjectUrl>https://github.com/SabreTools/</PackageProjectUrl>
-      <PackageReadmeFile>README.md</PackageReadmeFile>
-      <RepositoryUrl>https://github.com/SabreTools/SabreTools.Printing</RepositoryUrl>
-      <RepositoryType>git</RepositoryType>
-      <PackageTags>compression decompression lz mszip</PackageTags>
-      <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    </PropertyGroup>
+    <!-- Package Properties -->
+    <Authors>Matt Nadareski</Authors>
+    <Description>Clean compression implementations</Description>
+    <Copyright>Copyright (c) Matt Nadareski 2022-2023</Copyright>
+    <PackageProjectUrl>https://github.com/SabreTools/</PackageProjectUrl>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <RepositoryUrl>https://github.com/SabreTools/SabreTools.Printing</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>compression decompression lz mszip</PackageTags>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+  </PropertyGroup>
   
-    <ItemGroup>
-      <None Include="README.md" Pack="true" PackagePath=""/>
-    </ItemGroup>
+  <ItemGroup>
+    <None Include="README.md" Pack="true" PackagePath=""/>
+  </ItemGroup>
   
-    <ItemGroup>
-      <PackageReference Include="SabreTools.IO" Version="1.1.1" />
-      <PackageReference Include="SabreTools.Models" Version="1.1.5" />
-    </ItemGroup>
-    
-  </Project>
-  
+  <ItemGroup>
+    <PackageReference Include="SabreTools.IO" Version="1.1.1" />
+    <PackageReference Include="SabreTools.Models" Versbion="1.1.5" />
+  </ItemGroup>
+
+</Project>
