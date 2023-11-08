@@ -8,20 +8,12 @@ namespace SabreTools.Compression.MSZIP
         /// <summary>
         /// Left child of the current node
         /// </summary>
-#if NET48
-        public HuffmanNode Left { get; set; }
-#else
         public HuffmanNode? Left { get; set; }
-#endif
 
         /// <summary>
         /// Right child of the current node
         /// </summary>
-#if NET48
-        public HuffmanNode Right { get; set; }
-#else
         public HuffmanNode? Right { get; set; }
-#endif
 
         /// <summary>
         /// Value of the current node

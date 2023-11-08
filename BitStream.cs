@@ -33,11 +33,7 @@ namespace SabreTools.Compression
         /// <summary>
         /// Create a new BitStream from a source Stream
         /// </summary>
-#if NET48
-        public BitStream(Stream source)
-#else
         public BitStream(Stream? source)
-#endif
         {
             if (source == null || !source.CanRead || !source.CanSeek)
                 throw new ArgumentException(nameof(source));
@@ -210,11 +206,7 @@ namespace SabreTools.Compression
         /// <param name="bytes">Number of bytes to read</param>
         /// <returns>The next <paramref name="bytes"/> bytes, null on error or end of stream</returns>
         /// <remarks>Assumes the stream is byte-aligned</remarks>
-#if NET48
-        public byte[] ReadBytes(int bytes)
-#else
         public byte[]? ReadBytes(int bytes)
-#endif
         {
             try
             {

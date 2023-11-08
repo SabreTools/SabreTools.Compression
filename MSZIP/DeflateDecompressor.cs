@@ -19,11 +19,7 @@ namespace SabreTools.Compression.MSZIP
         /// Create a new Decompressor from a byte array
         /// </summary>
         /// <param name="input">Byte array to decompress</param>
-#if NET48
-        public DeflateDecompressor(byte[] input)
-#else
         public DeflateDecompressor(byte[]? input)
-#endif
         {
             // If we have an invalid stream
             if (input == null || input.Length == 0)
@@ -40,11 +36,7 @@ namespace SabreTools.Compression.MSZIP
         /// Create a new Decompressor from a Stream
         /// </summary>
         /// <param name="input">Stream to decompress</param>
-#if NET48
-        public DeflateDecompressor(Stream input)
-#else
         public DeflateDecompressor(Stream? input)
-#endif
         {
             // If we have an invalid stream
             if (input == null || !input.CanRead || !input.CanSeek)
@@ -58,11 +50,7 @@ namespace SabreTools.Compression.MSZIP
         /// Decompress a stream into a <see cref="Block"/> 
         /// </summary>
         /// <returns>Block containing the decompressed data on success, null on error</returns>
-#if NET48
-        public Block Process()
-#else
         public Block? Process()
-#endif
         {
             // Create a new block
             var block = new Block();
@@ -85,11 +73,7 @@ namespace SabreTools.Compression.MSZIP
                 deflateBlocks.Add(deflateBlock);
 
                 // If we're at the final block, exit out of the loop
-#if NET48
-                if (deflateBlock.Header.BFINAL)
-#else
                 if (deflateBlock.Header!.BFINAL)
-#endif
                     break;
             }
 
@@ -187,11 +171,7 @@ namespace SabreTools.Compression.MSZIP
         /// <summary>
         /// Read an RFC1951 block
         /// </summary>
-#if NET48
-        private DeflateBlock ReadDeflateBlock()
-#else
         private DeflateBlock? ReadDeflateBlock()
-#endif
         {
             var deflateBlock = new DeflateBlock();
 
@@ -241,11 +221,7 @@ namespace SabreTools.Compression.MSZIP
         /// <summary>
         /// Read an RFC1951 block with no compression
         /// </summary>
-#if NET48
-        private (NonCompressedBlockHeader, byte[]) ReadNoCompression()
-#else
         private (NonCompressedBlockHeader?, byte[]?) ReadNoCompression()
-#endif
         {
             // Skip any remaining bits in current partially processed byte
             _bitStream.Discard();
@@ -262,11 +238,7 @@ namespace SabreTools.Compression.MSZIP
         /// <summary>
         /// Read an RFC1951 block with fixed Huffman compression
         /// </summary>
-#if NET48
-        private (FixedCompressedDataHeader, byte[]) ReadFixedHuffman()
-#else
         private (FixedCompressedDataHeader, byte[]?) ReadFixedHuffman()
-#endif
         {
             var bytes = new List<byte>();
 
@@ -284,11 +256,7 @@ namespace SabreTools.Compression.MSZIP
         /// <summary>
         /// Read an RFC1951 block with dynamic Huffman compression
         /// </summary>
-#if NET48
-        private (DynamicCompressedDataHeader, byte[]) ReadDynamicHuffman()
-#else
         private (DynamicCompressedDataHeader?, byte[]?) ReadDynamicHuffman()
-#endif
         {
             // Get the dynamic huffman header
             (var header, uint numLiteral, uint numDistance) = ReadDynamicCompressedDataHeader();
@@ -304,11 +272,7 @@ namespace SabreTools.Compression.MSZIP
         /// <summary>
         /// Read an RFC1951 block with Huffman compression
         /// </summary>
-#if NET48
-        private byte[] ReadHuffmanBlock(HuffmanDecoder literalTree, HuffmanDecoder distanceTree)
-#else
         private byte[]? ReadHuffmanBlock(HuffmanDecoder literalTree, HuffmanDecoder distanceTree)
-#endif
         {
             // Now loop and decode
             var bytes = new List<byte>();

@@ -16,22 +16,14 @@ namespace SabreTools.Compression.MSZIP
         /// </summary>
         /// <param name="lengths">Array representing the number of bits for each value</param>
         /// <param name="numCodes">Number of Huffman codes encoded</param>
-#if NET48
-        public HuffmanDecoder(uint[] lengths, uint numCodes)
-#else
         public HuffmanDecoder(uint[]? lengths, uint numCodes)
-#endif
         {
             // Ensure we have lengths
             if (lengths == null)
                 throw new ArgumentNullException(nameof(lengths));
 
             // Set the root to null for now
-#if NET48
-            HuffmanNode root = null;
-#else
             HuffmanNode? root = null;
-#endif
 
             // Determine the value for max_bits
             uint max_bits = lengths.Max();
@@ -83,11 +75,7 @@ namespace SabreTools.Compression.MSZIP
             }
 
             // Assign the root value
-#if NET48
-            _root = root;
-#else
             _root = root!;
-#endif
         }
 
         /// <summary>
@@ -125,11 +113,7 @@ namespace SabreTools.Compression.MSZIP
         /// <param name="length">Length of the current encoding</param>
         /// <param name="code">Encoding of the value to traverse</param>
         /// <returns>New instance of the node with value appended</returns>
-#if NET48
-        private static HuffmanNode Insert(HuffmanNode node, int value, uint length, int code)
-#else
         private static HuffmanNode Insert(HuffmanNode? node, int value, uint length, int code)
-#endif
         {
             // If no node is provided, create a new one
             if (node == null)

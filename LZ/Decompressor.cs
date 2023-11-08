@@ -17,11 +17,7 @@ namespace SabreTools.Compression.LZ
         /// </summary>
         /// <param name="compressed">Byte array representing the compressed data</param>
         /// <returns>Decompressed data as a byte array, null on error</returns>
-#if NET48
-        public static byte[] Decompress(byte[] compressed)
-#else
         public static byte[]? Decompress(byte[]? compressed)
-#endif
         {
             // If we have and invalid input
             if (compressed == null || compressed.Length == 0)
@@ -37,11 +33,7 @@ namespace SabreTools.Compression.LZ
         /// </summary>
         /// <param name="compressed">Stream representing the compressed data</param>
         /// <returns>Decompressed data as a byte array, null on error</returns>
-#if NET48
-        public static byte[] Decompress(Stream compressed)
-#else
         public static byte[]? Decompress(Stream? compressed)
-#endif
         {
             // If we have and invalid input
             if (compressed == null || compressed.Length == 0)
@@ -87,11 +79,7 @@ namespace SabreTools.Compression.LZ
         /// <summary>
         /// Reconstructs the full filename of the compressed file
         /// </summary>
-#if NET48
-        public static string GetExpandedName(string input, out LZERROR error)
-#else
         public static string? GetExpandedName(string input, out LZERROR error)
-#endif
         {
             // Try to open the file as a compressed stream
             var fileStream = File.Open(input, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
@@ -137,11 +125,7 @@ namespace SabreTools.Compression.LZ
         /// <param name="error">Output representing the last error</param>
         /// <returns>An initialized State, null on error</returns>
         /// <remarks>Uncompressed streams are represented by a State with no buffer</remarks>
-#if NET48
-        public State Open(Stream stream, out LZERROR error)
-#else
         public State? Open(Stream stream, out LZERROR error)
-#endif
         {
             var lzs = Init(stream, out error);
             if (error == LZERROR.LZERROR_OK || error == LZERROR.LZERROR_NOT_LZ)
@@ -170,11 +154,7 @@ namespace SabreTools.Compression.LZ
         /// <param name="error">Output representing the last error</param>
         /// <returns>An initialized State, null on error</returns>
         /// <remarks>Uncompressed streams are represented by a State with no buffer</remarks>
-#if NET48
-        public State Init(Stream source, out LZERROR error)
-#else
         public State? Init(Stream? source, out LZERROR error)
-#endif
         {
             // If we have an invalid source
             if (source == null)
@@ -540,11 +520,7 @@ namespace SabreTools.Compression.LZ
         /// <param name="data">Stream to parse</param>
         /// <param name="error">Output representing the last error</param>
         /// <returns>Filled file header on success, null on error</returns>
-#if NET48
-        private FileHeaader ParseFileHeader(Stream data, out LZERROR error)
-#else
         private FileHeaader? ParseFileHeader(Stream data, out LZERROR error)
-#endif
         {
             error = LZERROR.LZERROR_OK;
             var fileHeader = new FileHeaader();
