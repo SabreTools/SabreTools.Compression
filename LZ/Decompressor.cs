@@ -91,7 +91,7 @@ namespace SabreTools.Compression.LZ
             string inputExtension = Path.GetExtension(input).TrimStart('.');
 
             // If we have no extension
-            if (string.IsNullOrWhiteSpace(inputExtension))
+            if (string.IsNullOrEmpty(inputExtension))
                 return Path.GetFileNameWithoutExtension(input);
 
             // If we have an extension of length 1
@@ -552,6 +552,6 @@ namespace SabreTools.Compression.LZ
             return fileHeader;
         }
 
-        #endregion
+#endregion
     }
 }
