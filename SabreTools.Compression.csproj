@@ -16,7 +16,7 @@
     <Copyright>Copyright (c) Matt Nadareski 2022-2023</Copyright>
     <PackageProjectUrl>https://github.com/SabreTools/</PackageProjectUrl>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <RepositoryUrl>https://github.com/SabreTools/SabreTools.Printing</RepositoryUrl>
+    <RepositoryUrl>https://github.com/SabreTools/SabreTools.Compression</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>compression decompression lz mszip</PackageTags>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
