@@ -13,7 +13,7 @@ namespace SabreTools.Compression.MSZIP
         /// <summary>
         /// Internal bitstream to use for decompression
         /// </summary>
-        private BitStream _bitStream;
+        private readonly BitStream _bitStream;
 
         /// <summary>
         /// Create a new Decompressor from a byte array

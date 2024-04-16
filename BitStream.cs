@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using SabreTools.IO;
 
+// TODO: Add more complete implementation to SabreTools.IO
 namespace SabreTools.Compression
 {
     /// <summary>
@@ -18,7 +19,7 @@ namespace SabreTools.Compression
         /// <summary>
         /// Original stream source
         /// </summary>
-        private Stream _source;
+        private readonly Stream _source;
 
         /// <summary>
         /// Last read byte value from the stream

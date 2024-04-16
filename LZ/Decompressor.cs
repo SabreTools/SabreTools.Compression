@@ -57,7 +57,7 @@ namespace SabreTools.Compression.LZ
             long read = lz.CopyTo(sourceState, destState, out LZERROR error);
 
             // Copy the data to the buffer
-            var decompressed = new byte[0];
+            byte[]? decompressed;
             if (read == 0 || (error != LZERROR.LZERROR_OK && error != LZERROR.LZERROR_NOT_LZ))
             {
                 decompressed = null;
