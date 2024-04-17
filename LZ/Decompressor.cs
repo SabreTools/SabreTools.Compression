@@ -1,7 +1,7 @@
 using System.IO;
 using System.Linq;
 using System.Text;
-using SabreTools.IO;
+using SabreTools.IO.Extensions;
 using SabreTools.Models.Compression.LZ;
 using static SabreTools.Models.Compression.LZ.Constants;
 

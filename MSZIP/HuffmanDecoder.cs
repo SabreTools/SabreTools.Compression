@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.Linq;
+using SabreTools.IO.Streams;
 
 namespace SabreTools.Compression.MSZIP
 {
@@ -83,7 +84,7 @@ namespace SabreTools.Compression.MSZIP
         /// </summary>
         /// <param name="input">BitStream representing the input</param>
         /// <returns>Value of the node described by the input</returns>
-        public int Decode(BitStream input)
+        public int Decode(ReadOnlyBitStream input)
         {
             // Start at the root of the tree
             var node = _root;

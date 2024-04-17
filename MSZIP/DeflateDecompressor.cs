@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using SabreTools.IO.Streams;
 using SabreTools.Models.Compression.MSZIP;
 using static SabreTools.Models.Compression.MSZIP.Constants;
 
@@ -13,7 +14,7 @@ namespace SabreTools.Compression.MSZIP
         /// <summary>
         /// Internal bitstream to use for decompression
         /// </summary>
-        private readonly BitStream _bitStream;
+        private readonly ReadOnlyBitStream _bitStream;
 
         /// <summary>
         /// Create a new Decompressor from a byte array
@@ -28,8 +29,8 @@ namespace SabreTools.Compression.MSZIP
             // Create a memory stream to wrap
             var ms = new MemoryStream(input);
 
-            // Wrap the stream in a BitStream
-            _bitStream = new BitStream(ms);
+            // Wrap the stream in a ReadOnlyBitStream
+            _bitStream = new ReadOnlyBitStream(ms);
         }
 
         /// <summary>
@@ -42,8 +43,8 @@ namespace SabreTools.Compression.MSZIP
             if (input == null || !input.CanRead || !input.CanSeek)
                 throw new ArgumentException(nameof(input));
 
-            // Wrap the stream in a BitStream
-            _bitStream = new BitStream(input);
+            // Wrap the stream in a ReadOnlyBitStream
+            _bitStream = new ReadOnlyBitStream(input);
         }
 
         /// <summary>

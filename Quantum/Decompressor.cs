@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using SabreTools.IO.Streams;
 using SabreTools.Models.Compression.Quantum;
 using static SabreTools.Compression.Quantum.Constants;
 
@@ -12,7 +13,7 @@ namespace SabreTools.Compression.Quantum
         /// <summary>
         /// Internal bitstream to use for decompression
         /// </summary>
-        private BitStream _bitStream;
+        private readonly ReadOnlyBitStream _bitStream;
 
         #region Models
 
@@ -100,8 +101,8 @@ namespace SabreTools.Compression.Quantum
             // Create a memory stream to wrap
             var ms = new MemoryStream(input);
 
-            // Wrap the stream in a BitStream
-            _bitStream = new BitStream(ms);
+            // Wrap the stream in a ReadOnlyBitStream
+            _bitStream = new ReadOnlyBitStream(ms);
 
             // Initialize literal models
             this._model0 = CreateModel(0, 64);
@@ -140,8 +141,8 @@ namespace SabreTools.Compression.Quantum
             if (windowBits < 10 || windowBits > 21)
                 throw new ArgumentOutOfRangeException(nameof(windowBits));
 
-            // Wrap the stream in a BitStream
-            _bitStream = new BitStream(input);
+            // Wrap the stream in a ReadOnlyBitStream
+            _bitStream = new ReadOnlyBitStream(input);
 
             // Initialize literal models
             this._model0 = CreateModel(0, 64);
