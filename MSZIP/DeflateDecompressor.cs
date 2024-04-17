@@ -151,7 +151,7 @@ namespace SabreTools.Compression.MSZIP
             }
 
             // Make the lengths tree
-            HuffmanDecoder lengthTree = new HuffmanDecoder(lengthLengths, 19);
+            var lengthTree = new HuffmanDecoder(lengthLengths, 19);
 
             // Setup the literal and distance lengths
             header.LiteralLengths = new uint[288];
@@ -247,8 +247,8 @@ namespace SabreTools.Compression.MSZIP
             (var header, uint numLiteral, uint numDistance) = RaadFixedCompressedDataHeader();
 
             // Make the literal and distance trees
-            HuffmanDecoder literalTree = new HuffmanDecoder(header.LiteralLengths, numLiteral);
-            HuffmanDecoder distanceTree = new HuffmanDecoder(header.DistanceCodes, numDistance);
+            var literalTree = new HuffmanDecoder(header.LiteralLengths, numLiteral);
+            var distanceTree = new HuffmanDecoder(header.DistanceCodes, numDistance);
 
             // Now loop and decode
             return (header, ReadHuffmanBlock(literalTree, distanceTree));
@@ -263,8 +263,8 @@ namespace SabreTools.Compression.MSZIP
             (var header, uint numLiteral, uint numDistance) = ReadDynamicCompressedDataHeader();
 
             // Make the literal and distance trees
-            HuffmanDecoder literalTree = new HuffmanDecoder(header.LiteralLengths, numLiteral);
-            HuffmanDecoder distanceTree = new HuffmanDecoder(header.DistanceCodes, numDistance);
+            var literalTree = new HuffmanDecoder(header.LiteralLengths, numLiteral);
+            var distanceTree = new HuffmanDecoder(header.DistanceCodes, numDistance);
 
             // Now loop and decode
             return (header, ReadHuffmanBlock(literalTree, distanceTree));
