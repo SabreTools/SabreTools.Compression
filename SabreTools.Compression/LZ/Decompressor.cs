@@ -552,6 +552,6 @@ namespace SabreTools.Compression.LZ
             return fileHeader;
         }
 
-#endregion
+        #endregion
     }
 }

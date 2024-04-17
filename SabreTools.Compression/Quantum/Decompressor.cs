@@ -218,7 +218,7 @@ namespace SabreTools.Compression.Quantum
                             offset = PositionSlot[model4sym] + model4extra + 1;
                             length = 3;
                             break;
-                        
+
                         case 5:
                             int model5sym = GetSymbol(_model5);
                             int model5extra = (int)(_bitStream.ReadBitsMSB(PositionExtraBits[model5sym]) ?? 0);
