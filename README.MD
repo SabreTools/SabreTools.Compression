@@ -8,6 +8,7 @@ Find the link to the Nuget package [here](https://www.nuget.org/packages/SabreTo
 
 | Compression Name | Decompress | Compress |
 | --- | --- | --- |
+| Blast | Yes | No |
 | LZ | Yes | No |
 | MSZIP | Yes* | No |
 
