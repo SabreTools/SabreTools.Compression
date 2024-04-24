@@ -29,16 +29,16 @@ namespace SabreTools.Compression.zlib
         {
             return result switch
             {
-                0 => "Z_OK",
-                1 => "Z_STREAM_END",
-                2 => "Z_NEED_DICT",
+                Z_OK => "Z_OK",
+                Z_STREAM_END => "Z_STREAM_END",
+                Z_NEED_DICT => "Z_NEED_DICT",
 
-                -1 => "Z_ERRNO",
-                -2 => "Z_STREAM_ERROR",
-                -3 => "Z_DATA_ERROR",
-                -4 => "Z_MEM_ERROR",
-                -5 => "Z_BUF_ERROR",
-                -6 => "Z_VERSION_ERROR",
+                Z_ERRNO => "Z_ERRNO",
+                Z_STREAM_ERROR => "Z_STREAM_ERROR",
+                Z_DATA_ERROR => "Z_DATA_ERROR",
+                Z_MEM_ERROR => "Z_MEM_ERROR",
+                Z_BUF_ERROR => "Z_BUF_ERROR",
+                Z_VERSION_ERROR => "Z_VERSION_ERROR",
 
                 _ => result.ToString(),
             };
