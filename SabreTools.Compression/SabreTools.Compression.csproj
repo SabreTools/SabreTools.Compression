@@ -18,7 +18,7 @@
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <RepositoryUrl>https://github.com/SabreTools/SabreTools.Compression</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
-    <PackageTags>compression decompression lz mszip</PackageTags>
+    <PackageTags>compression decompression lz mszip zlib blast</PackageTags>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
   </PropertyGroup>
   
