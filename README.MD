@@ -10,7 +10,9 @@ Find the link to the Nuget package [here](https://www.nuget.org/packages/SabreTo
 | --- | --- | --- |
 | Blast | Yes | No |
 | LZ | Yes | No |
+| LZX | No | No |
 | MSZIP | Yes* | No |
+| Quantum | No | No |
 
 **Note:** If something is marked with a `*` it means that it need testing.
 
