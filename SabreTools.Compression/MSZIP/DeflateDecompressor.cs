@@ -121,22 +121,24 @@ namespace SabreTools.Compression.MSZIP
         /// <summary>
         /// Read a FixedHuffmanCompressedBlockHeader from the input stream
         /// </summary>
-        private (FixedCompressedDataHeader, uint, uint) RaadFixedCompressedDataHeader()
+        private FixedCompressedDataHeader ReadFixedCompressedDataHeader(out uint numLiteral, out uint numDistance)
         {
             // Nothing needs to be read, all values are fixed
-            return (new FixedCompressedDataHeader(), 288, 30);
+            numLiteral = 288;
+            numDistance = 30;
+            return new FixedCompressedDataHeader();
         }
 
         /// <summary>
         /// Read a DynamicHuffmanCompressedBlockHeader from the input stream
         /// </summary>
-        private (DynamicCompressedDataHeader, uint, uint) ReadDynamicCompressedDataHeader()
+        private DynamicCompressedDataHeader ReadDynamicCompressedDataHeader(out uint numLiteral, out uint numDistance)
         {
             var header = new DynamicCompressedDataHeader();
 
             // Setup the counts first
-            uint numLiteral = 257 + _bitStream.ReadBitsLSB(5) ?? 0;
-            uint numDistance = 1 + _bitStream.ReadBitsLSB(5) ?? 0;
+            numLiteral = 257 + _bitStream.ReadBitsLSB(5) ?? 0;
+            numDistance = 1 + _bitStream.ReadBitsLSB(5) ?? 0;
             uint numLength = 4 + _bitStream.ReadBitsLSB(4) ?? 0;
 
             // Convert the alphabet based on lengths
@@ -162,7 +164,7 @@ namespace SabreTools.Compression.MSZIP
             uint leftover = ReadHuffmanLengths(lengthTree, header.LiteralLengths, numLiteral, 0, ref repeatCode);
             _ = ReadHuffmanLengths(lengthTree, header.DistanceCodes, numDistance, leftover, ref repeatCode);
 
-            return (header, numLiteral, numDistance);
+            return header;
         }
 
         #endregion
@@ -182,7 +184,7 @@ namespace SabreTools.Compression.MSZIP
             {
                 // If stored with no compression
                 case CompressionType.NoCompression:
-                    (var header00, var bytes00) = ReadNoCompression();
+                    var header00 = ReadNoCompression(out byte[]? bytes00);
                     if (header00 == null || bytes00 == null)
                         return null;
 
@@ -192,7 +194,7 @@ namespace SabreTools.Compression.MSZIP
 
                 // If compressed with fixed Huffman codes
                 case CompressionType.FixedHuffman:
-                    (var header01, var bytes01) = ReadFixedHuffman();
+                    var header01 = ReadFixedHuffman(out byte[]? bytes01);
                     if (header01 == null || bytes01 == null)
                         return null;
 
@@ -202,7 +204,7 @@ namespace SabreTools.Compression.MSZIP
 
                 // If compressed with dynamic Huffman codes
                 case CompressionType.DynamicHuffman:
-                    (var header10, var bytes10) = ReadDynamicHuffman();
+                    var header10 = ReadDynamicHuffman(out byte[]? bytes10);
                     if (header10 == null || bytes10 == null)
                         return null;
 
@@ -222,7 +224,7 @@ namespace SabreTools.Compression.MSZIP
         /// <summary>
         /// Read an RFC1951 block with no compression
         /// </summary>
-        private (NonCompressedBlockHeader?, byte[]?) ReadNoCompression()
+        private NonCompressedBlockHeader? ReadNoCompression(out byte[]? data)
         {
             // Skip any remaining bits in current partially processed byte
             _bitStream.Discard();
@@ -230,44 +232,50 @@ namespace SabreTools.Compression.MSZIP
             // Read LEN and NLEN
             var header = ReadNonCompressedBlockHeader();
             if (header.LEN == 0 && header.NLEN == 0)
-                return (null, null);
+            {
+                data = null;
+                return null;
+            }
 
             // Copy LEN bytes of data to output
-            return (header, _bitStream.ReadBytes(header.LEN));
+            data = _bitStream.ReadBytes(header.LEN);
+            return header;
         }
 
         /// <summary>
         /// Read an RFC1951 block with fixed Huffman compression
         /// </summary>
-        private (FixedCompressedDataHeader, byte[]?) ReadFixedHuffman()
+        private FixedCompressedDataHeader? ReadFixedHuffman(out byte[]? data)
         {
             var bytes = new List<byte>();
 
             // Get the fixed huffman header
-            (var header, uint numLiteral, uint numDistance) = RaadFixedCompressedDataHeader();
+            var header = ReadFixedCompressedDataHeader(out uint numLiteral, out uint numDistance);
 
             // Make the literal and distance trees
             var literalTree = new HuffmanDecoder(header.LiteralLengths, numLiteral);
             var distanceTree = new HuffmanDecoder(header.DistanceCodes, numDistance);
 
             // Now loop and decode
-            return (header, ReadHuffmanBlock(literalTree, distanceTree));
+            data = ReadHuffmanBlock(literalTree, distanceTree);
+            return header;
         }
 
         /// <summary>
         /// Read an RFC1951 block with dynamic Huffman compression
         /// </summary>
-        private (DynamicCompressedDataHeader?, byte[]?) ReadDynamicHuffman()
+        private DynamicCompressedDataHeader? ReadDynamicHuffman(out byte[]? data)
         {
             // Get the dynamic huffman header
-            (var header, uint numLiteral, uint numDistance) = ReadDynamicCompressedDataHeader();
+            var header = ReadDynamicCompressedDataHeader(out uint numLiteral, out uint numDistance);
 
             // Make the literal and distance trees
             var literalTree = new HuffmanDecoder(header.LiteralLengths, numLiteral);
             var distanceTree = new HuffmanDecoder(header.DistanceCodes, numDistance);
 
             // Now loop and decode
-            return (header, ReadHuffmanBlock(literalTree, distanceTree));
+            data = ReadHuffmanBlock(literalTree, distanceTree);
+            return header;
         }
 
         /// <summary>
