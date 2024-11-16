@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using SabreTools.IO.Streams;
 using SabreTools.Models.Compression.MSZIP;
 using static SabreTools.Models.Compression.MSZIP.Constants;
@@ -316,13 +315,15 @@ namespace SabreTools.Compression.MSZIP
                     if (distance == null)
                         return null;
 
-                    byte[] arr = bytes.Skip(bytes.Count - (int)distance).Take((int)length).ToArray();
+                    byte[] bytesArr = [.. bytes];
+                    byte[] arr = new byte[(int)length];
+                    Array.Copy(bytesArr, bytes.Count - (int)distance, arr, 0, (int)length);
                     bytes.AddRange(arr);
                 }
             }
 
             // Return the decoded array
-            return bytes.ToArray();
+            return [.. bytes];
         }
 
         /// <summary>

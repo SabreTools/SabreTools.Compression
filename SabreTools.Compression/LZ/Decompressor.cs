@@ -1,5 +1,5 @@
+using System;
 using System.IO;
-using System.Linq;
 using System.Text;
 using SabreTools.IO.Extensions;
 using SabreTools.Models.Compression.LZ;
@@ -181,7 +181,8 @@ namespace SabreTools.Compression.LZ
             }
 
             // Initialize the table with all spaces
-            byte[] table = Enumerable.Repeat((byte)' ', LZ_TABLE_SIZE).ToArray();
+            byte[] table = new byte[LZ_TABLE_SIZE];
+            table = Array.ConvertAll(table, b => (byte)' ');
 
             // Build the state
             var state = new State
@@ -247,7 +248,8 @@ namespace SabreTools.Compression.LZ
                     state.RealCurrent = 0;
                     state.ByteType = 0;
                     state.StringLength = 0;
-                    state.Table = Enumerable.Repeat((byte)' ', LZ_TABLE_SIZE).ToArray();
+                    state.Table = new byte[LZ_TABLE_SIZE];
+                    state.Table = Array.ConvertAll(state.Table, b => (byte)' ');
                     state.CurrentTableEntry = 0xFF0;
                 }
 

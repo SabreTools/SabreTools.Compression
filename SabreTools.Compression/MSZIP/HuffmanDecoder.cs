@@ -1,6 +1,8 @@
 using System;
 using System.IO;
+#if NET35_OR_GREATER || NETCOREAPP
 using System.Linq;
+#endif
 using SabreTools.IO.Streams;
 
 namespace SabreTools.Compression.MSZIP
@@ -27,7 +29,15 @@ namespace SabreTools.Compression.MSZIP
             HuffmanNode? root = null;
 
             // Determine the value for max_bits
+#if NET20
+            uint max_bits = 0;
+            foreach (uint u in lengths)
+            {
+                max_bits = u > max_bits ? u : max_bits;
+            }
+#else
             uint max_bits = lengths.Max();
+#endif
 
             // Count the number of codes for each code length
             int[] bl_count = new int[max_bits + 1];

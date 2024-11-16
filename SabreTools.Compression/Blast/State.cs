@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using static SabreTools.Compression.Blast.Constants;
 
 namespace SabreTools.Compression.Blast
@@ -148,7 +147,9 @@ namespace SabreTools.Compression.Blast
         {
             try
             {
-                OutHow.AddRange(Output.Take((int)Next));
+                byte[] next = new byte[Next];
+                Array.Copy(Output, next, next.Length);
+                OutHow.AddRange(next);
                 return true;
             }
             catch
