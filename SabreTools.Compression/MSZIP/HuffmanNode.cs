@@ -18,6 +18,6 @@ namespace SabreTools.Compression.MSZIP
         /// <summary>
         /// Value of the current node
         /// </summary>
-        public uint Value { get; set; }
+        public int Value { get; set; }
     }
 }
