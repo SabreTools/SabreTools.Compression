@@ -620,10 +620,11 @@ namespace SabreTools.Compression.Deflate
         /// Set the dictionary to be used for either Inflation or Deflation.
         /// </summary>
         /// <param name="dictionary">The dictionary bytes to use.</param>
+        /// <param name="check">Determines if dictionary checks are run</param>
         /// <returns>Z_OK if all goes well.</returns>
-        public int SetDictionary(byte[] dictionary)
+        public int SetDictionary(byte[] dictionary, bool check = true)
         {
-            return _baseStream.SetDictionary(dictionary);
+            return _baseStream.SetDictionary(dictionary, check);
         }
 
         #endregion

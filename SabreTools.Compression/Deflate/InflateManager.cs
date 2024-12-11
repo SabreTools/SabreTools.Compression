@@ -363,16 +363,20 @@ namespace SabreTools.Compression.Deflate
 
 
 
-        internal int SetDictionary(byte[] dictionary)
+        internal int SetDictionary(byte[] dictionary, bool check = true)
         {
             int index = 0;
             int length = dictionary.Length;
-            if (mode != InflateManagerMode.DICT0)
-                throw new ZlibException("Stream error.");
 
-            if (Adler.Adler32(1, dictionary, 0, dictionary.Length) != _codec._Adler32)
+            if (check)
             {
-                return ZlibConstants.Z_DATA_ERROR;
+                if (mode != InflateManagerMode.DICT0)
+                    throw new ZlibException("Stream error.");
+
+                if (Adler.Adler32(1, dictionary, 0, dictionary.Length) != _codec._Adler32)
+                {
+                    return ZlibConstants.Z_DATA_ERROR;
+                }
             }
 
             _codec._Adler32 = Adler.Adler32(0, null, 0, 0);

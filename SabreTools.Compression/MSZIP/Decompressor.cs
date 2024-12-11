@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using SabreTools.IO.Extensions;
+using SabreTools.Models.Compression.MSZIP;
 
 namespace SabreTools.Compression.MSZIP
 {
@@ -8,89 +9,59 @@ namespace SabreTools.Compression.MSZIP
     public class Decompressor
     {
         /// <summary>
-        /// Source stream for the decompressor
+        /// Last uncompressed block data
         /// </summary>
-        private readonly Stream _source;
+        private byte[]? _history = null;
 
         #region Constructors
 
         /// <summary>
         /// Create a MS-ZIP decompressor
         /// </summary>
-        private Decompressor(Stream source)
-        {
-            // Validate the inputs
-            if (source.Length == 0)
-                throw new ArgumentOutOfRangeException(nameof(source));
-            if (!source.CanRead)
-                throw new InvalidOperationException(nameof(source));
-
-            _source = source;
-        }
+        private Decompressor() { }
 
         /// <summary>
         /// Create a MS-ZIP decompressor
         /// </summary>
-        public static Decompressor Create(byte[] source)
-            => Create(new MemoryStream(source));
-
-        /// <summary>
-        /// Create a MS-ZIP decompressor
-        /// </summary>
-        public static Decompressor Create(Stream source)
-        {
-            // Create the decompressor
-            var decompressor = new Decompressor(source);
-
-            // Validate the header
-            var header = new Models.Compression.MSZIP.BlockHeader();
-            header.Signature = source.ReadUInt16();
-            if (header.Signature != 0x4B43)
-                throw new InvalidDataException(nameof(source));
-
-            // Return
-            return decompressor;
-        }
+        public static Decompressor Create() => new();
 
         #endregion
 
         /// <summary>
         /// Decompress source data to an output stream
         /// </summary>
-        public bool CopyTo(Stream dest)
+        public bool CopyTo(byte[] source, Stream dest)
+            => CopyTo(new MemoryStream(source), dest);
+
+        /// <summary>
+        /// Decompress source data to an output stream
+        /// </summary>
+        public bool CopyTo(Stream source, Stream dest)
         {
             // Ignore unwritable streams
             if (!dest.CanWrite)
                 return false;
 
-            byte[]? history = null;
-            while (true)
+            // Validate the header
+            var header = new BlockHeader();
+            header.Signature = source.ReadUInt16();
+            if (header.Signature != 0x4B43)
+                throw new InvalidDataException(nameof(source));
+
+            byte[] buffer = new byte[32 * 1024];
+            var blockStream = new Deflate.DeflateStream(source, Deflate.CompressionMode.Decompress);
+            if (_history != null)
+                blockStream.SetDictionary(_history, check: false);
+
+            int read = blockStream.Read(buffer, 0, buffer.Length);
+            if (read > 0)
             {
-                byte[] buffer = new byte[32 * 1024];
-                var blockStream = new Deflate.DeflateStream(_source, Deflate.CompressionMode.Decompress);
-                if (history != null)
-                    blockStream.SetDictionary(history);
-
-                int read = blockStream.Read(buffer, 0, buffer.Length);
-                if (read <= 0)
-                    break;
-
                 // Write to output
                 dest.Write(buffer, 0, read);
 
                 // Save the history for rollover
-                history = new byte[read];
-                Array.Copy(buffer, history, read);
-
-                // Handle end of stream
-                if (_source.Position >= _source.Length)
-                    break;
-
-                // Validate the header
-                var header = new Models.Compression.MSZIP.BlockHeader();
-                header.Signature = _source.ReadUInt16();
-                if (header.Signature != 0x4B43)
-                    break;
+                _history = new byte[read];
+                Array.Copy(buffer, _history, read);
             }
 
             // Flush and return
