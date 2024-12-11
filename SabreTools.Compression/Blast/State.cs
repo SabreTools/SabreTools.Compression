@@ -135,7 +135,7 @@ namespace SabreTools.Compression.Blast
         /// <returns>Amount of data in Input</returns>
         public uint ProcessInput()
         {
-            Input = new List<byte>(InHow);
+            Input = [.. InHow];
             return (uint)Input.Count;
         }
 
