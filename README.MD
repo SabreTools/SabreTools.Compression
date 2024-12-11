@@ -28,5 +28,5 @@ For the latest WIP build here: [Rolling Release](https://github.com/SabreTools/S
 
 | Library Name | Use |
 | --- | ---|
-| [DotNetZip](https://github.com/DinoChiesa/DotNetZip) | DEFLATE implementation; minor edits have been made |
+| [DotNetZip](https://github.com/DinoChiesa/DotNetZip) | BZip2 and DEFLATE implementations; minor edits have been made |
 | [ZLibPort](https://github.com/Nanook/zlib-C-To-CSharp-Port) | Adds zlib code for internal and external use; minor edits have been made |
