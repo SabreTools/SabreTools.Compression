@@ -89,42 +89,8 @@ namespace SabreTools.Compression.Quantum
         /// <param name="input">Byte array to decompress</param>
         /// <param name="windowBits">Number of bits in the sliding window</param>
         public Decompressor(byte[]? input, uint windowBits)
-        {
-            // If we have an invalid stream
-            if (input == null || input.Length == 0)
-                throw new ArgumentException(nameof(input));
-
-            // If we have an invalid value for the window bits
-            if (windowBits < 10 || windowBits > 21)
-                throw new ArgumentOutOfRangeException(nameof(windowBits));
-
-            // Create a memory stream to wrap
-            var ms = new MemoryStream(input);
-
-            // Wrap the stream in a ReadOnlyBitStream
-            _bitStream = new ReadOnlyBitStream(ms);
-
-            // Initialize literal models
-            _model0 = CreateModel(0, 64);
-            _model1 = CreateModel(64, 64);
-            _model2 = CreateModel(128, 64);
-            _model3 = CreateModel(192, 64);
-
-            // Initialize LZ models
-            int maxBitLength = (int)(windowBits * 2);
-            _model4 = CreateModel(0, maxBitLength > 24 ? 24 : maxBitLength);
-            _model5 = CreateModel(0, maxBitLength > 36 ? 36 : maxBitLength);
-            _model6 = CreateModel(0, maxBitLength);
-            _model6len = CreateModel(0, 27);
-
-            // Initialze the selector model
-            _selector = CreateModel(0, 7);
-
-            // Initialize coding state
-            CS_H = 0;
-            CS_L = 0;
-            CS_C = 0;
-        }
+            : this(new MemoryStream(input ?? []), windowBits)
+        { }
 
         /// <summary>
         /// Create a new Decompressor from a Stream
@@ -264,12 +230,12 @@ namespace SabreTools.Compression.Quantum
             var model = new Model
             {
                 Entries = length,
-                Symbols = new ModelSymbol[length],
+                Symbols = new ModelSymbol[length + 1],
                 TimeToReorder = 4,
             };
 
             // Populate the symbol array
-            for (int i = 0; i < length; i++)
+            for (int i = 0; i <= length; i++)
             {
                 model.Symbols[i] = new ModelSymbol
                 {
@@ -415,7 +381,7 @@ namespace SabreTools.Compression.Quantum
         private ushort GetFrequency(ushort totalFrequency)
         {
             ulong range = (ulong)(((CS_H - CS_L) & 0xFFFF) + 1);
-            ulong frequency = (ulong)((CS_C - CS_L + 1) * totalFrequency - 1) / range;
+            ulong frequency = (ulong)(((CS_C - CS_L + 1) * totalFrequency) - 1) / range;
             return (ushort)(frequency & 0xFFFF);
         }
     }
