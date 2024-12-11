@@ -1,7 +1,6 @@
 using System;
 using System.IO;
-using System.Text;
-using SabreTools.IO.Extensions;
+using SabreTools.Models.LZ;
 
 namespace SabreTools.Compression.SZDD
 {
@@ -44,39 +43,27 @@ namespace SabreTools.Compression.SZDD
         /// <summary>
         /// Create a KWAJ decompressor
         /// </summary>
-        public static Decompressor CreateKWAJ(byte[] source)
-            => CreateKWAJ(new MemoryStream(source));
+        public static Decompressor CreateKWAJ(byte[] source, KWAJCompressionType compressionType)
+            => CreateKWAJ(new MemoryStream(source), compressionType);
 
         /// <summary>
         /// Create a KWAJ decompressor
         /// </summary>
-        /// TODO: Replace validation when Models is updated
-        public static Decompressor CreateKWAJ(Stream source)
+        public static Decompressor CreateKWAJ(Stream source, KWAJCompressionType compressionType)
         {
             // Create the decompressor
             var decompressor = new Decompressor(source);
 
-            // Validate the header
-            byte[] magic = source.ReadBytes(8);
-            if (Encoding.ASCII.GetString(magic) != Encoding.ASCII.GetString([0x4B, 0x57, 0x41, 0x4A, 0x88, 0xF0, 0x27, 0xD1]))
-                throw new InvalidDataException(nameof(source));
-            ushort compressionType = source.ReadUInt16();
+            // Set the format and return
             decompressor._format = compressionType switch
             {
-                0 => Format.KWAJNoCompression,
-                1 => Format.KWAJXor,
-                2 => Format.KWAJQBasic,
-                3 => Format.KWAJLZH,
-                4 => Format.KWAJMSZIP,
+                KWAJCompressionType.NoCompression => Format.KWAJNoCompression,
+                KWAJCompressionType.NoCompressionXor => Format.KWAJXor,
+                KWAJCompressionType.QBasic => Format.KWAJQBasic,
+                KWAJCompressionType.LZH => Format.KWAJLZH,
+                KWAJCompressionType.MSZIP => Format.KWAJMSZIP,
                 _ => throw new IndexOutOfRangeException(nameof(source)),
             };
-
-            // Skip the rest of the header
-            ushort dataOffset = source.ReadUInt16(); // DataOffset
-            _ = source.ReadUInt16(); // HeaderFlags
-
-            // Seek and return
-            source.Seek(dataOffset, SeekOrigin.Begin);
             return decompressor;
         }
 
@@ -89,19 +76,10 @@ namespace SabreTools.Compression.SZDD
         /// <summary>
         /// Create a QBasic 4.5 installer SZDD decompressor
         /// </summary>
-        /// TODO: Replace validation when Models is updated
         public static Decompressor CreateQBasic(Stream source)
         {
             // Create the decompressor
             var decompressor = new Decompressor(source);
-
-            // Validate the header
-            byte[] magic = source.ReadBytes(8);
-            if (Encoding.ASCII.GetString(magic) != Encoding.ASCII.GetString([0x53, 0x5A, 0x20, 0x88, 0xF0, 0x27, 0x33, 0xD1]))
-                throw new InvalidDataException(nameof(source));
-
-            // Skip the rest of the header
-            _ = source.ReadUInt32(); // RealLength
 
             // Set the format and return
             decompressor._format = Format.QBasic;
@@ -117,23 +95,10 @@ namespace SabreTools.Compression.SZDD
         /// <summary>
         /// Create a standard SZDD decompressor
         /// </summary>
-        /// TODO: Replace validation when Models is updated
         public static Decompressor CreateSZDD(Stream source)
         {
             // Create the decompressor
             var decompressor = new Decompressor(source);
-
-            // Validate the header
-            byte[] magic = source.ReadBytes(8);
-            if (Encoding.ASCII.GetString(magic) != Encoding.ASCII.GetString([0x53, 0x5A, 0x44, 0x44, 0x88, 0xF0, 0x27, 0x33]))
-                throw new InvalidDataException(nameof(source));
-            byte compressionType = source.ReadByteValue();
-            if (compressionType != 0x41)
-                throw new InvalidDataException(nameof(source));
-
-            // Skip the rest of the header
-            _ = source.ReadByteValue(); // LastChar
-            _ = source.ReadUInt32(); // RealLength
 
             // Set the format and return
             decompressor._format = Format.SZDD;

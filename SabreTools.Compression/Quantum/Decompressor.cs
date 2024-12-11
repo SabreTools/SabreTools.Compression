@@ -148,7 +148,7 @@ namespace SabreTools.Compression.Quantum
             // Initialize the coding state
             CS_H = 0xffff;
             CS_L = 0x0000;
-            CS_C = (ushort)(_bitStream.ReadBitsMSB(16) ?? 0);
+            CS_C = (ushort)(_bitStream.ReadBitsBE(16) ?? 0);
 
             // Loop until the end of the stream
             var bytes = new List<byte>();
@@ -187,25 +187,25 @@ namespace SabreTools.Compression.Quantum
                     {
                         case 4:
                             int model4sym = GetSymbol(_model4);
-                            int model4extra = (int)(_bitStream.ReadBitsMSB(PositionExtraBits[model4sym]) ?? 0);
+                            int model4extra = (int)(_bitStream.ReadBitsBE(PositionExtraBits[model4sym]) ?? 0);
                             offset = PositionSlot[model4sym] + model4extra + 1;
                             length = 3;
                             break;
 
                         case 5:
                             int model5sym = GetSymbol(_model5);
-                            int model5extra = (int)(_bitStream.ReadBitsMSB(PositionExtraBits[model5sym]) ?? 0);
+                            int model5extra = (int)(_bitStream.ReadBitsBE(PositionExtraBits[model5sym]) ?? 0);
                             offset = PositionSlot[model5sym] + model5extra + 1;
                             length = 4;
                             break;
 
                         case 6:
                             int lengthSym = GetSymbol(_model6len);
-                            int lengthExtra = (int)(_bitStream.ReadBitsMSB(LengthExtraBits[lengthSym]) ?? 0);
+                            int lengthExtra = (int)(_bitStream.ReadBitsBE(LengthExtraBits[lengthSym]) ?? 0);
                             length = LengthSlot[lengthSym] + lengthExtra + 5;
 
                             int model6sym = GetSymbol(_model6);
-                            int model6extra = (int)(_bitStream.ReadBitsMSB(PositionExtraBits[model6sym]) ?? 0);
+                            int model6extra = (int)(_bitStream.ReadBitsBE(PositionExtraBits[model6sym]) ?? 0);
                             offset = PositionSlot[model6sym] + model6extra + 1;
                             break;
 
