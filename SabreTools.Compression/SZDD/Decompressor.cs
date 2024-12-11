@@ -19,29 +19,64 @@ namespace SabreTools.Compression.SZDD
         private readonly BufferedStream _source;
 
         /// <summary>
-        /// Offset within the window
+        /// SZDD format being decompressed
         /// </summary>
-        private int _offset;
+        private Format _format;
 
         #region Constructors
 
         /// <summary>
         /// Create a SZDD decompressor
         /// </summary>
-        private Decompressor(Stream source, int offset)
+        private Decompressor(Stream source)
         {
             // Validate the inputs
             if (source.Length == 0)
                 throw new ArgumentOutOfRangeException(nameof(source));
             if (!source.CanRead)
                 throw new InvalidOperationException(nameof(source));
-            if (offset < 0 || offset > 4096)
-                throw new ArgumentOutOfRangeException(nameof(offset));
 
             // Initialize the window with space characters
             _window = Array.ConvertAll(_window, b => (byte)0x20);
             _source = new BufferedStream(source);
-            _offset = 4096 - offset;
+        }
+
+        /// <summary>
+        /// Create a KWAJ decompressor
+        /// </summary>
+        public static Decompressor CreateKWAJ(byte[] source)
+            => CreateKWAJ(new MemoryStream(source));
+
+        /// <summary>
+        /// Create a KWAJ decompressor
+        /// </summary>
+        /// TODO: Replace validation when Models is updated
+        public static Decompressor CreateKWAJ(Stream source)
+        {
+            // Create the decompressor
+            var decompressor = new Decompressor(source);
+
+            // Validate the header
+            byte[] magic = source.ReadBytes(8);
+            if (Encoding.ASCII.GetString(magic) != Encoding.ASCII.GetString([0x4B, 0x57, 0x41, 0x4A, 0x88, 0xF0, 0x27, 0xD1]))
+                throw new InvalidDataException(nameof(source));
+            ushort compressionType = source.ReadUInt16();
+            decompressor._format = compressionType switch
+            {
+                0 => Format.KWAJNoCompression,
+                1 => Format.KWAJXor,
+                2 => Format.KWAJQBasic,
+                3 => Format.KWAJLZH,
+                4 => Format.KWAJMSZIP,
+                _ => throw new IndexOutOfRangeException(nameof(source)),
+            };
+
+            // Skip the rest of the header
+            _ = source.ReadUInt16(); // DataOffset
+            _ = source.ReadUInt16(); // HeaderFlags
+
+            // Return the decompressor
+            return decompressor;
         }
 
         /// <summary>
@@ -57,7 +92,7 @@ namespace SabreTools.Compression.SZDD
         public static Decompressor CreateQBasic(Stream source)
         {
             // Create the decompressor
-            var decompressor = new Decompressor(source, 18);
+            var decompressor = new Decompressor(source);
 
             // Validate the header
             byte[] magic = source.ReadBytes(8);
@@ -66,6 +101,9 @@ namespace SabreTools.Compression.SZDD
 
             // Skip the rest of the header
             _ = source.ReadUInt32(); // RealLength
+
+            // Set the format and return
+            decompressor._format = Format.QBasic;
             return decompressor;
         }
 
@@ -82,7 +120,7 @@ namespace SabreTools.Compression.SZDD
         public static Decompressor CreateSZDD(Stream source)
         {
             // Create the decompressor
-            var decompressor = new Decompressor(source, 16);
+            var decompressor = new Decompressor(source);
 
             // Validate the header
             byte[] magic = source.ReadBytes(8);
@@ -95,6 +133,9 @@ namespace SabreTools.Compression.SZDD
             // Skip the rest of the header
             _ = source.ReadByteValue(); // LastChar
             _ = source.ReadUInt32(); // RealLength
+
+            // Set the format and return
+            decompressor._format = Format.SZDD;
             return decompressor;
         }
 
@@ -104,6 +145,29 @@ namespace SabreTools.Compression.SZDD
         /// Decompress source data to an output stream
         /// </summary>
         public bool CopyTo(Stream dest)
+        {
+            // Ignore unwritable streams
+            if (!dest.CanWrite)
+                return false;
+
+            // Handle based on the format
+            return _format switch
+            {
+                Format.SZDD => DecompressSZDD(dest, 4096 - 16),
+                Format.QBasic => DecompressSZDD(dest, 4096 - 18),
+                Format.KWAJNoCompression => CopyKWAJ(dest, xor: false),
+                Format.KWAJXor => CopyKWAJ(dest, xor: true),
+                Format.KWAJQBasic => DecompressSZDD(dest, 4096 - 18),
+                Format.KWAJLZH => false,
+                Format.KWAJMSZIP => false,
+                _ => false,
+            };
+        }
+
+        /// <summary>
+        /// Decompress using SZDD
+        /// </summary>
+        private bool DecompressSZDD(Stream dest, int offset)
         {
             // Ignore unwritable streams
             if (!dest.CanWrite)
@@ -128,12 +192,12 @@ namespace SabreTools.Compression.SZDD
                             break;
 
                         // Store the data in the window and write
-                        _window[_offset] = literal.Value;
-                        dest.WriteByte(_window[_offset]);
+                        _window[offset] = literal.Value;
+                        dest.WriteByte(_window[offset]);
 
                         // Set the next offset value
-                        _offset++;
-                        _offset &= 4095;
+                        offset++;
+                        offset &= 4095;
                         continue;
                     }
 
@@ -155,14 +219,44 @@ namespace SabreTools.Compression.SZDD
                     while (matchlen-- > 0)
                     {
                         // Copy the window value and write
-                        _window[_offset] = _window[matchpos.Value];
-                        dest.WriteByte(_window[_offset]);
+                        _window[offset] = _window[matchpos.Value];
+                        dest.WriteByte(_window[offset]);
 
                         // Set the next offset value
-                        _offset++; matchpos++;
-                        _offset &= 4095; matchpos &= 4095;
+                        offset++; matchpos++;
+                        offset &= 4095; matchpos &= 4095;
                     }
                 }
+            }
+
+            // Flush and return
+            dest.Flush();
+            return true;
+        }
+
+        /// <summary>
+        /// Copy KWAJ data, optionally using XOR
+        /// </summary>
+        private bool CopyKWAJ(Stream dest, bool xor)
+        {
+            // Ignore unwritable streams
+            if (!dest.CanWrite)
+                return false;
+
+            // Loop and copy
+            while (true)
+            {
+                // Read the next byte
+                byte? next = _source.ReadNextByte();
+                if (next == null)
+                    break;
+
+                // XOR with 0xFF if required
+                if (xor)
+                    next = (byte)(next ^ 0xFF);
+
+                // Write the byte
+                dest.WriteByte(next.Value);
             }
 
             // Flush and return
