@@ -1,5 +1,5 @@
 using System;
-using System.Collections.Generic;
+using System.IO;
 using static SabreTools.Compression.Blast.Constants;
 
 namespace SabreTools.Compression.Blast
@@ -14,12 +14,12 @@ namespace SabreTools.Compression.Blast
         /// <summary>
         /// Opaque information passed to InputFunction()
         /// </summary>
-        public byte[] InHow { get; set; }
+        public Stream Source { get; set; }
         
         /// <summary>
         /// Next input location
         /// </summary>
-        public List<byte> Input { get; set; }
+        public byte[] Input { get; set; }
 
         /// <summary>
         /// Pointer to the next input location
@@ -48,7 +48,7 @@ namespace SabreTools.Compression.Blast
         /// <summary>
         /// Opaque information passed to OutputFunction()
         /// </summary>
-        public List<byte> OutHow { get; set; }
+        public Stream Dest { get; set; }
 
         /// <summary>
         /// Index of next write location in out[]
@@ -63,7 +63,7 @@ namespace SabreTools.Compression.Blast
         /// <summary>
         /// Output buffer and sliding window
         /// </summary>
-        public byte[] Output { get; set; } = new byte[MAXWIN];
+        public readonly byte[] Output = new byte[MAXWIN];
 
         /// <summary>
         /// Pointer to the next output location
@@ -75,18 +75,16 @@ namespace SabreTools.Compression.Blast
         /// <summary>
         /// Constructor
         /// </summary>
-        /// <param name="inhow">Input byte array</param>
-        /// <param name="outhow">Output byte list</param>
-        public State(byte[] inhow, List<byte> outhow)
+        public State(Stream source, Stream dest)
         {
-            InHow = inhow;
-            Input = new List<byte>();
+            Source = source;
+            Input = [];
             InputPtr = 0;
             Left = 0;
             BitBuf = 0;
             BitCnt = 0;
 
-            OutHow = outhow;
+            Dest = dest;
             Next = 0;
             First = true;
         }
@@ -116,7 +114,7 @@ namespace SabreTools.Compression.Blast
                 }
 
                 // Load eight bits
-                val |= (int)(Input[InputPtr++]) << BitCnt;
+                val |= Input[InputPtr++] << BitCnt;
                 Left--;
                 BitCnt += 8;
             }
@@ -135,8 +133,8 @@ namespace SabreTools.Compression.Blast
         /// <returns>Amount of data in Input</returns>
         public uint ProcessInput()
         {
-            Input = [.. InHow];
-            return (uint)Input.Count;
+            int read = Source.Read(Input, 0, 4096);
+            return (uint)read;
         }
 
         /// <summary>
@@ -149,7 +147,8 @@ namespace SabreTools.Compression.Blast
             {
                 byte[] next = new byte[Next];
                 Array.Copy(Output, next, next.Length);
-                OutHow.AddRange(next);
+                Dest.Write(next);
+                Dest.Flush();
                 return true;
             }
             catch

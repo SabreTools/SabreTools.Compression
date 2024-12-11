@@ -30,29 +30,40 @@
  */
 
 using System;
-using System.Collections.Generic;
+using System.IO;
 using static SabreTools.Compression.Blast.Constants;
 
 namespace SabreTools.Compression.Blast
 {
-    public unsafe static class BlastDecoder
+    /// <summary>
+    /// blast() decompresses the PKWare Data Compression Library (DCL) compressed
+    /// format.  It provides the same functionality as the explode() function in
+    /// that library.  (Note: PKWare overused the "implode" verb, and the format
+    /// used by their library implode() function is completely different and
+    /// incompatible with the implode compression method supported by PKZIP.)
+    /// 
+    /// The binary mode for stdio functions should be used to assure that the
+    /// compressed data is not corrupted when read or written.  For example:
+    /// fopen(..., "rb") and fopen(..., "wb").
+    /// </summary>
+    public unsafe class Decompressor
     {
         #region Huffman Encoding
 
         /// <summary>
         /// Literal code
         /// </summary>
-        private static readonly Huffman litcode = new(MAXBITS + 1, 256);
+        private readonly Huffman litcode = new(MAXBITS + 1, 256);
 
         /// <summary>
         /// Length code
         /// </summary>
-        private static readonly Huffman lencode = new(MAXBITS + 1, 16);
+        private readonly Huffman lencode = new(MAXBITS + 1, 16);
 
         /// <summary>
         /// Distance code
         /// </summary>
-        private static readonly Huffman distcode = new(MAXBITS + 1, 64);
+        private readonly Huffman distcode = new(MAXBITS + 1, 64);
 
         /// <summary>
         /// Base for length codes
@@ -72,10 +83,12 @@ namespace SabreTools.Compression.Blast
 
         #endregion
 
+        #region Constructors
+
         /// <summary>
-        /// Static constructor
+        /// Create a Blast decompressor
         /// </summary>
-        static BlastDecoder()
+        private Decompressor()
         {
             // Repeated code lengths of literal codes
             byte[] litlen =
@@ -105,20 +118,29 @@ namespace SabreTools.Compression.Blast
         }
 
         /// <summary>
-        /// blast() decompresses the PKWare Data Compression Library (DCL) compressed
-        /// format.  It provides the same functionality as the explode() function in
-        /// that library.  (Note: PKWare overused the "implode" verb, and the format
-        /// used by their library implode() function is completely different and
-        /// incompatible with the implode compression method supported by PKZIP.)
-        /// 
-        /// The binary mode for stdio functions should be used to assure that the
-        /// compressed data is not corrupted when read or written.  For example:
-        /// fopen(..., "rb") and fopen(..., "wb").
+        /// Create a Blast decompressor
         /// </summary>
-        public static int Blast(byte[] inhow, List<byte> outhow)
+        public static Decompressor Create() => new();
+
+        #endregion
+
+        /// <summary>
+        /// Decompress source data to an output stream
+        /// </summary>
+        public bool CopyTo(byte[] source, Stream dest)
+            => CopyTo(new MemoryStream(source), dest);
+
+        /// <summary>
+        /// Decompress source data to an output stream
+        /// </summary>
+        public bool CopyTo(Stream source, Stream dest)
         {
+            // Ignore unwritable streams
+            if (!dest.CanWrite)
+                return false;
+
             // Input/output state
-            var state = new State(inhow, outhow);
+            var state = new State(source, dest);
 
             // Attempt to decompress using the above state
             int err;
@@ -136,7 +158,7 @@ namespace SabreTools.Compression.Blast
             if (err != 1 && state.Next != 0 && !state.ProcessOutput() && err == 0)
                 err = 1;
 
-            return err;
+            return err == 0;
         }
 
         /// <summary>
@@ -176,7 +198,7 @@ namespace SabreTools.Compression.Blast
         /// ignoring whether the length is greater than the distance or not implements
         /// this correctly.
         /// </remarks>
-        private static int Decomp(State state)
+        private int Decomp(State state)
         {
             int symbol;         // decoded symbol, extra bits for distance
             int len;            // length for copy
@@ -194,7 +216,7 @@ namespace SabreTools.Compression.Blast
                 return -2;
 
             // Decode literals and length/distance pairs
-            do
+            while (true)
             {
                 if (state.Bits(1) != 0)
                 {
@@ -256,13 +278,12 @@ namespace SabreTools.Compression.Blast
                     {
                         if (!state.ProcessOutput())
                             return 1;
-                        
+
                         state.Next = 0;
                         state.First = false;
                     }
                 }
             }
-            while (true);
 
             return 0;
         }
