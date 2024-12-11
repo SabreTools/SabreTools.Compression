@@ -83,32 +83,25 @@ namespace SabreTools.Compression.Quantum
 
         #endregion
 
-        /// <summary>
-        /// Create a new Decompressor from a byte array
-        /// </summary>
-        /// <param name="input">Byte array to decompress</param>
-        /// <param name="windowBits">Number of bits in the sliding window</param>
-        public Decompressor(byte[]? input, uint windowBits)
-            : this(new MemoryStream(input ?? []), windowBits)
-        { }
+        #region Constructors
 
         /// <summary>
         /// Create a new Decompressor from a Stream
         /// </summary>
-        /// <param name="input">Stream to decompress</param>
+        /// <param name="source">Stream to decompress</param>
         /// <param name="windowBits">Number of bits in the sliding window</param>
-        public Decompressor(Stream? input, uint windowBits)
+        private Decompressor(Stream source, uint windowBits)
         {
-            // If we have an invalid stream
-            if (input == null || !input.CanRead || !input.CanSeek)
-                throw new ArgumentException(nameof(input));
-
-            // If we have an invalid value for the window bits
+            // Validate the inputs
+            if (source.Length == 0)
+                throw new ArgumentOutOfRangeException(nameof(source));
+            if (!source.CanRead)
+                throw new InvalidOperationException(nameof(source));
             if (windowBits < 10 || windowBits > 21)
                 throw new ArgumentOutOfRangeException(nameof(windowBits));
 
             // Wrap the stream in a ReadOnlyBitStream
-            _bitStream = new ReadOnlyBitStream(input);
+            _bitStream = new ReadOnlyBitStream(source);
 
             // Initialize literal models
             _model0 = CreateModel(0, 64);
@@ -131,6 +124,20 @@ namespace SabreTools.Compression.Quantum
             CS_L = 0;
             CS_C = 0;
         }
+
+        /// <summary>
+        /// Create a Quantum decompressor
+        /// </summary>
+        public static Decompressor Create(byte[] source, uint windowBits)
+            => Create(new MemoryStream(source), windowBits);
+
+        /// <summary>
+        /// Create a Quantum decompressor
+        /// </summary>
+        public static Decompressor Create(Stream source, uint windowBits)
+            => new(source, windowBits);
+
+        #endregion
 
         /// <summary>
         /// Process the stream and return the decompressed output
@@ -218,7 +225,7 @@ namespace SabreTools.Compression.Quantum
                 }
             }
 
-            return bytes.ToArray();
+            return [.. bytes];
         }
 
         /// <summary>

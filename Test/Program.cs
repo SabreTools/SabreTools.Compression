@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Text;
-using SabreTools.Compression.MSZIP;
+using SabreTools.Compression.Quantum;
 using SabreTools.IO.Extensions;
 using SabreTools.Models.MicrosoftCabinet;
 using static SabreTools.Models.MicrosoftCabinet.Constants;
@@ -13,11 +13,12 @@ namespace Test
         public static void Main(string[] args)
         {
             // No implementation, used for experimentation
+            READMSZIPTEST();
         }
 
         private static void READMSZIPTEST()
         {
-            using var fs = File.OpenRead("INFILE.cab");
+            using var fs = File.OpenRead("/mnt/b/BurnOutSharp Testing Files/FileType/Microsoft CAB/Quantum/WORDWEB_10.CAB");
             var cab = Deserialize(fs);
             if (cab == null || cab.Folders == null || cab.Files == null)
                 return;
@@ -28,7 +29,7 @@ namespace Test
                 if (folder?.DataBlocks == null || folder.DataBlocks.Length == 0)
                     continue;
 
-                var decomp = Decompressor.Create();
+                uint windowBits = (uint)(((ushort)folder.CompressionType >> 8) & 0x1f);
 
                 var ms = new MemoryStream();
                 foreach (var db in folder.DataBlocks)
@@ -36,7 +37,10 @@ namespace Test
                     if (db?.CompressedData == null)
                         continue;
 
-                    decomp.CopyTo(db.CompressedData, ms);
+                    var decomp = Decompressor.Create(db.CompressedData, windowBits);
+                    byte[] data = decomp.Process();
+                    ms.Write(data);
+                    ms.Flush();
                 }
 
                 if (cab?.Files == null || cab.Files.Length == 0)
@@ -50,7 +54,7 @@ namespace Test
                     byte[] fileData = new byte[file.FileSize];
                     Array.Copy(ms.ToArray(), file.FolderStartOffset, fileData, 0, file.FileSize);
 
-                    using var of = File.OpenWrite(Path.Combine("OUTDIR", file.Name));
+                    using var of = File.OpenWrite(Path.Combine("/mnt/b/BurnOutSharp Testing Files/FileType/Microsoft CAB/Quantum/WORDWEB_10/", file.Name));
                     of.Write(fileData);
                     of.Flush();
                 }
@@ -220,7 +224,7 @@ namespace Test
 
             folder.CabStartOffset = data.ReadUInt32();
             folder.DataCount = data.ReadUInt16();
-            folder.CompressionType = (CompressionType)data.ReadUInt16() & CompressionType.MASK_TYPE;
+            folder.CompressionType = (CompressionType)data.ReadUInt16();
 
             if (header.FolderReservedSize > 0)
                 folder.ReservedData = data.ReadBytes(header.FolderReservedSize);
