@@ -524,34 +524,42 @@ namespace SabreTools.Compression.LZ
         /// <returns>Filled file header on success, null on error</returns>
         private FileHeaader? ParseFileHeader(Stream data, out LZERROR error)
         {
-            error = LZERROR.LZERROR_OK;
-            var fileHeader = new FileHeaader();
-
-            var magic = data.ReadBytes(LZ_MAGIC_LEN);
-            if (magic == null)
+            try
             {
-                error = LZERROR.LZERROR_BADINHANDLE;
-                return null;
-            }
+                error = LZERROR.LZERROR_OK;
+                var fileHeader = new FileHeaader();
 
-            fileHeader.Magic = Encoding.ASCII.GetString(magic);
-            if (fileHeader.Magic != MagicString)
+                var magic = data.ReadBytes(LZ_MAGIC_LEN);
+                if (magic == null)
+                {
+                    error = LZERROR.LZERROR_BADINHANDLE;
+                    return null;
+                }
+
+                fileHeader.Magic = Encoding.ASCII.GetString(magic);
+                if (fileHeader.Magic != MagicString)
+                {
+                    error = LZERROR.LZERROR_NOT_LZ;
+                    return null;
+                }
+
+                fileHeader.CompressionType = data.ReadByteValue();
+                if (fileHeader.CompressionType != (byte)'A')
+                {
+                    error = LZERROR.LZERROR_UNKNOWNALG;
+                    return null;
+                }
+
+                fileHeader.LastChar = (char)data.ReadByteValue();
+                fileHeader.RealLength = data.ReadUInt32();
+
+                return fileHeader;
+            }
+            catch
             {
                 error = LZERROR.LZERROR_NOT_LZ;
                 return null;
             }
-
-            fileHeader.CompressionType = data.ReadByteValue();
-            if (fileHeader.CompressionType != (byte)'A')
-            {
-                error = LZERROR.LZERROR_UNKNOWNALG;
-                return null;
-            }
-
-            fileHeader.LastChar = (char)data.ReadByteValue();
-            fileHeader.RealLength = data.ReadUInt32();
-
-            return fileHeader;
         }
 
         #endregion
