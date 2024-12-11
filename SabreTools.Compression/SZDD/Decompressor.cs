@@ -72,10 +72,11 @@ namespace SabreTools.Compression.SZDD
             };
 
             // Skip the rest of the header
-            _ = source.ReadUInt16(); // DataOffset
+            ushort dataOffset = source.ReadUInt16(); // DataOffset
             _ = source.ReadUInt16(); // HeaderFlags
 
-            // Return the decompressor
+            // Seek and return
+            source.Seek(dataOffset, SeekOrigin.Begin);
             return decompressor;
         }
 
