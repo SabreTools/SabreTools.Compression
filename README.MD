@@ -17,9 +17,9 @@ For the latest WIP build here: [Rolling Release](https://github.com/SabreTools/S
 | Compression Name | Decompress | Compress |
 | --- | --- | --- |
 | Blast | Yes | No |
-| LZ | Yes | No |
+| LZ (EXPAND / KWAJ / SZDD) | Yes | No |
 | LZX | No | No |
-| MSZIP | Yes* | No |
+| MSZIP | Yes | No |
 | Quantum | No | No |
 
 **Note:** If something is marked with a `*` it means that it need testing.
