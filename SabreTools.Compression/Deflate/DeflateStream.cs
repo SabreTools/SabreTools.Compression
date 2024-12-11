@@ -615,6 +615,17 @@ namespace SabreTools.Compression.Deflate
             if (_disposed) throw new ObjectDisposedException("DeflateStream");
             _baseStream.Write(buffer, offset, count);
         }
+
+        /// <summary>
+        /// Set the dictionary to be used for either Inflation or Deflation.
+        /// </summary>
+        /// <param name="dictionary">The dictionary bytes to use.</param>
+        /// <returns>Z_OK if all goes well.</returns>
+        public int SetDictionary(byte[] dictionary)
+        {
+            return _baseStream.SetDictionary(dictionary);
+        }
+
         #endregion
 
 

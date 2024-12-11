@@ -620,6 +620,16 @@ namespace SabreTools.Compression.Deflate
             }
         }
 
+        /// <summary>
+        /// Set the dictionary to be used for either Inflation or Deflation.
+        /// </summary>
+        /// <param name="dictionary">The dictionary bytes to use.</param>
+        /// <returns>Z_OK if all goes well.</returns>
+        public int SetDictionary(byte[] dictionary)
+        {
+            return z.SetDictionary(dictionary);
+        }
+
     }
 
 
