@@ -146,7 +146,7 @@ namespace SabreTools.Compression.Blast
             int err;
             try
             {
-                err = Decomp(state);
+                err = Decompress(state);
             }
             catch (IndexOutOfRangeException)
             {
@@ -198,7 +198,7 @@ namespace SabreTools.Compression.Blast
         /// ignoring whether the length is greater than the distance or not implements
         /// this correctly.
         /// </remarks>
-        private int Decomp(State state)
+        private int Decompress(State state)
         {
             int symbol;         // decoded symbol, extra bits for distance
             int len;            // length for copy
@@ -207,29 +207,29 @@ namespace SabreTools.Compression.Blast
             int from, to;       // copy pointers
 
             // Read header
-            int lit = state.Bits(8); // true if literals are coded
+            int lit = state.ReadBits(8); // true if literals are coded
             if (lit > 1)
                 return -1;
 
-            int dict = state.Bits(8); // log2(dictionary size) - 6
+            int dict = state.ReadBits(8); // log2(dictionary size) - 6
             if (dict < 4 || dict > 6)
                 return -2;
 
             // Decode literals and length/distance pairs
             while (true)
             {
-                if (state.Bits(1) != 0)
+                if (state.ReadBits(1) != 0)
                 {
                     // Get length
                     symbol = lencode.Decode(state);
-                    len = baseLength[symbol] + state.Bits(extra[symbol]);
+                    len = baseLength[symbol] + state.ReadBits(extra[symbol]);
                     if (len == 519)
                         break; // end code
 
                     // Get distance
                     symbol = len == 2 ? 2 : dict;
                     dist = (uint)(distcode.Decode(state) << symbol);
-                    dist += (uint)state.Bits(symbol);
+                    dist += (uint)state.ReadBits(symbol);
                     dist++;
                     if (state.First && dist > state.Next)
                         return -3; //distance too far back
@@ -237,7 +237,7 @@ namespace SabreTools.Compression.Blast
                     // Copy length bytes from distance bytes back
                     do
                     {
-                        to = (int)(state.OutputPtr + state.Next);
+                        to = (int)state.Next;
                         from = (int)(to - dist);
                         copy = MAXWIN;
                         if (state.Next < dist)
@@ -252,11 +252,7 @@ namespace SabreTools.Compression.Blast
 
                         len -= copy;
                         state.Next += (uint)copy;
-                        do
-                        {
-                            state.Output[to++] = state.Output[from++];
-                        }
-                        while (--copy != 0);
+                        state.CopyOutputBytes(to, from, copy);
 
                         if (state.Next == MAXWIN)
                         {
@@ -272,8 +268,8 @@ namespace SabreTools.Compression.Blast
                 else
                 {
                     // Get literal and write it
-                    symbol = lit != 0 ? litcode.Decode(state) : state.Bits(8);
-                    state.Output[state.Next++] = (byte)symbol;
+                    symbol = lit != 0 ? litcode.Decode(state) : state.ReadBits(8);
+                    state.WriteToOutput((byte)symbol);
                     if (state.Next == MAXWIN)
                     {
                         if (!state.ProcessOutput())

@@ -14,22 +14,22 @@ namespace SabreTools.Compression.Blast
         /// <summary>
         /// Opaque information passed to InputFunction()
         /// </summary>
-        public Stream Source { get; set; }
-        
+        private readonly Stream _source;
+
         /// <summary>
         /// Next input location
         /// </summary>
-        public byte[] Input { get; set; }
+        private readonly byte[] _input = new byte[MAXWIN];
 
         /// <summary>
         /// Pointer to the next input location
         /// </summary>
-        public int InputPtr { get; set; }
+        private int _inputPtr;
 
         /// <summary>
         /// Available input at in
         /// </summary>
-        public uint Left { get; set; }
+        private uint _available;
 
         /// <summary>
         /// Bit buffer
@@ -48,7 +48,7 @@ namespace SabreTools.Compression.Blast
         /// <summary>
         /// Opaque information passed to OutputFunction()
         /// </summary>
-        public Stream Dest { get; set; }
+        private readonly Stream _dest;
 
         /// <summary>
         /// Index of next write location in out[]
@@ -63,12 +63,7 @@ namespace SabreTools.Compression.Blast
         /// <summary>
         /// Output buffer and sliding window
         /// </summary>
-        public readonly byte[] Output = new byte[MAXWIN];
-
-        /// <summary>
-        /// Pointer to the next output location
-        /// </summary>
-        public int OutputPtr { get; set; }
+        private readonly byte[] _output = new byte[MAXWIN];
 
         #endregion
 
@@ -77,16 +72,27 @@ namespace SabreTools.Compression.Blast
         /// </summary>
         public State(Stream source, Stream dest)
         {
-            Source = source;
-            Input = [];
-            InputPtr = 0;
-            Left = 0;
+            _source = source;
+            _inputPtr = 0;
+            _available = 0;
             BitBuf = 0;
             BitCnt = 0;
 
-            Dest = dest;
+            _dest = dest;
             Next = 0;
             First = true;
+        }
+
+        /// <summary>
+        /// Copy bytes in the output buffer between locations
+        /// </summary>
+        public void CopyOutputBytes(int to, int from, int len)
+        {
+            do
+            {
+                _output[to++] = _output[from++];
+            }
+            while (--len > 0);
         }
 
         /// <summary>
@@ -100,22 +106,16 @@ namespace SabreTools.Compression.Blast
         /// buffer, using shift right, and new bytes are appended to the top of the
         /// bit buffer, using shift left.
         /// </remarks>
-        public int Bits(int need)
+        public int ReadBits(int need)
         {
             // Load at least need bits into val
             int val = BitBuf;
             while (BitCnt < need)
             {
-                if (Left == 0)
-                {
-                    Left = ProcessInput();
-                    if (Left == 0)
-                        throw new IndexOutOfRangeException();
-                }
-
                 // Load eight bits
-                val |= Input[InputPtr++] << BitCnt;
-                Left--;
+                EnsureAvailable();
+                val |= _input[_inputPtr++] << BitCnt;
+                _available--;
                 BitCnt += 8;
             }
 
@@ -128,16 +128,6 @@ namespace SabreTools.Compression.Blast
         }
 
         /// <summary>
-        /// Process input for the current state
-        /// </summary>
-        /// <returns>Amount of data in Input</returns>
-        public uint ProcessInput()
-        {
-            int read = Source.Read(Input, 0, 4096);
-            return (uint)read;
-        }
-
-        /// <summary>
         /// Process output for the current state
         /// </summary>
         /// <returns>True if the output could be added, false otherwise</returns>
@@ -145,16 +135,50 @@ namespace SabreTools.Compression.Blast
         {
             try
             {
-                byte[] next = new byte[Next];
-                Array.Copy(Output, next, next.Length);
-                Dest.Write(next);
-                Dest.Flush();
+                _dest.Write(_output, 0, (int)Next);
+                _dest.Flush();
+
+                Next = 0;
                 return true;
             }
             catch
             {
                 return false;
             }
+        }
+
+        /// <summary>
+        /// Read the next byte from the input buffer
+        /// </summary>
+        public byte ReadNextByte()
+        {
+            EnsureAvailable();
+            return _input[_inputPtr++];
+        }
+
+        /// <summary>
+        /// Write a byte value to the output buffer
+        /// </summary>
+        public void WriteToOutput(byte value)
+            => _output[Next++] = value;
+
+        /// <summary>
+        /// Ensure there are bytes available, if possible
+        /// </summary>
+        /// <exception cref="IndexOutOfRangeException"></exception>
+        private void EnsureAvailable()
+        {
+            // If there are bytes
+            if (_inputPtr < _available)
+                return;
+
+            // Read the next block
+            _available = (uint)_source.Read(_input, 0, MAXWIN);
+            if (_available == 0)
+                throw new IndexOutOfRangeException();
+
+            // Reset the pointer
+            _inputPtr = 0;
         }
     }
 }

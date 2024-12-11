@@ -1,4 +1,3 @@
-using System;
 using static SabreTools.Compression.Blast.Constants;
 
 namespace SabreTools.Compression.Blast
@@ -187,15 +186,7 @@ namespace SabreTools.Compression.Blast
                 if (left == 0)
                     break;
 
-                if (state.Left == 0)
-                {
-                    state.Left = state.ProcessInput();
-                    if (state.Left == 0)
-                        throw new IndexOutOfRangeException();
-                }
-
-                bitbuf = state.Input[state.InputPtr++];
-                state.Left--;
+                bitbuf = state.ReadNextByte();
                 if (left > 8)
                     left = 8;
             }
