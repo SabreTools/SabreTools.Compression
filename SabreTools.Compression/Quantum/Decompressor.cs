@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using SabreTools.IO.Streams;
 using SabreTools.Models.Compression.Quantum;
-using static SabreTools.Compression.Quantum.Constants;
+using static SabreTools.Models.Compression.Quantum.Constants;
 
 namespace SabreTools.Compression.Quantum
 {
