@@ -44,7 +44,7 @@ namespace SabreTools.Compression.MSZIP
 
             // Validate the header
             var header = new BlockHeader();
-            header.Signature = source.ReadUInt16();
+            header.Signature = source.ReadUInt16LittleEndian();
             if (header.Signature != 0x4B43)
                 throw new InvalidDataException(nameof(source));
 
